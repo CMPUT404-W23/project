@@ -6,6 +6,30 @@ from .serializers import AuthorSerializer, PostSerializer, CommentSerializer, Li
 
 from .models import Author, Post, Comment, Like
 
+@api_view(['GET'])
+def get_all_authors(request):
+    authors = Author.objects.all()
+    serialzer = AuthorSerializer(authors, many=True)
+    return Response(serialzer)
+
+@api_view(['GET'])
+def get_specific_author(request, id):
+    author = Author.objects.get(pk=id)
+    serialzer = AuthorSerializer(author)
+    return Response(serialzer)
+
+@api_view(['GET'])
+def get_posts_from_author(request, author_id):
+    posts = Post.objects.filter(posterID=author_id)
+    serialzer = PostSerializer(posts, many=True)
+    return Response(serialzer)
+
+@api_view(['GET'])
+def get_comments_from_post(request, post_id):
+    comments = Comment.objects.filter(parentPostID=post_id)
+    serialzer = CommentSerializer(comments, many=True)
+    return Response(serialzer)
+
 # Create your views here.
 class AuthorViewSet(viewsets.ModelViewSet):
     queryset = Author.objects.all()
