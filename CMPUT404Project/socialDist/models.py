@@ -32,7 +32,7 @@ class Post(models.Model):
     content = models.BinaryField()
     contentType = models.TextField()
     posterID = models.ForeignKey(Author, on_delete=models.CASCADE)
-    date = models.DateField()
+    date = models.DateTimeField()
     visibility = models.CharField(max_length=30)
     unlisted = models.BooleanField()
 
@@ -40,10 +40,16 @@ class Comment(models.Model):
     content = models.TextField()
     contentType = models.TextField()
     parentPostID = models.ForeignKey(Post, on_delete=models.CASCADE)
-    date = models.DateField()
+    date = models.DateTimeField()
     author = models.ForeignKey(Author, on_delete=models.CASCADE)
 
 class Like(models.Model):
-    likeType = models.CharField(max_length=20)
-    parentPost = models.ForeignKey(Post, on_delete=models.CASCADE, null=True)
-    parentComment = models.ForeignKey(Comment, on_delete=models.CASCADE, null=True)
+    author = models.ForeignKey(Author, on_delete=models.CASCADE)
+    parentObject = models.URLField()
+    date = models.DateTimeField()
+
+class FollowRequest(models.Model):
+    sender = models.ForeignKey(Author, on_delete=models.CASCADE, related_name="sender")
+    target = models.ForeignKey(Author, on_delete=models.CASCADE, related_name="recievcer")
+    date = models.DateTimeField()
+  
