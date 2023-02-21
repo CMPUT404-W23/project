@@ -245,8 +245,44 @@ def get_comment(request, author_id, post_id, comment_id):
         post = Post.objects.filter(posterID=author).get(pk=post_id)
     except Post.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
-    comment = Comment.objects.filter(parentPostID=post_id).filter(pk=comment_id)
+    comment = Comment.objects.filter(parentPostID=post_id).get(pk=comment_id)
     serialzer = CommentSerializer(comment, context={"type":"comment"})
     return Response(serialzer.data)
 
-    
+@api_view(['GET'])
+def get_likes_for_post(request, author_id, post_id):
+    try:
+        author = Author.objects.get(pk=author_id)
+    except Author.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    try:
+        post = Post.objects.filter(posterID=author).get(pk=post_id)
+    except Post.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    likes = Like.objects.filter(parentPost=post_id)
+    serializer = LikeSerializer(likes, many=True, context={"type":"like"})
+    likeListDict = {}
+    likeListDict["type"] = "likes"
+    likeListDict["items"] = serializer.data
+    return Response(likeListDict)
+
+@api_view(['GET'])
+def get_likes_for_comment(request, author_id, post_id, comment_id):
+    try:
+        author = Author.objects.get(pk=author_id)
+    except Author.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    try:
+        post = Post.objects.filter(posterID=author).get(pk=post_id)
+    except Post.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    try: 
+        comment = Comment.objects.filter(parentPostID=post_id).get(pk=comment_id)
+    except Comment.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    likes = Like.objects.filter(parentComment=comment)
+    serializer = LikeSerializer(likes, many=True, context={"type":"like"})
+    likeListDict = {}
+    likeListDict["type"] = "likes"
+    likeListDict["items"] = serializer.data
+    return Response(likeListDict)
