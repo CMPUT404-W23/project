@@ -122,5 +122,6 @@ USE_TZ = True
 STATIC_URL = '/static/'
 # avoid primary key issue:
 DEFAULT_AUTO_FIELD='django.db.models.AutoField' 
+
 LOGIN_REDIRECT_URL = "/"
 LOGOUT_REDIRECT_URL = "/"
