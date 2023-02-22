@@ -4,9 +4,9 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from django.http import QueryDict
 from rest_framework import status
-from .serializers import AuthorSerializer, PostSerializer, CommentSerializer, LikeSerializer
-
-from .models import Author, Post, Comment, Like
+from .serializers import AuthorSerializer, PostSerializer, CommentSerializer
+from .serializers import LikeSerializer, InboxSerializer
+from .models import Author, Post, Comment, Like, Inbox, FollowRequest
 
 # Create your views here.
 # class AuthorViewSet(viewsets.ModelViewSet):
@@ -286,3 +286,63 @@ def get_likes_for_comment(request, author_id, post_id, comment_id):
     likeListDict["type"] = "likes"
     likeListDict["items"] = serializer.data
     return Response(likeListDict)
+
+@api_view(['GET'])
+def get_inbox(request, author_id):
+    try:
+        author = Author.objects.get(pk=author_id)
+    except Author.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    inbox = Inbox.objects.get(owner=author)
+    serializer = LikeSerializer(inbox, context={"type":"inbox"})
+    return Response(serializer.data)
+
+@api_view(['GET'])
+def get_likes_for_author(request, author_id):
+    try:
+        author = Author.objects.get(pk=author_id)
+    except Author.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    likes = Like.objects.filter(author=author_id)
+    serializer = LikeSerializer(likes, many=True, context={"type":"likes"})
+    likeListDict = {}
+    likeListDict["type"] = "liked"
+    likeListDict["items"] = serializer.data
+    return Response(likeListDict)
+        
+
+@api_view(['GET'])
+def get_followers_for_authors(request, author_id):
+    try:
+        author = Author.objects.get(pk=author_id)
+    except Author.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    user_followers = author.followers.all()
+    followersList = []
+    for user_follower in user_followers:
+        followersList.append(user_follower.following)
+    serializer = AuthorSerializer(followersList, many=True, context={"type":"author"})
+    followerListDict = {}
+    followerListDict["type"] = "followers"
+    followerListDict["items"] = serializer.data
+    return Response(followerListDict)
+
+@api_view(['GET'])
+def get_inbox(request, author_id):
+    try:
+        author = Author.objects.get(pk=author_id)
+    except Author.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    requests = FollowRequest.objects.filter(target=author_id)
+    # TO DO: convert into list using serializer
+    authorPosts = Post.objects.filter(author=author_id)
+    authorComments = Post.objects.filter(author=author_id)
+    likeList = []
+    commentList = []
+    for post in authorPosts:
+        likeList += post.likes
+        commentList += post.comments
+    for comment in authorComments:
+        likeList += comment.likes
+    likeSerializer = LikeSerializer(likeList, many=True, context={"type":"like"})
+    commentSerializer = CommentSerializer(commentList, many=True, context={"type":"comment"})
