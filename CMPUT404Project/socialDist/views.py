@@ -315,4 +315,3 @@ def get_inbox(request, author_id):
     except Inbox.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
     return Response(ServerSerializer(inbox).data)
-
