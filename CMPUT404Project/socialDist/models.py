@@ -30,7 +30,7 @@ class Author(models.Model):
 # Added server class for admins to host content
 class Server(models.Model):
     # server id as primary key
-    serverID=models.Field(primary_key=True)
+    serverID=models.CharField(primary_key=True, max_length=40)
     # owner=server admin
     owner=models.ForeignKey(Author, on_delete=models.CASCADE, null=True)
     # server name
@@ -84,7 +84,10 @@ class Like(models.Model):
     dateTime = models.DateTimeField(auto_created=True)
 
 class Inbox(models.Model):
-    owner=models.ForeignKey(Author, on_delete=models.CASCADE, related_name="inbox", primary_key=True)
+    # EDIT: 
+    inboxID=models.CharField(primary_key=True, max_length=40, default="")
+    owner=models.ForeignKey(Author, on_delete=models.CASCADE)
+    # likes, posts
     post=models.ManyToManyField(Post)
 
 

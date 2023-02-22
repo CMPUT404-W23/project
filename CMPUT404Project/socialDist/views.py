@@ -4,9 +4,9 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from django.http import QueryDict
 from rest_framework import status
-from .serializers import AuthorSerializer, PostSerializer, CommentSerializer
-from .serializers import LikeSerializer, InboxSerializer
-from .models import Author, Post, Comment, Like, Inbox, FollowRequest
+from .serializers import AuthorSerializer, PostSerializer, CommentSerializer, LikeSerializer, ServerSerializer
+
+from .models import Author, Post, Comment, Like, Server, Inbox
 
 # Create your views here.
 # class AuthorViewSet(viewsets.ModelViewSet):
@@ -288,16 +288,6 @@ def get_likes_for_comment(request, author_id, post_id, comment_id):
     return Response(likeListDict)
 
 @api_view(['GET'])
-def get_inbox(request, author_id):
-    try:
-        author = Author.objects.get(pk=author_id)
-    except Author.DoesNotExist:
-        return Response(status=status.HTTP_404_NOT_FOUND)
-    inbox = Inbox.objects.get(owner=author)
-    serializer = LikeSerializer(inbox, context={"type":"inbox"})
-    return Response(serializer.data)
-
-@api_view(['GET'])
 def get_likes_for_author(request, author_id):
     try:
         author = Author.objects.get(pk=author_id)
@@ -327,22 +317,31 @@ def get_followers_for_authors(request, author_id):
     followerListDict["items"] = serializer.data
     return Response(followerListDict)
 
+# get one server
 @api_view(['GET'])
-def get_inbox(request, author_id):
+def get_server(request, author_id):
+    # get the owner first in order to get the server
     try:
         author = Author.objects.get(pk=author_id)
     except Author.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
-    requests = FollowRequest.objects.filter(target=author_id)
-    # TO DO: convert into list using serializer
-    authorPosts = Post.objects.filter(author=author_id)
-    authorComments = Post.objects.filter(author=author_id)
-    likeList = []
-    commentList = []
-    for post in authorPosts:
-        likeList += post.likes
-        commentList += post.comments
-    for comment in authorComments:
-        likeList += comment.likes
-    likeSerializer = LikeSerializer(likeList, many=True, context={"type":"like"})
-    commentSerializer = CommentSerializer(commentList, many=True, context={"type":"comment"})
+    try:
+        server = Server.objects.filter(owner=author).get(pk=serverID)
+    except Server.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    return Response(ServerSerializer(server).data)
+
+# Get all of the servers that one owns: TBA
+
+@api_view(['GET'])
+def get_inbox(request, author_id):
+    # get the owner first in order to get the inbox
+    try:
+        author = Author.objects.get(pk=author_id)
+    except Author.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    try:
+        inbox = Inbox.objects.filter(owner=author).get(pk=inboxID)
+    except Inbox.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    return Response(ServerSerializer(inbox).data)
