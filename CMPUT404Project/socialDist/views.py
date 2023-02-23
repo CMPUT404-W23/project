@@ -1,321 +1,336 @@
 from django.shortcuts import render, get_object_or_404
 from rest_framework.permissions import DjangoModelPermissions
-from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from rest_framework.views import APIView
+from rest_framework.decorators import api_view
 from django.http import QueryDict
 from rest_framework import status
+from django.utils.crypto import get_random_string
 from .serializers import AuthorSerializer, PostSerializer, CommentSerializer, LikeSerializer, ServerSerializer
 
 from .models import Author, Post, Comment, Like, Server, Inbox
 
-# Create your views here.
-# class AuthorViewSet(viewsets.ModelViewSet):
-#     queryset = Author.objects.all()
-#     serializer_class = AuthorSerializer
-#     permission_classes = [DjangoModelPermissions]
+# https://testdriven.io/blog/drf-views-part-1/
+# https://docs.djangoproject.com/en/4.1/topics/db/queries/#:~:text=Creating%20objects&text=To%20create%20an%20object%2C%20instantiate,save%20it%20to%20the%20database.&text=This%20performs%20an%20INSERT%20SQL,method%20has%20no%20return%20value.
+# https://docs.djangoproject.com/en/4.1/ref/request-response/
+# https://www.geeksforgeeks.org/adding-permission-in-api-django-rest-framework/
+# https://stackoverflow.com/questions/25943850/django-package-to-generate-random-alphanumeric-string
 
-#     def create(self, request):
-#         serializer = AuthorSerializer(data=request.data)
-#         if serializer.is_valid():
-#             serializer.save()
-#             return Response(serializer.data, status=status.HTTP_201_CREATED)
-#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+class APIAuthor(APIView):
+    def get(self, request, id):
+        try:
+            author = Author.objects.get(pk=id)
+            serialzer = AuthorSerializer(author)
+            return Response(status=200, data=serialzer.data)
+        except Author.DoesNotExist:
+            return Response(status=404)
+
+    def post(self, request, id):
+        try:
+            author = Author.objects.get(pk=id)
+        except Author.DoesNotExist:
+            return Response(status=404)
+        serializer = AuthorSerializer(author, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(status=201, data=serializer.data)
+        return Response(status=400, data=serializer.errors)
     
-#     def list(self, request):
-#         queryset = Author.objects.all()
-#         serializer = AuthorSerializer(queryset, context={"type":"author"}, many=True)
-#         return Response(serializer.data)
+class APIListAuthors(APIView):
+    def get(self, request):
+         # query string provided
+        if (request.META["QUERY_STRING"] != ""):
+            queryDict = QueryDict(request.META["QUERY_STRING"])
+            pageNum = 0
+            sizeNum = 0
+            if "page" in queryDict:
+                try:
+                    pageNum = int(queryDict["page"])
+                except ValueError:
+                    return Response(status=404)
+            if "size" in queryDict:
+                try:
+                    sizeNum= int(queryDict["size"])
+                except ValueError:
+                    return Response(status=404)
+        # query string not provided
+        else:
+            authors = Author.objects.all()
+            serializer = AuthorSerializer(authors, many=True, context={"type":"author"})
+            authorListDict = {}
+            authorListDict["type"] = "authors"
+            authorListDict["items"] = serializer.data
+            return Response(status=200, data=authorListDict)
+ 
+class APIPost(APIView):
+    def get(self, request, author_id, post_id):
+        try:
+            author = Author.objects.get(pk=author_id)
+        except Author.DoesNotExist:
+            return Response(status=404)
+        try:
+            post = Post.objects.filter(posterID=author).get(pk=post_id)
+            serialzer = PostSerializer(post, context={"type":"post"})
+            return Response(status=200, data=serialzer.data)
+        except Post.DoesNotExist:
+            return Response(status=404)
 
-#     def retrieve(self, request, pk=None):
-#         queryset = Author.objects.all()
-#         author = get_object_or_404(queryset, pk=pk)
-#         serializer = AuthorSerializer(author)
-#         return Response(serializer.data)
+    def post(self, request, author_id, post_id):
+        try:
+            author = Author.objects.get(pk=author_id)
+        except Author.DoesNotExist:
+            return Response(status=404)
+        try:
+            post = Post.objects.get(pk=post_id)
+        except Post.DoesNotExist:
+            return Response(status=404)
+        serializer = PostSerializer(post, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(status=201, data=serializer.data)
+        return Response(status=400, data=serializer.errors)
 
-#     def destroy(self,request, pk=None):
-#         author = Author.objects.get(pk=pk)
-#         author.delete()
-#         return Response(status=status.HTTP_204_NO_CONTENT)
-    
-#     def update(self, request, pk=None):
-#         author = Author.objects.get(pk=pk)
-#         serializer = AuthorSerializer(author, data=request.data)
-#         if serializer.is_valid():
-#             serializer.save()
-#             return Response(serializer.data)
-#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    def put(self, request, author_id, post_id):
+        try:
+            author = Author.objects.get(pk=author_id)
+        except Author.DoesNotExist:
+            return Response(status=404)
+        try:
+            post = Post.objects.get(pk=post_id)
+            return Response(status=404)
+        except Post.DoesNotExist:
+            serializer = PostSerializer(data=request.data, partial=True)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(status=201, data=serializer.data)
+            return Response(status=400, data=serializer.errors)
 
-# class PostViewSet(viewsets.ModelViewSet):
-#     queryset = Post.objects.all()
-#     serializer_class = PostSerializer
-#     permission_classes = [DjangoModelPermissions]
+    def delete(self, request, author_id, post_id):
+        try:
+            author = Author.objects.get(pk=author_id)
+        except Author.DoesNotExist:
+            return Response(status=404)
+        try:
+            post = Post.objects.get(pk=post_id)
+        except Post.DoesNotExist:
+            return Response(status=404)
+        post.delete()
+        return Response(status=200)
 
-#     def create(self, request):
-#         serializer = PostSerializer(data=request.data)
-#         if serializer.is_valid():
-#             serializer.save()
-#             return Response(serializer.data, status=status.HTTP_201_CREATED)
-#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
-#     def list(self, request):
-#         queryset = Post.objects.all()
-#         serializer = PostSerializer(queryset, many=True)
-#         return Response(serializer.data)
+class APIListPosts(APIView):
+    def get(self, request, author_id):
+        try:
+            author = Author.objects.get(pk=author_id)
+        except Author.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        posts = Post.objects.filter(posterID=author)
+        serializer = PostSerializer(posts, many=True, context={"type":"post"})
+        postListDict = {}
+        postListDict["type"] = "posts"
+        postListDict["items"] = serializer.data
+        return Response(postListDict)
 
-#     def retrieve(self, request, pk=None):
-#         queryset = Post.objects.all()
-#         post = get_object_or_404(queryset, pk=pk)
-#         serializer = PostSerializer(post)
-#         return Response(serializer.data)
-
-#     def destroy(self,request, pk=None):
-#         post = Post.objects.get(pk=pk)
-#         post.delete()
-#         return Response(status=status.HTTP_204_NO_CONTENT)
-    
-#     def update(self, request, pk=None):
-#         post = Post.objects.get(pk=pk)
-#         serializer = PostSerializer(post, data=request.data)
-#         if serializer.is_valid():
-#             serializer.save()
-#             return Response(serializer.data)
-#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-# class CommentViewSet(viewsets.ModelViewSet):
-#     queryset = Comment.objects.all()
-#     serializer_class = CommentSerializer
-#     permission_classes = [DjangoModelPermissions]
-
-#     def create(self, request):
-#         serializer = CommentSerializer(data=request.data)
-#         if serializer.is_valid():
-#             serializer.save()
-#             return Response(serializer.data, status=status.HTTP_201_CREATED)
-#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
-#     def list(self, request):
-#         queryset = Comment.objects.all()
-#         serializer = CommentSerializer(queryset, many=True)
-#         return Response(serializer.data)
-
-#     def retrieve(self, request, pk=None):
-#         queryset = Comment.objects.all()
-#         comment = get_object_or_404(queryset, pk=pk)
-#         serializer = CommentSerializer(comment)
-#         return Response(serializer.data)
-
-#     def destroy(self,request, pk=None):
-#         comment = Comment.objects.get(pk=pk)
-#         comment.delete()
-#         return Response(status=status.HTTP_204_NO_CONTENT)
-    
-#     def update(self, request, pk=None):
-#         comment = Comment.objects.get(pk=pk)
-#         serializer = CommentSerializer(comment, data=request.data)
-#         if serializer.is_valid():
-#             serializer.save()
-#             return Response(serializer.data)
-#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-# class LikeViewSet(viewsets.ModelViewSet):
-#     queryset = Like.objects.all()
-#     serializer_class = LikeSerializer
-#     permission_classes = [DjangoModelPermissions]
-
-#     def create(self, request):
-#         serializer = LikeSerializer(data=request.data)
-#         if serializer.is_valid():
-#             serializer.save()
-#             return Response(serializer.data, status=status.HTTP_201_CREATED)
-#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
-#     def list(self, request):
-#         queryset = Like.objects.all()
-#         serializer = LikeSerializer(queryset, many=True)
-#         return Response(serializer.data)
-
-#     def retrieve(self, request, pk=None):
-#         queryset = Like.objects.all()
-#         like = get_object_or_404(queryset, pk=pk)
-#         serializer = LikeSerializer(like)
-#         return Response(serializer.data)
-
-#     def destroy(self,request, pk=None):
-#         like = Like.objects.get(pk=pk)
-#         like.delete()
-#         return Response(status=status.HTTP_204_NO_CONTENT)
-    
-#     def update(self, request, pk=None):
-#         like = Like.objects.get(pk=pk)
-#         serializer = LikeSerializer(like, data=request.data)
-#         if serializer.is_valid():
-#             serializer.save()
-#             return Response(serializer.data)
-#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-@api_view(['GET'])
-def get_authors(request):
-    # query string provided
-    if (request.META["QUERY_STRING"] != ""):
-        queryDict = QueryDict(request.META["QUERY_STRING"])
-        pageNum = 0
-        sizeNum = 0
-        if "page" in queryDict:
+    def post(self, request, author_id):
+        try:
+            author = Author.objects.get(pk=author_id)
+        except Author.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        while True:
+            post_id = get_random_string(40)
             try:
-                pageNum = int(queryDict["page"])
-            except ValueError:
-                return Response(status=status.HTTP_404_NOT_FOUND)
-        if "size" in queryDict:
-            try:
-                sizeNum= int(queryDict["size"])
-            except ValueError:
-                return Response(status=status.HTTP_404_NOT_FOUND)
-    # query string not provided
-    else:
-        authors = Author.objects.all()
-        serializer = AuthorSerializer(authors, many=True, context={"type":"author"})
-        authorListDict = {}
-        authorListDict["type"] = "authors"
-        authorListDict["items"] = serializer.data
-        return Response(authorListDict)
+                post = Post.objects.get(postID=post_id)
+                continue
+            except:
+                request.data["postID"] = post_id
+                serializer = PostSerializer(data=request.data, partial=True)
+                if serializer.is_valid():
+                        serializer.save()
+                        return Response(status=201, data=serializer.data)
+                return Response(status=400, data=serializer.errors)
+    
 
-@api_view(['GET'])
-def get_author(request, id):
-    try:
-        author = Author.objects.get(pk=id)
-        serialzer = AuthorSerializer(author)
-        return Response(serialzer.data)
-    except Author.DoesNotExist:
-        return Response(status=status.HTTP_404_NOT_FOUND)
-
-@api_view(['GET'])
-def get_post(request, author_id, post_id):
-    try:
-        author = Author.objects.get(pk=author_id)
-    except Author.DoesNotExist:
-        return Response(status=status.HTTP_404_NOT_FOUND)
-    try:
-        post = Post.objects.filter(posterID=author).get(pk=post_id)
-        serialzer = PostSerializer(post, context={"type":"post"})
-        return Response(serialzer.data)
-    except Post.DoesNotExist:
-        return Response(status=status.HTTP_404_NOT_FOUND)
-
-@api_view(['GET'])
-def get_posts(request, author_id):
-    try:
-        author = Author.objects.get(pk=author_id)
-    except Author.DoesNotExist:
-        return Response(status=status.HTTP_404_NOT_FOUND)
-    posts = Post.objects.filter(posterID=author)
-    serializer = PostSerializer(posts, many=True, context={"type":"post"})
-    postListDict = {}
-    postListDict["type"] = "posts"
-    postListDict["items"] = serializer.data
-    return Response(postListDict)
-
-@api_view(['POST'])
-def edit_post(request, author_id, post_id):
-    return Response(status=status.HTTP_301)
-
-@api_view(['GET'])
-def get_comments(request, author_id, post_id):
-    try:
-        author = Author.objects.get(pk=author_id)
-    except Author.DoesNotExist:
-        return Response(status=status.HTTP_404_NOT_FOUND)
-    try:
-        post = Post.objects.filter(posterID=author).get(pk=post_id)
-    except Post.DoesNotExist:
-        return Response(status=status.HTTP_404_NOT_FOUND)
-    comments = Comment.objects.filter(parentPostID=post_id)
-    serializer = CommentSerializer(comments, many=True, context={"type":"comment"})
-    commentListDict = {}
-    commentListDict["type"] = "comments"
-    commentListDict["items"] = serializer.data
-    return Response(commentListDict)
-
-@api_view(['GET'])
-def get_comment(request, author_id, post_id, comment_id):
-    try:
-        author = Author.objects.get(pk=author_id)
-    except Author.DoesNotExist:
-        return Response(status=status.HTTP_404_NOT_FOUND)
-    try:
-        post = Post.objects.filter(posterID=author).get(pk=post_id)
-    except Post.DoesNotExist:
-        return Response(status=status.HTTP_404_NOT_FOUND)
-    comment = Comment.objects.filter(parentPostID=post_id).get(pk=comment_id)
-    serialzer = CommentSerializer(comment, context={"type":"comment"})
-    return Response(serialzer.data)
-
-@api_view(['GET'])
-def get_likes_for_post(request, author_id, post_id):
-    try:
-        author = Author.objects.get(pk=author_id)
-    except Author.DoesNotExist:
-        return Response(status=status.HTTP_404_NOT_FOUND)
-    try:
-        post = Post.objects.filter(posterID=author).get(pk=post_id)
-    except Post.DoesNotExist:
-        return Response(status=status.HTTP_404_NOT_FOUND)
-    likes = Like.objects.filter(parentPost=post_id)
-    serializer = LikeSerializer(likes, many=True, context={"type":"like"})
-    likeListDict = {}
-    likeListDict["type"] = "likes"
-    likeListDict["items"] = serializer.data
-    return Response(likeListDict)
-
-@api_view(['GET'])
-def get_likes_for_comment(request, author_id, post_id, comment_id):
-    try:
-        author = Author.objects.get(pk=author_id)
-    except Author.DoesNotExist:
-        return Response(status=status.HTTP_404_NOT_FOUND)
-    try:
-        post = Post.objects.filter(posterID=author).get(pk=post_id)
-    except Post.DoesNotExist:
-        return Response(status=status.HTTP_404_NOT_FOUND)
-    try: 
+class APIComment(APIView):
+    def get(self, request, author_id, post_id, comment_id):
+        try:
+            author = Author.objects.get(pk=author_id)
+        except Author.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        try:
+            post = Post.objects.filter(posterID=author).get(pk=post_id)
+        except Post.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
         comment = Comment.objects.filter(parentPostID=post_id).get(pk=comment_id)
-    except Comment.DoesNotExist:
-        return Response(status=status.HTTP_404_NOT_FOUND)
-    likes = Like.objects.filter(parentComment=comment)
-    serializer = LikeSerializer(likes, many=True, context={"type":"like"})
-    likeListDict = {}
-    likeListDict["type"] = "likes"
-    likeListDict["items"] = serializer.data
-    return Response(likeListDict)
+        serialzer = CommentSerializer(comment, context={"type":"comment"})
+        return Response(serialzer.data)
 
-@api_view(['GET'])
-def get_likes_for_author(request, author_id):
-    try:
-        author = Author.objects.get(pk=author_id)
-    except Author.DoesNotExist:
-        return Response(status=status.HTTP_404_NOT_FOUND)
-    likes = Like.objects.filter(author=author_id)
-    serializer = LikeSerializer(likes, many=True, context={"type":"likes"})
-    likeListDict = {}
-    likeListDict["type"] = "liked"
-    likeListDict["items"] = serializer.data
-    return Response(likeListDict)
+class APIListComments(APIView):
+    def get(self, request, author_id, post_id):
+        try:
+            author = Author.objects.get(pk=author_id)
+        except Author.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        try:
+            post = Post.objects.filter(posterID=author).get(pk=post_id)
+        except Post.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        comments = Comment.objects.filter(parentPostID=post_id)
+        serializer = CommentSerializer(comments, many=True, context={"type":"comment"})
+        commentListDict = {}
+        commentListDict["type"] = "comments"
+        commentListDict["items"] = serializer.data
+        return Response(commentListDict)
+
+    def post(self, request, author_id, post_id):
+        try:
+            author = Author.objects.get(pk=author_id)
+        except Author.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        try:
+            post = Post.objects.filter(posterID=author).get(pk=post_id)
+        except Post.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        while True:
+            comment_id = get_random_string(40)
+            try:
+                comment = Comment.objects.get(commentID=post_id)
+                continue
+            except:
+                request.data["commentID"] = comment_id
+                serializer = CommentSerializer(data=request.data, partial=True)
+                if serializer.is_valid():
+                        serializer.save()
+                        return Response(status=201, data=serializer.data)
+                return Response(status=400, data=serializer.errors)
+
+class APIListLikesPost(APIView):
+    def get(self, request, author_id, post_id):
+        try:
+            author = Author.objects.get(pk=author_id)
+        except Author.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        try:
+            post = Post.objects.filter(posterID=author).get(pk=post_id)
+        except Post.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        likes = Like.objects.filter(parentPost=post_id)
+        serializer = LikeSerializer(likes, many=True, context={"type":"like"})
+        likeListDict = {}
+        likeListDict["type"] = "likes"
+        likeListDict["items"] = serializer.data
+        return Response(likeListDict)
+
+class APIListLikesComments(APIView):
+    def get(self, request, author_id, post_id, comment_id):
+        try:
+            author = Author.objects.get(pk=author_id)
+        except Author.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        try:
+            post = Post.objects.filter(posterID=author).get(pk=post_id)
+        except Post.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        try: 
+            comment = Comment.objects.filter(parentPostID=post_id).get(pk=comment_id)
+        except Comment.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        likes = Like.objects.filter(parentComment=comment)
+        serializer = LikeSerializer(likes, many=True, context={"type":"like"})
+        likeListDict = {}
+        likeListDict["type"] = "likes"
+        likeListDict["items"] = serializer.data
+        return Response(likeListDict)
+
+class APILiked(APIView):
+    def get(request, author_id):
+        try:
+            author = Author.objects.get(pk=author_id)
+        except Author.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        likes = Like.objects.filter(author=author_id)
+        serializer = LikeSerializer(likes, many=True, context={"type":"likes"})
+        likeListDict = {}
+        likeListDict["type"] = "liked"
+        likeListDict["items"] = serializer.data
+        return Response(likeListDict)
         
+class APIFollowers(APIView):
+    def get(self, request, author_id):
+        try:
+            author = Author.objects.get(pk=author_id)
+        except Author.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        user_followers = author.followers.all()
+        followersList = []
+        for user_follower in user_followers:
+            followersList.append(user_follower.following)
+        serializer = AuthorSerializer(followersList, many=True, context={"type":"author"})
+        followerListDict = {}
+        followerListDict["type"] = "followers"
+        followerListDict["items"] = serializer.data
+        return Response(followerListDict)
 
-@api_view(['GET'])
-def get_followers_for_authors(request, author_id):
-    try:
-        author = Author.objects.get(pk=author_id)
-    except Author.DoesNotExist:
-        return Response(status=status.HTTP_404_NOT_FOUND)
-    user_followers = author.followers.all()
-    followersList = []
-    for user_follower in user_followers:
-        followersList.append(user_follower.following)
-    serializer = AuthorSerializer(followersList, many=True, context={"type":"author"})
-    followerListDict = {}
-    followerListDict["type"] = "followers"
-    followerListDict["items"] = serializer.data
-    return Response(followerListDict)
+class APIFollower(APIView):
+    def get(self, request, author_id, foreign_author_id):
+        try:
+            targetAuthor = Author.objects.get(pk=author_id)
+        except Author.DoesNotExist:
+            return Response(status=404)
+        try: 
+            followingAuthor = Author.objects.get(pk=foreign_author_id)
+        except:
+            return Response(status=404)
+        if followingAuthor in targetAuthor.followers:
+            return Response(status=200)
+        else:
+            return Response(status=400)
+
+    def put(self, request, author_id, foreign_author_id):
+        try:
+            targetAuthor = Author.objects.get(pk=author_id)
+            # check host if they are hosted on our server
+        except Author.DoesNotExist:
+            return Response(status=404)
+        try: 
+            followingAuthor = Author.objects.get(pk=foreign_author_id)
+        except:
+            # create copy of author on our server
+            return Response(status=404)
+        if followingAuthor in targetAuthor.followers.all():
+            return Response(status=405)
+        # link two authors together with relationship
+        targetAuthor.followers.add(followingAuthor)
+        targetAuthor.save()
+        return Response(status=200)
+
+    def delete(self, request, author_id, foreign_author_id):
+        try:
+            targetAuthor = Author.objects.get(pk=author_id)
+            # check host if they are hosted on our server
+        except Author.DoesNotExist:
+            return Response(status=404)
+        try: 
+            followingAuthor = Author.objects.get(pk=foreign_author_id)
+        except:
+            # create copy of author on our server
+            return Response(status=404)
+        if followingAuthor not in targetAuthor.followers.all():
+            return Response(status=404)
+        targetAuthor.followers.remove(followingAuthor)
+        targetAuthor.save()
+        return Response(status=200)
+
+class APIInbox(APIView):
+    def get(request, author_id):
+        # get the owner first in order to get the inbox
+        try:
+            author = Author.objects.get(pk=author_id)
+        except Author.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        try:
+            inbox = Inbox.objects.filter(owner=author)
+        except Inbox.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        return Response(ServerSerializer(inbox).data)
 
 # get one server
 @api_view(['GET'])
@@ -326,22 +341,10 @@ def get_server(request, author_id):
     except Author.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
     try:
-        server = Server.objects.filter(owner=author).get(pk=serverID)
+        server = Server.objects.filter(owner=author)
     except Server.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
     return Response(ServerSerializer(server).data)
 
 # Get all of the servers that one owns: TBA
 
-@api_view(['GET'])
-def get_inbox(request, author_id):
-    # get the owner first in order to get the inbox
-    try:
-        author = Author.objects.get(pk=author_id)
-    except Author.DoesNotExist:
-        return Response(status=status.HTTP_404_NOT_FOUND)
-    try:
-        inbox = Inbox.objects.filter(owner=author).get(pk=inboxID)
-    except Inbox.DoesNotExist:
-        return Response(status=status.HTTP_404_NOT_FOUND)
-    return Response(ServerSerializer(inbox).data)
