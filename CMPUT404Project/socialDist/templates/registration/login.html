@@ -1,5 +1,5 @@
 <div class="centered">
-  <h2>Log In</h2>
+  <h2>LOG IN</h2>
   <form method="post">
     {% csrf_token %}
     {{ form.as_p }}
@@ -8,11 +8,15 @@
 </div>
 
 <style>
+  body {
+    background-color: #ededed;
+  }
   .centered {
     width: 50%;
     margin: 30vh auto;
-    border: 1pt solid #b4b4b4;
+    border: 1pt solid #e4e4e4;
     border-radius: 10pt;
+    background-color: white;
   }
   h2 {
     text-align: center;
