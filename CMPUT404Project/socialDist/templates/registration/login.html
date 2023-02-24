@@ -1,6 +1,46 @@
-<h2>Log In</h2>
-<form method="post">
-  {% csrf_token %}
-  {{ form.as_p }}
-  <button type="submit">Log In</button>
-</form>
+<div class="centered">
+  <h2>Log In</h2>
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Log In</button>
+  </form>
+</div>
+
+<style>
+  .centered {
+    width: 50%;
+    margin: 30vh auto;
+    border: 1pt solid #b4b4b4;
+    border-radius: 10pt;
+  }
+  h2 {
+    text-align: center;
+    font-family: 'Roboto', sans-serif;
+  }
+  form {
+    width: 60%;
+    margin: 0 auto;
+    font-family: 'Roboto', sans-serif;
+  }
+  input {
+    width: 100%;
+    margin: 0 auto;
+    margin-bottom: 8pt;
+    padding: 5pt;
+  }
+  input:focus {
+    outline: 1pt solid #007bff;
+  }
+  button {
+    width: 100%;
+    margin: 0 auto;
+    margin-bottom: 2em;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5pt;
+    padding: 7pt;
+    cursor: pointer;
+  }
+</style>
