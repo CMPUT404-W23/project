@@ -6,7 +6,7 @@ from django.http import QueryDict
 from rest_framework import status
 from .serializers import AuthorSerializer, PostSerializer, CommentSerializer, LikeSerializer
 
-from .models import Author, Post, Comment, Like
+from .models import Author, Post, Comment, Like, Server, Inbox
 
 # Create your views here.
 # class AuthorViewSet(viewsets.ModelViewSet):
@@ -286,3 +286,32 @@ def get_likes_for_comment(request, author_id, post_id, comment_id):
     likeListDict["type"] = "likes"
     likeListDict["items"] = serializer.data
     return Response(likeListDict)
+
+# get one server
+@api_view(['GET'])
+def get_server(request, author_id):
+    # get the owner first in order to get the server
+    try:
+        author = Author.objects.get(pk=author_id)
+    except Author.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    try:
+        server = Server.objects.filter(owner=author).get(pk=serverID)
+    except Server.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    return Response(ServerSerializer(server).data)
+
+# Get all of the servers that one owns: TBA
+
+@api_view(['GET'])
+def get_inbox(request, author_id):
+    # get the owner first in order to get the inbox
+    try:
+        author = Author.objects.get(pk=author_id)
+    except Author.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    try:
+        inbox = Inbox.objects.filter(owner=author).get(pk=inboxID)
+    except Inbox.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    return Response(ServerSerializer(inbox).data)
