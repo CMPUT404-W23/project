@@ -22,6 +22,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path("user/", include("django.contrib.auth.urls")),
     path('user/settings', TemplateView.as_view(template_name='settings.html'), name='settings'),
+    path('user/post', TemplateView.as_view(template_name='post.html'), name='post'),
     path('', TemplateView.as_view(template_name='home.html'), name='home'),
     path('api/', include('socialDist.urls')),
 ]
