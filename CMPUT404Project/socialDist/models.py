@@ -7,6 +7,10 @@ from django.contrib.postgres.fields import ArrayField
 # Create your models here.
 # https://docs.djangoproject.com/en/dev/topics/auth/customizing/#extending-the-existing-user-model
 # https://docs.djangoproject.com/en/4.1/topics/db/examples/many_to_one/
+# https://www.crunchydata.com/blog/composite-primary-keys-postgresql-and-django
+# https://medium.com/analytics-vidhya/add-friends-with-689a2fa4e41d
+# https://buildatscale.tech/model-inheritance-in-django/
+# https://stackoverflow.com/questions/65895225/django-many-to-one-relationship-with-abstract-entities
 
 
 # Changes towards Author (02/28)
@@ -67,6 +71,21 @@ class Server(models.Model):
     # server name
     serverName=models.CharField(max_length=50)
 
+# Model to store relationships between followers
+# https://stackoverflow.com/questions/58794639/how-to-make-follower-following-system-with-django-model
+# https://stackoverflow.com/questions/2201598/how-to-define-two-fields-unique-as-couple
+class UserFollowing(models.Model):
+    user_id = models.ForeignKey(User, related_name="following", on_delete=models.CASCADE)
+    following_user_id = models.ForeignKey(User, related_name="followers", on_delete=models.CASCADE)
+    class Meta:
+        unique_together = ('user_id', 'following_user_id')
+
+# Model for a follow request:
+class FollowRequest(models.Model):
+    sender = models.ForeignKey(User, related_name="send_requests", on_delete=models.CASCADE)
+    target = models.ForeignKey(User, related_name="recievced_requests", on_delete=models.CASCADE)
+    date = models.DateTimeField(auto_created=True)
+
 # Changes towards Post (02/28):
 # - Added fields: source, origin, categories, count
 # - changed name: content (to description), date (to published), server (to inServer), posterID (to author)
@@ -83,9 +102,8 @@ class Post(models.Model):
     # content = models.BinaryField()
     description = models.TextField()
     contentType = models.TextField()
-
     # author to access the author
-    author = models.ForeignKey(Author, on_delete=models.CASCADE)
+    author = models.ForeignKey(Author, on_delete=models.CASCADE, related_name="posts")
 
     # added categories: use arrayfield from postgres
     # categories=ArrayField(models.CharField(max_length=50), default=list)
@@ -101,8 +119,9 @@ class Post(models.Model):
     # changed the field from CharField to ArrayField
     # visibility = ArrayField(models.CharField(max_length=50), default=list)
     # OR
-    visibility=models.CharField(max_length=100)
+    visibility=models.CharField(max_length=30)
     unlisted = models.BooleanField()
+    isLiked=models.BooleanField(default=False)
 
     # Foreignkey fields:
     # the server that the post belongs too
@@ -118,13 +137,13 @@ class Post(models.Model):
 # Current foreignkey fields: isLiked
 class Comment(models.Model):
     
-    author = models.ForeignKey(Author, on_delete=models.CASCADE)
+    author = models.ForeignKey(Author, on_delete=models.CASCADE, related_name="comments")
     commentID = models.CharField(primary_key=True, max_length=40)
     content = models.TextField()
     contentType = models.TextField()
     # date = models.DateField()
-    published=models.DateField()
-    parentPostID = models.ForeignKey(Post, on_delete=models.CASCADE)
+    published=models.DateField(auto_created=True)
+    parentPostID = models.ForeignKey(Post, on_delete=models.CASCADE, related_name="comments")
     
     # Modified models by added more fields
     # whether the comment is liked or not
@@ -132,32 +151,25 @@ class Comment(models.Model):
 
 # Changes towards Like (02/28):
 # - Added fields: summary, author
-# - changed: parentPost, parentComment
+# - changed: N/A
 # - Commented/ (later will delete): N/A
 # Current Own Fields: author, commentID, content, contentType, published, parentPostID
 # Current foreignkey fields: isLiked
 class Like(models.Model):
     likeID = models.CharField(primary_key=True, max_length=40)
-
     summary=models.TextField()
     likeType = models.CharField(max_length=20)
-    author = models.ForeignKey(Author, on_delete=models.CASCADE)
+    author = models.ForeignKey(Author, on_delete=models.CASCADE, related_name="liked")
+    parentPost = models.ForeignKey(Post, on_delete=models.CASCADE, related_name="likes", null=True)
+    parentComment = models.ForeignKey(Comment, on_delete=models.CASCADE, related_name="likes", null=True)
+    dateTime = models.DateTimeField(auto_created=True)
 
-    # changed parentPost and parentComment, on_delete from models.CASACADE to models.SET_NULL because one can like a post or comment
-    parentPost = models.ForeignKey(Post, on_delete=models.SET_NULL, null=True)
-    parentComment = models.ForeignKey(Comment, on_delete=models.SET_NULL, null=True)
 
-    """
-    parentPost = models.ForeignKey(Post, on_delete=models.CASCADE, null=True)
-    parentComment = models.ForeignKey(Comment, on_delete=models.CASCADE, null=True)
-    """
-    # object can be obtained without additional fields
-
-# Changes towards Like (02/28):
-# - Added fields: 
+# Changes towards Inbox (02/28):
+# - Added fields: N/A
 # - changed name: owner (to author)
 # - Commented/ (later will delete): like, comment, content, contentType
-# Current Own Fields: author, commentID, content, contentType, published, parentPostID
+# Current Own Fields: inboxID, authorm post
 # Current foreignkey fields: isLiked
 class Inbox(models.Model):
     # EDIT: 

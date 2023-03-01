@@ -39,5 +39,5 @@ class ServerSerializer(serializers.ModelSerializer):
 
 class InboxSerializer(serializers.ModelSerializer):
     class Meta:
-        model=Server
+        model=Inbox
         fields=('inboxID','owner','post','like','comment','content','contentType')
