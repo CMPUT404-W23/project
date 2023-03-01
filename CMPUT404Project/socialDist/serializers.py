@@ -4,10 +4,14 @@ from .models import Author, Post, Comment, Like, Server, Inbox
 class AuthorSerializer(serializers.ModelSerializer):
     class Meta:
         model = Author
-        # fields = ('id', 'user', 'github', 'profileImg')
+        fields = ('id',
+                  'host',
+                  'displayName', 
+                  'github', 
+                  'profileImage')
 
         # Update added fields (if it doesn't work just uncomment the line above)
-        fields = ('id', 'user', 'github', 'profileImg','isServerAdmin', 'isAuthenticated', 'isFriendWith', 'inServer')
+        # fields = ('id', 'user', 'github', 'profileImg','isServerAdmin', 'isAuthenticated', 'isFriendWith', 'inServer')
 
 
 class PostSerializer(serializers.ModelSerializer):
@@ -16,7 +20,17 @@ class PostSerializer(serializers.ModelSerializer):
         # fields = ('postID', 'title', 'content', 'contentType', 'posterID', 'date', 'visibility', 'unlisted')
 
         # Update added fields (if it doesn't work just uncomment the line above)
-        fields = ('postID', 'title', 'content', 'contentType', 'posterID', 'date', 'visibility', 'unlisted', 'server', 'isLiked')
+        fields = ('id', 
+                  'title', 
+                  'source',
+                  'origin',
+                  'description', 
+                  'contentType', 
+                  'author', 
+                  'published', 
+                  'visibility', 
+                  'categories',
+                  'unlisted')
 
 class CommentSerializer(serializers.ModelSerializer):
     class Meta:
@@ -24,12 +38,19 @@ class CommentSerializer(serializers.ModelSerializer):
         # fields = ('commentID', 'content', 'contentType', 'parentPostID', 'date', 'author')
 
         # Update added fields (if it doesn't work just uncomment the line above)
-        fields = ('commentID', 'content', 'contentType', 'parentPostID', 'date', 'author','isLiked')
+        fields = ('id', 
+                  'content', 
+                  'contentType', 
+                  'parentPost', 
+                  'published', 
+                  'author')
 
 class LikeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Like
-        fields = ('likeID', 'likeType', 'parentPost', 'parentComment')
+        fields = ('id', 
+                  'author',
+                  'dateTime')
 
 # Added new serlaizers for Server and Inbox
 class ServerSerializer(serializers.ModelSerializer):
