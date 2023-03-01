@@ -1,51 +1,11 @@
+{% extends "base.html" %}
+{% block content %}
 <div class="centered">
   <h2>LOG IN</h2>
-  <form method="post">
+  <form method="post" class="login-form">
     {% csrf_token %}
     {{ form.as_p }}
-    <button type="submit">Log In</button>
+    <button type="submit" class="login-btn">Log In</button>
   </form>
 </div>
-
-<style>
-  body {
-    background-color: #ededed;
-  }
-  .centered {
-    width: 50%;
-    margin: 30vh auto;
-    border: 1pt solid #e4e4e4;
-    border-radius: 10pt;
-    background-color: white;
-  }
-  h2 {
-    text-align: center;
-    font-family: 'Roboto', sans-serif;
-  }
-  form {
-    width: 60%;
-    margin: 0 auto;
-    font-family: 'Roboto', sans-serif;
-  }
-  input {
-    width: 100%;
-    margin: 0 auto;
-    margin-bottom: 8pt;
-    padding: 5pt;
-    border: 1pt solid #e7e7e7;
-  }
-  input:focus {
-    outline: 1pt solid #007bff;
-  }
-  button {
-    width: 100%;
-    margin: 0 auto;
-    margin-bottom: 3em;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    border-radius: 5pt;
-    padding: 7pt;
-    cursor: pointer;
-  }
-</style>
+{% endblock %}
