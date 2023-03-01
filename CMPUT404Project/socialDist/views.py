@@ -47,6 +47,8 @@ class APIAuthor(APIView):
         serializer = AuthorSerializer(author, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
+            author.user.username = authorDict["displayName"]
+            author.user.save()
             authorDict = dict(serializer.data)
             authorDict["url"] = authorDict["id"]
             authorDict["type"] = "author"
