@@ -21,7 +21,7 @@ from django.contrib.postgres.fields import ArrayField
 
 class Author(models.Model):
     # user: one to one field 
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, null=True)
     # authorID: ID of the author
     id=models.CharField(primary_key=True, max_length=200)
     host=models.CharField(max_length=40)
@@ -174,5 +174,5 @@ class Inbox(models.Model):
     # owner=models.ForeignKey(Author, on_delete=models.CASCADE)
 
     # Posts
-    post=models.ManyToManyField(Post)
+    posts=models.ManyToManyField(Post)
     

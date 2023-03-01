@@ -7,8 +7,9 @@ from django.http import QueryDict
 from rest_framework import status
 from django.utils.crypto import get_random_string
 from .serializers import AuthorSerializer, PostSerializer, CommentSerializer, LikeSerializer, ServerSerializer
+import urllib.parse
 
-from .models import Author, Post, Comment, Like, Server, Inbox
+from .models import Author, Post, Comment, Like, Server, Inbox, UserFollowing
 
 # https://testdriven.io/blog/drf-views-part-1/
 # https://docs.djangoproject.com/en/4.1/topics/db/queries/#:~:text=Creating%20objects&text=To%20create%20an%20object%2C%20instantiate,save%20it%20to%20the%20database.&text=This%20performs%20an%20INSERT%20SQL,method%20has%20no%20return%20value.
@@ -36,6 +37,7 @@ class APIAuthor(APIView):
             return Response(status=404)
         
     # when posting, don't send authorID or host
+    # send new display name/username, new github and new profile img
     def post(self, request, id):
         try:
             author = Author.objects.get(pk=HOST+"authors/"+id)
@@ -74,7 +76,7 @@ class APIListAuthors(APIView):
                     return Response(status=404)
         # query string not provided
         else:
-            authors = Author.objects.all()
+            authors = Author.objects.filter(host=HOST)
             serializer = AuthorSerializer(authors, many=True)
             returnList = []
             for author_serial in serializer.data:
@@ -268,7 +270,8 @@ class APIListComments(APIView):
         commentList = []
         for comment_serial in serializer.data:
             commentDict = dict(comment_serial)
-            author_serialzer = AuthorSerializer(author)
+            commentAuthor = Author.objects.get(pk=comment_serial["author"])
+            author_serialzer = AuthorSerializer(commentAuthor)
             authorDict = dict(author_serialzer.data)
             authorDict["type"] = "author"
             authorDict["url"] = authorDict["id"]
@@ -283,7 +286,7 @@ class APIListComments(APIView):
         return Response(commentListDict)
     
     # when POST, include in body
-    #   author - URL form
+    #   author - object form
     #   content - string
     #   contentType - string
     #   published - datetime
@@ -307,11 +310,21 @@ class APIListComments(APIView):
                                               "/comments/"+
                                               comment_id)
                 continue
-            except:
+            except Comment.DoesNotExist:
                 newPostDict = dict(request.data)
                 newPostDict["id"] = HOST+"authors/"+author_id+"/posts/"+post_id+"/comments/"+comment_id
                 newPostDict["parentPost"] = HOST+"authors/"+author_id+"/posts/"+post_id
-                serializer = CommentSerializer(data=request.data, partial=True)
+                try:
+                    commentAuthor = Author.objects.get(pk=newPostDict["author"]["id"])
+                except Author.DoesNotExist:
+                    if newPostDict["author"]["host"] == HOST:
+                        return Response(status=404)
+                    commentAuthorSerializer = AuthorSerializer(data=newPostDict["author"])
+                    if not commentAuthorSerializer.is_vaild():
+                        return Response(status=400, data=commentAuthorSerializer.errors)
+                    commentAuthorSerializer.save()
+                newPostDict["author"] = newPostDict["author"]["id"]
+                serializer = CommentSerializer(data=newPostDict, partial=True)
                 if serializer.is_valid():
                         serializer.save()
                         return Response(status=201, data=serializer.data)
@@ -438,63 +451,80 @@ class APIFollower(APIView):
         except Author.DoesNotExist:
             return Response(status=404)
         try: 
-            #TODO: convert foreign_author_id from parameter form to URL
-            followingAuthor = Author.objects.get(pk=foreign_author_id)
+            decoded_foreign_author_id = urllib.parse.unquote(foreign_author_id, 'utf-8')
+            followingAuthor = Author.objects.get(pk=decoded_foreign_author_id)
         except:
             return Response(status=404)
-        #TODO: need to fix
         try:
-            follower = targetAuthor.followers.all().get(user_id=followingAuthor.authorId)
+            follower = targetAuthor.followers.all().get(user_id=followingAuthor)
             return Response(status=200)
         except:
             return Response(status=404)
         
     # foreign_author_id should be an abs URL, encoded as a parameter or path element
     # same notes as before!
+    # PUT body should contain author object, which is author object of requested follower
     def put(self, request, author_id, foreign_author_id):
         try:
             targetAuthor = Author.objects.get(pk=HOST+"authors/"+author_id)
         except Author.DoesNotExist:
             return Response(status=404)
         try: 
+            decoded_foreign_author_id = urllib.parse.unquote(foreign_author_id, 'utf-8')
             followingAuthor = Author.objects.get(pk=foreign_author_id)
         except:
             # create copy of author on our server
-            new_author = Author(id=foreign_author_id)
-        if followingAuthor in targetAuthor.followers.all():
-            return Response(status=405)
-        # link two authors together with relationship
-        targetAuthor.followers.add(followingAuthor)
-        targetAuthor.save()
-        return Response(status=200)
-
+            serializer = AuthorSerializer(data=request.data, partial=True)
+            if not serializer.is_valid():
+                return Response(status=400)
+            serializer.save()
+            followingAuthor = Author.objects.get(pk=decoded_foreign_author_id)
+        try:
+            targetAuthor.followers.all().get(user_id=followingAuthor)
+            return Response(status=404)
+        except:
+            # link two authors together with relationship
+            userfollowing = UserFollowing(user_id=followingAuthor, 
+                                          following_user_id=targetAuthor)
+            userfollowing.save()
+            return Response(status=200)
+        
+    # foreign_author_id should be an abs URL, encoded as a parameter or path element
+    # same notes as before!
+    # PUT body should contain author object, which is author object of requested follower
     def delete(self, request, author_id, foreign_author_id):
         try:
-            targetAuthor = Author.objects.get(pk=author_id)
+            targetAuthor = Author.objects.get(pk=HOST+"authors/"+author_id)
         except Author.DoesNotExist:
             return Response(status=404)
         try: 
-            followingAuthor = Author.objects.get(pk=foreign_author_id)
-        except:
+            decoded_foreign_author_id = urllib.parse.unquote(foreign_author_id, 'utf-8')
+            followingAuthor = Author.objects.get(pk=decoded_foreign_author_id)
+        except Author.DoesNotExist:
             return Response(status=404)
-        if followingAuthor not in targetAuthor.followers.all():
+        try:
+            userFollowing = targetAuthor.followers.all().get(user_id=followingAuthor)
+            userFollowing.delete()
+            return Response(status=200)
+        except UserFollowing.DoesNotExist:
             return Response(status=404)
-        targetAuthor.followers.remove(followingAuthor)
-        targetAuthor.save()
-        return Response(status=200)
 
 class APIInbox(APIView):
     def get(request, author_id):
         # get the owner first in order to get the inbox
         try:
-            author = Author.objects.get(pk=author_id)
+            author = Author.objects.get(pk=HOST+"authors/"+author_id)
         except Author.DoesNotExist:
-            return Response(status=status.HTTP_404_NOT_FOUND)
+            return Response(status=404)
         try:
             inbox = Inbox.objects.filter(owner=author)
         except Inbox.DoesNotExist:
-            return Response(status=status.HTTP_404_NOT_FOUND)
+            return Response(status=404)
         return Response(ServerSerializer(inbox).data)
+    
+    # send respective object in body
+    def post(request, author_id):
+        return Response(status=404)
 
 # get one server
 @api_view(['GET'])
