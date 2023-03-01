@@ -21,6 +21,7 @@ class APIAuthor(APIView):
         try:
             author = Author.objects.get(pk=id)
             serialzer = AuthorSerializer(author)
+            serialzer.data["type"] = "author"
             return Response(status=200, data=serialzer.data)
         except Author.DoesNotExist:
             return Response(status=404)
@@ -33,12 +34,13 @@ class APIAuthor(APIView):
         serializer = AuthorSerializer(author, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
+            serializer.data["type"] = "author"
             return Response(status=201, data=serializer.data)
         return Response(status=400, data=serializer.errors)
     
 class APIListAuthors(APIView):
     def get(self, request):
-         # query string provided
+        # TODO: adjust the query by page and size numbers
         if (request.META["QUERY_STRING"] != ""):
             queryDict = QueryDict(request.META["QUERY_STRING"])
             pageNum = 0
@@ -56,7 +58,9 @@ class APIListAuthors(APIView):
         # query string not provided
         else:
             authors = Author.objects.all()
-            serializer = AuthorSerializer(authors, many=True, context={"type":"author"})
+            serializer = AuthorSerializer(authors, many=True)
+            for author_serial in serializer.data:
+                author_serial["type"] = "author"
             authorListDict = {}
             authorListDict["type"] = "authors"
             authorListDict["items"] = serializer.data
@@ -70,7 +74,8 @@ class APIPost(APIView):
             return Response(status=404)
         try:
             post = Post.objects.filter(posterID=author).get(pk=post_id)
-            serialzer = PostSerializer(post, context={"type":"post"})
+            serialzer = PostSerializer(post)
+            serialzer.data["type"] = "post"
             return Response(status=200, data=serialzer.data)
         except Post.DoesNotExist:
             return Response(status=404)
@@ -87,6 +92,7 @@ class APIPost(APIView):
         serializer = PostSerializer(post, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
+            serializer.data["type"] = "post"
             return Response(status=201, data=serializer.data)
         return Response(status=400, data=serializer.errors)
 
@@ -102,6 +108,7 @@ class APIPost(APIView):
             serializer = PostSerializer(data=request.data, partial=True)
             if serializer.is_valid():
                 serializer.save()
+                serializer.data["type"] = "post"
                 return Response(status=201, data=serializer.data)
             return Response(status=400, data=serializer.errors)
 
@@ -125,6 +132,8 @@ class APIListPosts(APIView):
             return Response(status=status.HTTP_404_NOT_FOUND)
         posts = Post.objects.filter(posterID=author)
         serializer = PostSerializer(posts, many=True, context={"type":"post"})
+        for post_serial in serializer.data:
+            post_serial["type"] = "post"
         postListDict = {}
         postListDict["type"] = "posts"
         postListDict["items"] = serializer.data
@@ -160,7 +169,8 @@ class APIComment(APIView):
         except Post.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
         comment = Comment.objects.filter(parentPostID=post_id).get(pk=comment_id)
-        serialzer = CommentSerializer(comment, context={"type":"comment"})
+        serialzer = CommentSerializer(comment)
+        serialzer.data["type"] = "comment"
         return Response(serialzer.data)
 
 class APIListComments(APIView):
@@ -174,7 +184,9 @@ class APIListComments(APIView):
         except Post.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
         comments = Comment.objects.filter(parentPostID=post_id)
-        serializer = CommentSerializer(comments, many=True, context={"type":"comment"})
+        serializer = CommentSerializer(comments, many=True)
+        for comment_serial in serializer.data:
+            comment_serial["type"] = "comment"
         commentListDict = {}
         commentListDict["type"] = "comments"
         commentListDict["items"] = serializer.data
@@ -234,7 +246,9 @@ class APIListLikesComments(APIView):
         except Comment.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
         likes = Like.objects.filter(parentComment=comment)
-        serializer = LikeSerializer(likes, many=True, context={"type":"like"})
+        serializer = LikeSerializer(likes, many=True)
+        for like_serial in serializer.data:
+            like_serial["type"] = "like"
         likeListDict = {}
         likeListDict["type"] = "likes"
         likeListDict["items"] = serializer.data
@@ -247,7 +261,9 @@ class APILiked(APIView):
         except Author.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
         likes = Like.objects.filter(author=author_id)
-        serializer = LikeSerializer(likes, many=True, context={"type":"likes"})
+        serializer = LikeSerializer(likes, many=True)
+        for like_serial in serializer.data:
+            like_serial["type"] = "like"
         likeListDict = {}
         likeListDict["type"] = "liked"
         likeListDict["items"] = serializer.data
@@ -263,7 +279,9 @@ class APIFollowers(APIView):
         followersList = []
         for user_follower in user_followers:
             followersList.append(user_follower.following)
-        serializer = AuthorSerializer(followersList, many=True, context={"type":"author"})
+        serializer = AuthorSerializer(followersList, many=True)
+        for author_serial in serializer.data:
+            author_serial["type"] = "author"
         followerListDict = {}
         followerListDict["type"] = "followers"
         followerListDict["items"] = serializer.data
