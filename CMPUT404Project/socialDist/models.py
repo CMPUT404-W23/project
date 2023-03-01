@@ -178,14 +178,6 @@ class Inbox(models.Model):
     author=models.ForeignKey(Author, on_delete=models.CASCADE)
     # owner=models.ForeignKey(Author, on_delete=models.CASCADE)
 
-    # likes, posts
+    # Posts
     post=models.ManyToManyField(Post)
-    """
-    like=models.ManyToManyField(Like)
-    comment=models.ManyToManyField(Comment)
-    """
-    # inbox content and its type
-    """
-    content = models.TextField()
-    contentType = models.TextField()
-    """
+    
