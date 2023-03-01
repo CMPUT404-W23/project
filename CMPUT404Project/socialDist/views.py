@@ -97,7 +97,6 @@ class APIPost(APIView):
         except Author.DoesNotExist:
             return Response(status=404)
         try:
-            print(HOST+"authors/"+author_id+"posts/"+post_id)
             post = Post.objects.filter(author=author).get(pk=HOST+"authors/"+author_id+"/posts/"+post_id)
             serialzer = PostSerializer(post)
             postDict = dict(serialzer.data)

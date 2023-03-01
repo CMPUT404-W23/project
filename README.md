@@ -9,3 +9,5 @@ POST body should be a JSON containing the fields:
 - github: new github URL
 - profileImg: new profile Img
   
+OPEN API Specification based off:
+https://swagger.io/specification/
