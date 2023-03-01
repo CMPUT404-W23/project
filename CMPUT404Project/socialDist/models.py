@@ -23,7 +23,7 @@ class Author(models.Model):
     # user: one to one field 
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     # authorID: ID of the author
-    id=models.CharField(primary_key=True, max_length=40)
+    id=models.CharField(primary_key=True, max_length=200)
     host=models.CharField(max_length=40)
     # Added displayName field, default as empty string
     displayName=models.CharField(default="", max_length=40)
@@ -89,7 +89,7 @@ class FollowRequest(models.Model):
 # Current Own Fields: postID, title, source, origin, description, contentType, posterID, categories, count, published, visibility, unlisted, inServer, isLiked
 # Current foreignkey fields: inServer, isLiked
 class Post(models.Model):
-    id = models.CharField(primary_key=True, max_length=40)
+    id = models.CharField(primary_key=True, max_length=200)
     title = models.CharField(max_length=50)
     # Added source, origin
     source = models.CharField(max_length=50)
@@ -131,7 +131,7 @@ class Post(models.Model):
 # Current Own Fields: author, commentID, content, contentType, published, parentPostID
 # Current foreignkey fields: isLiked
 class Comment(models.Model):
-    id = models.CharField(primary_key=True, max_length=40)
+    id = models.CharField(primary_key=True, max_length=200)
     author = models.ForeignKey(Author, on_delete=models.CASCADE, related_name="comments")
   
     content = models.TextField()
@@ -151,7 +151,7 @@ class Comment(models.Model):
 # Current Own Fields: author, commentID, content, contentType, published, parentPostID
 # Current foreignkey fields: isLiked
 class Like(models.Model):
-    likeID = models.CharField(primary_key=True, max_length=40)
+    likeID = models.CharField(primary_key=True, max_length=200)
     summary=models.TextField()
     likeType = models.CharField(max_length=20)
     author = models.ForeignKey(Author, on_delete=models.CASCADE, related_name="liked")

@@ -30,9 +30,4 @@ class Migration(migrations.Migration):
             model_name='comment',
             name='isLiked',
         ),
-        migrations.AlterField(
-            model_name='post',
-            name='categories',
-            field=django.contrib.postgres.fields.ArrayField(base_field=models.CharField(max_length=50), default=list, size=None),
-        ),
     ]

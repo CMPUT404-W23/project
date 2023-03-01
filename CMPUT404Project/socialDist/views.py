@@ -34,17 +34,23 @@ class APIAuthor(APIView):
             return Response(status=200, data=returnDict)
         except Author.DoesNotExist:
             return Response(status=404)
-
+        
+    # when posting, don't send authorID or host
     def post(self, request, id):
         try:
             author = Author.objects.get(pk=HOST+"authors/"+id)
         except Author.DoesNotExist:
             return Response(status=404)
+        authorDict = dict(request.data)
+        authorDict["id"] = HOST+"authors/"+id
+        authorDict["host"] = HOST
         serializer = AuthorSerializer(author, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
-            serializer.data["type"] = "author"
-            return Response(status=201, data=serializer.data)
+            authorDict = dict(serializer.data)
+            authorDict["url"] = authorDict["id"]
+            authorDict["type"] = "author"
+            return Response(status=201, data=authorDict)
         return Response(status=400, data=serializer.errors)
     
 class APIListAuthors(APIView):
@@ -87,7 +93,8 @@ class APIPost(APIView):
         except Author.DoesNotExist:
             return Response(status=404)
         try:
-            post = Post.objects.filter(author=author).get(pk=HOST+"authors/"+author_id+"posts/"+post_id)
+            print(HOST+"authors/"+author_id+"posts/"+post_id)
+            post = Post.objects.filter(author=author).get(pk=HOST+"authors/"+author_id+"/posts/"+post_id)
             serialzer = PostSerializer(post)
             postDict = dict(serialzer.data)
             postDict["type"] = "post"
@@ -96,51 +103,61 @@ class APIPost(APIView):
             authorDict["type"] = "author"
             authorDict["url"] = authorDict["id"]
             postDict["author"] = authorDict
-            postDict["count"] = len(Comment.objects.filter(parentPostID=HOST+"authors/"+author_id+"posts/"+post_id))
-            postDict["comments"] = postDict["id"] + "comments/"
+            postDict["count"] = len(Comment.objects.filter(parentPost=HOST+"authors/"+author_id+"/posts/"+post_id))
+            postDict["comments"] = postDict["id"] + "/comments/"
             return Response(status=200, data=postDict)
         except Post.DoesNotExist:
             return Response(status=404)
-
+        
+    #when POST, don't include author or post id
     def post(self, request, author_id, post_id):
         try:
             author = Author.objects.get(pk=HOST+"authors/"+author_id)
         except Author.DoesNotExist:
             return Response(status=404)
         try:
-            post = Post.objects.get(pk=HOST+"authors/"+author_id+"posts/"+post_id)
+            post = Post.objects.get(pk=HOST+"authors/"+author_id+"/posts/"+post_id)
         except Post.DoesNotExist:
             return Response(status=404)
+        postDict = dict(request.data)
+        postDict["author"] = HOST+"authors/"+author_id
         serializer = PostSerializer(post, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
-            serializer.data["type"] = "post"
-            return Response(status=201, data=serializer.data)
+            postDict = dict(serializer.data)
+            postDict["type"] = "post"
+            return Response(status=201, data=postDict)
         return Response(status=400, data=serializer.errors)
-
+    
+    # when PUT, don't include author or id
     def put(self, request, author_id, post_id):
         try:
-            author = Author.objects.get(pk=author_id)
+            author = Author.objects.get(pk=HOST+"authors/"+author_id)
         except Author.DoesNotExist:
             return Response(status=404)
         try:
-            post = Post.objects.get(pk=post_id)
+            post = Post.objects.get(pk=HOST+"authors/"+author_id+"/posts/"+post_id)
+        
             return Response(status=404)
         except Post.DoesNotExist:
-            serializer = PostSerializer(data=request.data, partial=True)
+            postDict = dict(request.data)
+            postDict["author"] = HOST+"authors/"+author_id
+            postDict["id"] = HOST+"authors/"+author_id+"/posts/"+post_id
+            serializer = PostSerializer(data=postDict, partial=True)
             if serializer.is_valid():
                 serializer.save()
-                serializer.data["type"] = "post"
+                postDict = dict(serializer.data)
+                postDict["type"] = "post"
                 return Response(status=201, data=serializer.data)
             return Response(status=400, data=serializer.errors)
 
     def delete(self, request, author_id, post_id):
         try:
-            author = Author.objects.get(pk=author_id)
+            author = Author.objects.get(pk=HOST+"authors/"+author_id)
         except Author.DoesNotExist:
             return Response(status=404)
         try:
-            post = Post.objects.get(pk=post_id)
+            post = Post.objects.get(pk=HOST+"authors/"+author_id+"/posts/"+post_id)
         except Post.DoesNotExist:
             return Response(status=404)
         post.delete()
@@ -164,8 +181,8 @@ class APIListPosts(APIView):
             authorDict["type"] = "author"
             authorDict["url"] = authorDict["id"]
             postDict["author"] = authorDict
-            postDict["count"] = len(Comment.objects.filter(parentPostID=post_serial["postID"]))
-            postDict["comments"] = postDict["id"] + "comments/"
+            postDict["count"] = len(Comment.objects.filter(parentPost=post_serial["id"]))
+            postDict["comments"] = postDict["id"] + "/comments/"
             postList.append(postDict)
         postListDict = {}
         postListDict["type"] = "posts"
@@ -173,7 +190,6 @@ class APIListPosts(APIView):
         return Response(postListDict)
     
     # when POST, include in body
-    #   author - URL form
     #   title - string
     #   source - string
     #   origin - string
@@ -191,11 +207,13 @@ class APIListPosts(APIView):
         while True:
             post_id = get_random_string(10)
             try:
-                post = Post.objects.get(postID=HOST+"authors/"+author_id+"posts/"+post_id)
+                post = Post.objects.get(postID=HOST+"authors/"+author_id+"/posts/"+post_id)
                 continue
             except:
-                request.data["id"] = post_id
-                serializer = PostSerializer(data=request.data, partial=True)
+                newPostDict = dict(request.data)
+                newPostDict["id"] = HOST+"authors/"+author_id+"/posts/"+post_id
+                newPostDict["author"]=HOST+"authors/"+author_id
+                serializer = PostSerializer(data=newPostDict, partial=True)
                 if serializer.is_valid():
                         serializer.save()
                         return Response(status=201, data=serializer.data)
@@ -209,19 +227,19 @@ class APIComment(APIView):
         except Author.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
         try:
-            post = Post.objects.filter(author=author).get(pk=HOST+"authors/"+author_id+"posts/"+post_id)
+            post = Post.objects.filter(author=author).get(pk=HOST+"authors/"+author_id+"/posts/"+post_id)
         except Post.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
         comment = Comment.objects.filter(parentPost=HOST+
                                                     "authors/"+
                                                     author_id+
-                                                    "posts/"+
+                                                    "/posts/"+
                                                     post_id).get(pk=HOST+
                                                     "authors/"+
                                                     author_id+
-                                                    "posts/"+
+                                                    "/posts/"+
                                                     post_id+
-                                                    "comments/"+
+                                                    "/comments/"+
                                                     comment_id)
         serialzer = CommentSerializer(comment)
         commentDict = dict(serialzer.data)
@@ -229,6 +247,7 @@ class APIComment(APIView):
         authorDict = dict(author_serialzer.data)
         authorDict["type"] = "author"
         authorDict["url"] = authorDict["id"]
+        commentDict["type"] = "comment"
         commentDict["author"] = authorDict
         return Response(commentDict)
 
@@ -239,10 +258,10 @@ class APIListComments(APIView):
         except Author.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
         try:
-            post = Post.objects.filter(author=author).get(pk=HOST+"authors/"+author_id+"posts/"+post_id)
+            post = Post.objects.filter(author=author).get(pk=HOST+"authors/"+author_id+"/posts/"+post_id)
         except Post.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
-        comments = Comment.objects.filter(parentPost=HOST+"authors/"+author_id+"posts/"+post_id)
+        comments = Comment.objects.filter(parentPost=HOST+"authors/"+author_id+"/posts/"+post_id)
         serializer = CommentSerializer(comments, many=True)
         commentList = []
         for comment_serial in serializer.data:
@@ -252,12 +271,13 @@ class APIListComments(APIView):
             authorDict["type"] = "author"
             authorDict["url"] = authorDict["id"]
             commentDict["author"] = authorDict
+            commentDict["type"] = "comment"
             commentList.append(commentDict)
         commentListDict = {}
         commentListDict["type"] = "comments"
         commentListDict["items"] = commentList
-        commentListDict["post"] = HOST + "authors/" + author_id + "posts/" + post_id 
-        commentListDict["id"] = HOST + "authors/" + author_id + "posts/" + post_id + "comments/"
+        commentListDict["post"] = HOST + "authors/" + author_id + "/posts/" + post_id 
+        commentListDict["id"] = HOST + "authors/" + author_id + "/posts/" + post_id + "/comments/"
         return Response(commentListDict)
     
     # when POST, include in body
@@ -265,14 +285,13 @@ class APIListComments(APIView):
     #   content - string
     #   contentType - string
     #   published - datetime
-    #   parentPost - URL form
     def post(self, request, author_id, post_id):
         try:
             author = Author.objects.get(pk=HOST+"authors/"+author_id)
         except Author.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
         try:
-            post = Post.objects.filter(author=author).get(pk=HOST+"authors/"+author_id+"posts/"+post_id)
+            post = Post.objects.filter(author=author).get(pk=HOST+"authors/"+author_id+"/posts/"+post_id)
         except Post.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
         while True:
@@ -281,13 +300,15 @@ class APIListComments(APIView):
                 comment = Comment.objects.get(id=HOST+
                                               "authors/"+
                                               author_id+
-                                              "posts/"+
+                                              "/posts/"+
                                               post_id+
-                                              "comments/"+
+                                              "/comments/"+
                                               comment_id)
                 continue
             except:
-                request.data["id"] = HOST+"authors/"+author_id+"posts/"+post_id+"comments/"+comment_id
+                newPostDict = dict(request.data)
+                newPostDict["id"] = HOST+"authors/"+author_id+"/posts/"+post_id+"/comments/"+comment_id
+                newPostDict["parentPost"] = HOST+"authors/"+author_id+"/posts/"+post_id
                 serializer = CommentSerializer(data=request.data, partial=True)
                 if serializer.is_valid():
                         serializer.save()
@@ -302,7 +323,7 @@ class APIListLikesPost(APIView):
         except Author.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
         try:
-            post = Post.objects.filter(author=author).get(pk=HOST+"authors/"+author_id+"posts/"+post_id)
+            post = Post.objects.filter(author=author).get(pk=HOST+"authors/"+author_id+"/posts/"+post_id)
         except Post.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
         likes = Like.objects.filter(parentPost=post_id)
@@ -316,7 +337,7 @@ class APIListLikesPost(APIView):
             authorDict["type"] = "author"
             authorDict["url"] = authorDict["id"]
             likeDict["author"] = authorDict
-            likeDict["object"] = HOST + "authors/" + author_id + "posts/" + post_id
+            likeDict["object"] = HOST + "authors/" + author_id + "/posts/" + post_id
             likeList.append(likeDict)
         likeListDict = {}
         likeListDict["type"] = "likes"
@@ -330,13 +351,13 @@ class APIListLikesComments(APIView):
         except Author.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
         try:
-            post = Post.objects.filter(posterID=author).get(pk=HOST+"authors/"+author_id+"posts/"+post_id)
+            post = Post.objects.filter(posterID=author).get(pk=HOST+"authors/"+author_id+"/posts/"+post_id)
         except Post.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
         try: 
-            comment = Comment.objects.filter(parentPostID=post_id).get(pk=HOST+"authors/"+
-                                                                       author_id+"posts/"+
-                                                                       post_id+"comments/"+
+            comment = Comment.objects.filter(parentPost=post_id).get(pk=HOST+"authors/"+
+                                                                       author_id+"/posts/"+
+                                                                       post_id+"/comments/"+
                                                                        comment_id)
         except Comment.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
@@ -351,7 +372,7 @@ class APIListLikesComments(APIView):
             authorDict["type"] = "author" 
             authorDict["url"] = authorDict["id"]
             likeDict["author"] = authorDict
-            likeDict["object"] = HOST + "authors/" + author_id + "posts/" + post_id + "comments/" + comment_id
+            likeDict["object"] = HOST + "authors/" + author_id + "/posts/" + post_id + "/comments/" + comment_id
             likeList.append(likeDict)
         likeListDict = {}
         likeListDict["type"] = "likes"
