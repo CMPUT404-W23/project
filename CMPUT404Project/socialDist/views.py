@@ -14,21 +14,30 @@ from .models import Author, Post, Comment, Like, Server, Inbox
 # https://docs.djangoproject.com/en/4.1/topics/db/queries/#:~:text=Creating%20objects&text=To%20create%20an%20object%2C%20instantiate,save%20it%20to%20the%20database.&text=This%20performs%20an%20INSERT%20SQL,method%20has%20no%20return%20value.
 # https://docs.djangoproject.com/en/4.1/ref/request-response/
 # https://www.geeksforgeeks.org/adding-permission-in-api-django-rest-framework/
+# https://docs.djangoproject.com/en/4.1/ref/models/querysets/
 # https://stackoverflow.com/questions/25943850/django-package-to-generate-random-alphanumeric-string
 
+HOST = "http://127.0.0.1:8000/"
+# maybe store URL field in database as id?
+
+# when creating author, set id to HOST + authors/ + <some id> and host to HOST
+# authors who are local to the server and any author who interacts with the server
+# (likes, comments, follow requests) should be hosted on the server
 class APIAuthor(APIView):
     def get(self, request, id):
         try:
-            author = Author.objects.get(pk=id)
+            author = Author.objects.get(pk=HOST+"authors/"+id)
             serialzer = AuthorSerializer(author)
-            serialzer.data["type"] = "author"
-            return Response(status=200, data=serialzer.data)
+            returnDict = dict(serialzer.data)
+            returnDict["type"] = "author"
+            returnDict["url"] = returnDict["id"]
+            return Response(status=200, data=returnDict)
         except Author.DoesNotExist:
             return Response(status=404)
 
     def post(self, request, id):
         try:
-            author = Author.objects.get(pk=id)
+            author = Author.objects.get(pk=HOST+"authors/"+id)
         except Author.DoesNotExist:
             return Response(status=404)
         serializer = AuthorSerializer(author, data=request.data, partial=True)
@@ -59,34 +68,47 @@ class APIListAuthors(APIView):
         else:
             authors = Author.objects.all()
             serializer = AuthorSerializer(authors, many=True)
+            returnList = []
             for author_serial in serializer.data:
-                author_serial["type"] = "author"
+                returnDict = dict(author_serial)
+                returnDict["type"] = "author"
+                returnDict["url"] = author_serial["id"]
+                returnList.append(returnDict)
             authorListDict = {}
             authorListDict["type"] = "authors"
-            authorListDict["items"] = serializer.data
+            authorListDict["items"] = returnList
             return Response(status=200, data=authorListDict)
- 
+
+# when creating posts, follow same URL scheme!
 class APIPost(APIView):
     def get(self, request, author_id, post_id):
         try:
-            author = Author.objects.get(pk=author_id)
+            author = Author.objects.get(pk=HOST+"authors/"+author_id)
         except Author.DoesNotExist:
             return Response(status=404)
         try:
-            post = Post.objects.filter(posterID=author).get(pk=post_id)
+            post = Post.objects.filter(author=author).get(pk=HOST+"authors/"+author_id+"posts/"+post_id)
             serialzer = PostSerializer(post)
-            serialzer.data["type"] = "post"
-            return Response(status=200, data=serialzer.data)
+            postDict = dict(serialzer.data)
+            postDict["type"] = "post"
+            serialzer = AuthorSerializer(author)
+            authorDict = dict(serialzer.data)
+            authorDict["type"] = "author"
+            authorDict["url"] = authorDict["id"]
+            postDict["author"] = authorDict
+            postDict["count"] = len(Comment.objects.filter(parentPostID=HOST+"authors/"+author_id+"posts/"+post_id))
+            postDict["comments"] = postDict["id"] + "comments/"
+            return Response(status=200, data=postDict)
         except Post.DoesNotExist:
             return Response(status=404)
 
     def post(self, request, author_id, post_id):
         try:
-            author = Author.objects.get(pk=author_id)
+            author = Author.objects.get(pk=HOST+"authors/"+author_id)
         except Author.DoesNotExist:
             return Response(status=404)
         try:
-            post = Post.objects.get(pk=post_id)
+            post = Post.objects.get(pk=HOST+"authors/"+author_id+"posts/"+post_id)
         except Post.DoesNotExist:
             return Response(status=404)
         serializer = PostSerializer(post, data=request.data, partial=True)
@@ -127,192 +149,295 @@ class APIPost(APIView):
 class APIListPosts(APIView):
     def get(self, request, author_id):
         try:
-            author = Author.objects.get(pk=author_id)
+            author = Author.objects.get(pk=HOST+"authors/"+author_id)
         except Author.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
-        posts = Post.objects.filter(posterID=author)
-        serializer = PostSerializer(posts, many=True, context={"type":"post"})
+        posts = Post.objects.filter(author=author)
+        serializer = PostSerializer(posts, many=True)
+        postList = []
         for post_serial in serializer.data:
-            post_serial["type"] = "post"
+            postDict = dict(post_serial)
+            postDict["type"] = "post"
+            postDict["url"] = postDict["id"]
+            serialzer = AuthorSerializer(author)
+            authorDict = dict(serialzer.data)
+            authorDict["type"] = "author"
+            authorDict["url"] = authorDict["id"]
+            postDict["author"] = authorDict
+            postDict["count"] = len(Comment.objects.filter(parentPostID=post_serial["postID"]))
+            postDict["comments"] = postDict["id"] + "comments/"
+            postList.append(postDict)
         postListDict = {}
         postListDict["type"] = "posts"
-        postListDict["items"] = serializer.data
+        postListDict["items"] = postList
         return Response(postListDict)
-
+    
+    # when POST, include in body
+    #   author - URL form
+    #   title - string
+    #   source - string
+    #   origin - string
+    #   description - string
+    #   contentType - string
+    #   catergories - string
+    #   published - datetime
+    #   visibitly 
+    #   unlisted
     def post(self, request, author_id):
         try:
-            author = Author.objects.get(pk=author_id)
+            author = Author.objects.get(pk=HOST+"authors/"+author_id)
         except Author.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
         while True:
-            post_id = get_random_string(40)
+            post_id = get_random_string(10)
             try:
-                post = Post.objects.get(postID=post_id)
+                post = Post.objects.get(postID=HOST+"authors/"+author_id+"posts/"+post_id)
                 continue
             except:
-                request.data["postID"] = post_id
+                request.data["id"] = post_id
                 serializer = PostSerializer(data=request.data, partial=True)
                 if serializer.is_valid():
                         serializer.save()
                         return Response(status=201, data=serializer.data)
                 return Response(status=400, data=serializer.errors)
     
-
+# comment id should be the same URL scheme as posts and authors
 class APIComment(APIView):
     def get(self, request, author_id, post_id, comment_id):
         try:
-            author = Author.objects.get(pk=author_id)
+            author = Author.objects.get(pk=HOST+"authors/"+author_id)
         except Author.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
         try:
-            post = Post.objects.filter(posterID=author).get(pk=post_id)
+            post = Post.objects.filter(author=author).get(pk=HOST+"authors/"+author_id+"posts/"+post_id)
         except Post.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
-        comment = Comment.objects.filter(parentPostID=post_id).get(pk=comment_id)
+        comment = Comment.objects.filter(parentPost=HOST+
+                                                    "authors/"+
+                                                    author_id+
+                                                    "posts/"+
+                                                    post_id).get(pk=HOST+
+                                                    "authors/"+
+                                                    author_id+
+                                                    "posts/"+
+                                                    post_id+
+                                                    "comments/"+
+                                                    comment_id)
         serialzer = CommentSerializer(comment)
-        serialzer.data["type"] = "comment"
-        return Response(serialzer.data)
+        commentDict = dict(serialzer.data)
+        author_serialzer = AuthorSerializer(author)
+        authorDict = dict(author_serialzer.data)
+        authorDict["type"] = "author"
+        authorDict["url"] = authorDict["id"]
+        commentDict["author"] = authorDict
+        return Response(commentDict)
 
 class APIListComments(APIView):
     def get(self, request, author_id, post_id):
         try:
-            author = Author.objects.get(pk=author_id)
+            author = Author.objects.get(pk=HOST+"authors/"+author_id)
         except Author.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
         try:
-            post = Post.objects.filter(posterID=author).get(pk=post_id)
+            post = Post.objects.filter(author=author).get(pk=HOST+"authors/"+author_id+"posts/"+post_id)
         except Post.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
-        comments = Comment.objects.filter(parentPostID=post_id)
+        comments = Comment.objects.filter(parentPost=HOST+"authors/"+author_id+"posts/"+post_id)
         serializer = CommentSerializer(comments, many=True)
+        commentList = []
         for comment_serial in serializer.data:
-            comment_serial["type"] = "comment"
+            commentDict = dict(comment_serial)
+            author_serialzer = AuthorSerializer(author)
+            authorDict = dict(author_serialzer.data)
+            authorDict["type"] = "author"
+            authorDict["url"] = authorDict["id"]
+            commentDict["author"] = authorDict
+            commentList.append(commentDict)
         commentListDict = {}
         commentListDict["type"] = "comments"
-        commentListDict["items"] = serializer.data
+        commentListDict["items"] = commentList
+        commentListDict["post"] = HOST + "authors/" + author_id + "posts/" + post_id 
+        commentListDict["id"] = HOST + "authors/" + author_id + "posts/" + post_id + "comments/"
         return Response(commentListDict)
-
+    
+    # when POST, include in body
+    #   author - URL form
+    #   content - string
+    #   contentType - string
+    #   published - datetime
+    #   parentPost - URL form
     def post(self, request, author_id, post_id):
         try:
-            author = Author.objects.get(pk=author_id)
+            author = Author.objects.get(pk=HOST+"authors/"+author_id)
         except Author.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
         try:
-            post = Post.objects.filter(posterID=author).get(pk=post_id)
+            post = Post.objects.filter(author=author).get(pk=HOST+"authors/"+author_id+"posts/"+post_id)
         except Post.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
         while True:
-            comment_id = get_random_string(40)
+            comment_id = get_random_string(20)
             try:
-                comment = Comment.objects.get(commentID=post_id)
+                comment = Comment.objects.get(id=HOST+
+                                              "authors/"+
+                                              author_id+
+                                              "posts/"+
+                                              post_id+
+                                              "comments/"+
+                                              comment_id)
                 continue
             except:
-                request.data["commentID"] = comment_id
+                request.data["id"] = HOST+"authors/"+author_id+"posts/"+post_id+"comments/"+comment_id
                 serializer = CommentSerializer(data=request.data, partial=True)
                 if serializer.is_valid():
                         serializer.save()
                         return Response(status=201, data=serializer.data)
                 return Response(status=400, data=serializer.errors)
 
+# likes, store with same URL schemea
 class APIListLikesPost(APIView):
     def get(self, request, author_id, post_id):
         try:
-            author = Author.objects.get(pk=author_id)
+            author = Author.objects.get(pk=HOST+"authors/"+author_id)
         except Author.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
         try:
-            post = Post.objects.filter(posterID=author).get(pk=post_id)
+            post = Post.objects.filter(author=author).get(pk=HOST+"authors/"+author_id+"posts/"+post_id)
         except Post.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
         likes = Like.objects.filter(parentPost=post_id)
-        serializer = LikeSerializer(likes, many=True, context={"type":"like"})
+        likeList = []
+        serializer = LikeSerializer(likes, many=True)
+        for like_serial in serializer.data:
+            likeDict = dict(like_serial)
+            likeAuthor = Author.objects.get(pk=like_serial["author"])
+            author_serialzer = AuthorSerializer(likeAuthor)
+            authorDict = dict(author_serialzer.data)
+            authorDict["type"] = "author"
+            authorDict["url"] = authorDict["id"]
+            likeDict["author"] = authorDict
+            likeDict["object"] = HOST + "authors/" + author_id + "posts/" + post_id
+            likeList.append(likeDict)
         likeListDict = {}
         likeListDict["type"] = "likes"
-        likeListDict["items"] = serializer.data
+        likeListDict["items"] = likeList
         return Response(likeListDict)
 
 class APIListLikesComments(APIView):
     def get(self, request, author_id, post_id, comment_id):
         try:
-            author = Author.objects.get(pk=author_id)
+            author = Author.objects.get(pk=HOST+"authors/"+author_id)
         except Author.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
         try:
-            post = Post.objects.filter(posterID=author).get(pk=post_id)
+            post = Post.objects.filter(posterID=author).get(pk=HOST+"authors/"+author_id+"posts/"+post_id)
         except Post.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
         try: 
-            comment = Comment.objects.filter(parentPostID=post_id).get(pk=comment_id)
+            comment = Comment.objects.filter(parentPostID=post_id).get(pk=HOST+"authors/"+
+                                                                       author_id+"posts/"+
+                                                                       post_id+"comments/"+
+                                                                       comment_id)
         except Comment.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
         likes = Like.objects.filter(parentComment=comment)
+        likeList = []
         serializer = LikeSerializer(likes, many=True)
         for like_serial in serializer.data:
-            like_serial["type"] = "like"
+            likeDict = dict(like_serial)
+            likeAuthor = Author.objects.get(pk=like_serial["author"])
+            author_serialzer = AuthorSerializer(likeAuthor)
+            authorDict = dict(author_serialzer.data)
+            authorDict["type"] = "author" 
+            authorDict["url"] = authorDict["id"]
+            likeDict["author"] = authorDict
+            likeDict["object"] = HOST + "authors/" + author_id + "posts/" + post_id + "comments/" + comment_id
+            likeList.append(likeDict)
         likeListDict = {}
         likeListDict["type"] = "likes"
-        likeListDict["items"] = serializer.data
+        likeListDict["items"] = likeList
         return Response(likeListDict)
-
+    
 class APILiked(APIView):
-    def get(request, author_id):
+    def get(self, request, author_id):
         try:
-            author = Author.objects.get(pk=author_id)
+            author = Author.objects.get(pk=HOST+"authors/"+author_id)
         except Author.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
-        likes = Like.objects.filter(author=author_id)
+        likes = Like.objects.filter(author=HOST+"authors/"+author_id)
+        likeList = []
         serializer = LikeSerializer(likes, many=True)
         for like_serial in serializer.data:
-            like_serial["type"] = "like"
+            likeDict = dict(like_serial)
+            like = Like.objects.get(pk=like_serial["likeID"])        
+            author_serialzer = AuthorSerializer(author)
+            authorDict = dict(author_serialzer.data)
+            authorDict["type"] = "author" 
+            authorDict["url"] = authorDict["id"]
+            likeDict["author"] = authorDict
+            if like.likeType == "Post":
+                likeDict["object"] = like.parentPost.id
+            else: 
+                likeDict["object"] = like.parentComment.id
+            likeList.append(likeDict)
         likeListDict = {}
         likeListDict["type"] = "liked"
-        likeListDict["items"] = serializer.data
+        likeListDict["items"] = likeList
         return Response(likeListDict)
         
 class APIFollowers(APIView):
     def get(self, request, author_id):
         try:
-            author = Author.objects.get(pk=author_id)
+            author = Author.objects.get(pk=HOST+"authors/"+author_id)
         except Author.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
         user_followers = author.followers.all()
         followersList = []
         for user_follower in user_followers:
-            followersList.append(user_follower.following)
+            followersList.append(user_follower.user_id)
         serializer = AuthorSerializer(followersList, many=True)
+        authorList = []
         for author_serial in serializer.data:
-            author_serial["type"] = "author"
+            authorDict = dict(author_serial)
+            authorDict["type"] = "author" 
+            authorDict["url"] = authorDict["id"]
+            authorList.append(authorDict)
         followerListDict = {}
         followerListDict["type"] = "followers"
-        followerListDict["items"] = serializer.data
+        followerListDict["items"] = authorList
         return Response(followerListDict)
 
+# foreign_author_id should be an abs URL, encoded as a parameter or path element
 class APIFollower(APIView):
     def get(self, request, author_id, foreign_author_id):
         try:
-            targetAuthor = Author.objects.get(pk=author_id)
+            targetAuthor = Author.objects.get(pk=HOST+"authors/"+author_id)
         except Author.DoesNotExist:
             return Response(status=404)
         try: 
+            #TODO: convert foreign_author_id from parameter form to URL
             followingAuthor = Author.objects.get(pk=foreign_author_id)
         except:
             return Response(status=404)
-        if followingAuthor in targetAuthor.followers:
+        #TODO: need to fix
+        try:
+            follower = targetAuthor.followers.all().get(user_id=followingAuthor.authorId)
             return Response(status=200)
-        else:
-            return Response(status=400)
-
+        except:
+            return Response(status=404)
+        
+    # foreign_author_id should be an abs URL, encoded as a parameter or path element
+    # same notes as before!
     def put(self, request, author_id, foreign_author_id):
         try:
-            targetAuthor = Author.objects.get(pk=author_id)
-            # check host if they are hosted on our server
+            targetAuthor = Author.objects.get(pk=HOST+"authors/"+author_id)
         except Author.DoesNotExist:
             return Response(status=404)
         try: 
             followingAuthor = Author.objects.get(pk=foreign_author_id)
         except:
             # create copy of author on our server
-            return Response(status=404)
+            new_author = Author(id=foreign_author_id)
         if followingAuthor in targetAuthor.followers.all():
             return Response(status=405)
         # link two authors together with relationship
@@ -323,13 +448,11 @@ class APIFollower(APIView):
     def delete(self, request, author_id, foreign_author_id):
         try:
             targetAuthor = Author.objects.get(pk=author_id)
-            # check host if they are hosted on our server
         except Author.DoesNotExist:
             return Response(status=404)
         try: 
             followingAuthor = Author.objects.get(pk=foreign_author_id)
         except:
-            # create copy of author on our server
             return Response(status=404)
         if followingAuthor not in targetAuthor.followers.all():
             return Response(status=404)
