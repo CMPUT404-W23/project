@@ -495,7 +495,10 @@ class APIInbox(APIView):
             for user_follower in user_followers:
                 followersList.append(user_follower.user_id)
 
-            """
+            # consist of posts and follows
+            itemslist=[]
+
+            
             # TBA
             #4. getting the followers' request
             serializer = AuthorSerializer(followersList, many=True)
@@ -506,7 +509,7 @@ class APIInbox(APIView):
                 authorDict["url"] = authorDict["id"]
                 authorList.append(authorDict)
             # Missing ending line
-            """
+            
 
             # 3b use those id's to get their posts (learned from APIListPosts)
             postList = []
@@ -563,6 +566,8 @@ class APIInbox(APIView):
                     postDict["comments"]=commentList
 
                     # HOW TF to add the followers request within an item?
+
+
 
                     # add all the posts up
                     #TBA: append the items(likes, comments, follower request) in right order
