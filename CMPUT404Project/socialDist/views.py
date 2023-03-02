@@ -43,6 +43,7 @@ class APIAuthor(APIView):
             author = Author.objects.get(pk=HOST+"authors/"+id)
         except Author.DoesNotExist:
             return Response(status=404)
+        print("THE REQUEST IS:",id)
         authorDict = dict(request.data)
         authorDict["id"] = HOST+"authors/"+id
         authorDict["host"] = HOST
