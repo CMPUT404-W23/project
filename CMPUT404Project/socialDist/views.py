@@ -346,5 +346,33 @@ def get_server(request, author_id):
         return Response(status=status.HTTP_404_NOT_FOUND)
     return Response(ServerSerializer(server).data)
 
-# Get all of the servers that one owns: TBA
+# Get all of the servers that one owns:
+@api_view(['GET'])
+def get_servers(request, author_id):
+    try:
+        author = Author.objects.get(pk=author_id)
+    except Author.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    servers=Server.objects.filter(owner=author)
+    serializer=ServerSerializer(servers, many=True, context={"type":"post"})
+    serverListDict = {}
+    serverListDict["type"]="servers"
+    postListDict["items"] = serializer.data
+    return Response(serverListDict)
 
+@api_view(['GET'])
+def get_inbox(request, author_id):
+    # get the owner first in order to get the inbox
+    try:
+        author = Author.objects.get(pk=author_id)
+    except Author.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    try:
+        inbox = Inbox.objects.filter(owner=author).get(pk=inboxID)
+    except Inbox.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    return Response(ServerSerializer(inbox).data)
+
+# similar to get_posts, but find them through the server but not the author
+# @api_view(['GET'])
+# def get_inbox_posts(request, server_id):
