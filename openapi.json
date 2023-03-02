@@ -39,7 +39,12 @@
                         }
                     ],
                     "responses":{
+                        "200":{
 
+                        },
+                        "404":{
+
+                        }
                     }
                 }
             },
@@ -47,22 +52,34 @@
                 "get":{
                     "summary":"Gets the author with the specified ID hosted on this server",
                     "responses":{
-                        
+                        "200":{
+
+                        },
+                        "404":{
+
+                        }
                     }
                 },
                 "post":{
                     "summary":"Edits the author with the specified ID hosted on this server",
                     "responses":{
-                        
+                        "200":{
+
+                        },
+                        "400":{
+
+                        },
+                        "401":{
+
+                        },
+                        "404":{
+
+                        }
                     },
                     "requestBody":{
                         "appilcation/json": {
                             "type":"object",
-                            "required":[
-                                "displayName",
-                                "github",
-                                "profileImage"
-                            ],
+                            "required":[],
                             "properties":{
                                 "displayName":{
                                     "type":"string"
@@ -155,7 +172,12 @@
                 "get":{
                     "summary":"Gets a list of posts made by the specified author",
                     "responses":{
-                        
+                        "200":{
+
+                        },
+                        "404":{
+                            
+                        }
                     },
                     "parameters":[
                         {
@@ -181,25 +203,25 @@
                 "post":{
                     "summary":"Creates a new post authored by the specified author with a randomized ID",
                     "responses":{
-                        
+                        "200":{
+
+                        },
+                        "400":{
+
+                        },
+                        "401":{
+
+                        },
+                        "404":{
+
+                        }
                     },
                     "requestBody":{
                         "description":"New post object",
                         "content":{
                             "appilcation/json": {
                                 "type":"object",
-                                "required":[
-                                    "title",
-                                    "source",
-                                    "origin",
-                                    "description",
-                                    "content",
-                                    "contentType",
-                                    "categories",
-                                    "published",
-                                    "visibiitly",
-                                    "unlisted"
-                                ],
+                                "required":[],
                                 "properties":{
                                     "title": {
                                         "type":"string"
@@ -256,7 +278,12 @@
                 "get":{
                     "summary":"Get a list of the posts which the specified author has liked",
                     "responses":{
-                        
+                        "200":{
+
+                        },
+                        "404":{
+                            
+                        }
                     }
                 },
                 "parameters":[
@@ -275,7 +302,12 @@
                 "get":{
                     "summary":"Get a list of authors which follow the specified author",
                     "responses":{
-                        
+                        "200":{
+
+                        },
+                        "404":{
+                            
+                        }
                     }
                 },
                 "parameters":[
@@ -294,7 +326,12 @@
                 "get":{
                     "summary":"Check if the specified author follows the specified author",
                     "responses":{
-                        
+                        "200":{
+
+                        },
+                        "404":{
+                            
+                        }
                     }
                 },
                 "put":{
@@ -372,13 +409,29 @@
                 "get":{
                     "summary":"Get the post authored by the specified author with the specified ID",
                     "responses":{
-                        
+                        "200":{
+
+                        },
+                        "404":{
+                            
+                        }
                     }
                 },
                 "post":{
                     "summary":"Edit the post authored by the specified author with the specified ID",
                     "responses":{
-                        
+                        "201":{
+
+                        },
+                        "400":{
+                            
+                        },
+                        "401":{
+
+                        },
+                        "404":{
+                            
+                        }
                     },
                     "requestBody":{
                         "description":"Modified post object",
@@ -440,7 +493,18 @@
                 "put":{
                     "summary":"Create a post authored by the specified author with the specified ID",
                     "responses":{
-                        
+                        "201":{
+
+                        },
+                        "400":{
+                            
+                        },
+                        "401":{
+
+                        },
+                        "404":{
+                            
+                        }
                     },
                     "requestBody":{
                         "description":"Created post object",
@@ -505,7 +569,15 @@
                 "delete":{
                     "summary":"Delete the post authored by the specified author with the specified ID",
                     "responses":{
-                        
+                        "200":{
+
+                        },
+                        "401":{
+
+                        },
+                        "404":{
+                            
+                        }
                     }
                 },
                 "parameters":[
@@ -533,7 +605,12 @@
                 "get":{
                     "summary":"Get a list of likes on the specified post",
                     "responses":{
-                        
+                        "200":{
+
+                        },
+                        "404":{
+                            
+                        }
                     }
                 },
                 "parameters":[
@@ -561,7 +638,12 @@
                 "get":{
                     "summary":"Get a list of comments on the specified post",
                     "responses":{
-                        
+                        "200":{
+
+                        },
+                        "404":{
+                            
+                        }
                     },
                     "parameters":[
                         {
@@ -587,7 +669,15 @@
                 ,
                 "post":{
                     "responses":{
-                        
+                        "201":{
+
+                        },
+                        "400":{
+
+                        },
+                        "404":{
+                            
+                        }
                     },
                     "requestBody":{
                         "description":"New comment object",
