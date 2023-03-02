@@ -516,7 +516,7 @@ class APIInbox(APIView):
         except Author.DoesNotExist:
             return Response(status=404)
         try:
-            inbox=Inbox.objects.filter(author=author).get(pk=HOST+"authors/"+author_id/"inbox")
+            inbox=Inbox.objects.filter(author=author).get(pk=HOST+"authors/"+author_id/"/inbox")
             serializer=InboxSerializer(inbox)
             # 1. getting the type
             inboxDict=dict(serializer.data)
@@ -532,6 +532,19 @@ class APIInbox(APIView):
             followersList = []
             for user_follower in user_followers:
                 followersList.append(user_follower.user_id)
+
+            """
+            # TBA
+            #4. getting the followers' request
+            serializer = AuthorSerializer(followersList, many=True)
+            authorList = []
+            for author_serial in serializer.data:
+                authorDict = dict(author_serial)
+                authorDict["type"] = "author" 
+                authorDict["url"] = authorDict["id"]
+                authorList.append(authorDict)
+            # Missing ending line
+            """
 
             # 3b use those id's to get their posts (learned from APIListPosts)
             postList = []
@@ -550,8 +563,49 @@ class APIInbox(APIView):
                     authorDict["url"] = authorDict["id"]
                     postDict["author"] = authorDict
                     postDict["count"] = len(Comment.objects.filter(parentPost=post_serial["id"]))
-                    postDict["comments"] = postDict["id"] + "/comments/"
+                    # postDict["comments"] = postDict["id"] + "/comments/"
+
+                    # get the likes for the post
+                    likes = Like.objects.filter(parentPost=postDict["id"])
+                    likeList = []
+                    serializer = LikeSerializer(likes, many=True)
+                    for like_serial in serializer.data:
+                        likeDict = dict(like_serial)
+                        likeAuthor = Author.objects.get(pk=like_serial["author"])
+                        author_serialzer = AuthorSerializer(likeAuthor)
+                        authorDict = dict(author_serialzer.data)
+                        authorDict["type"] = "author"
+                        authorDict["url"] = authorDict["id"]
+                        likeDict["author"] = authorDict
+                        likeDict["object"] = HOST + "authors/" + author_id + "/posts/" + post_id
+                        likeList.append(likeDict)
+                    # should be a dict adding a list
+                    postDict["like"]=likeList
+
+
+                    # get the actual comments (learned from APIListComments)
+                    comments = Comment.objects.filter(parentPost=postDict["id"])
+                    serializer = CommentSerializer(comments, many=True)
+                    commentList = []
+                    for comment_serial in serializer.data:
+                        commentDict = dict(comment_serial)
+                        commentAuthor = Author.objects.get(pk=comment_serial["author"])
+                        author_serialzer = AuthorSerializer(commentAuthor)
+                        authorDict = dict(author_serialzer.data)
+                        authorDict["type"] = "author"
+                        authorDict["url"] = authorDict["id"]
+                        commentDict["author"] = authorDict
+                        commentDict["type"] = "comment"
+                        commentList.append(commentDict)
+                    # Should be dict adding a list
+                    postDict["comments"]=commentList
+
+                    # HOW TF to add the followers request within an item?
+
+                    # add all the posts up
+                    #TBA: append the items(likes, comments, follower request) in right order
                     postList.append(postDict)
+
             # 3c. setting the items to be the postlist
             inboxDict["items"]=postList
             return Response(status=200, data=inboxDict)
