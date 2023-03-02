@@ -6,7 +6,7 @@ from rest_framework.decorators import api_view
 from django.http import QueryDict
 from rest_framework import status
 from django.utils.crypto import get_random_string
-from .serializers import AuthorSerializer, PostSerializer, CommentSerializer, LikeSerializer, ServerSerializer
+from .serializers import AuthorSerializer, PostSerializer, CommentSerializer, LikeSerializer, ServerSerializer, InboxSerializer
 import urllib.parse
 
 from .models import Author, Post, Comment, Like, Server, Inbox, UserFollowing
@@ -509,22 +509,61 @@ class APIFollower(APIView):
             return Response(status=404)
 
 class APIInbox(APIView):
-    def get(request, author_id):
+    def get(self, request, author_id):
         # get the owner first in order to get the inbox
         try:
             author = Author.objects.get(pk=HOST+"authors/"+author_id)
         except Author.DoesNotExist:
             return Response(status=404)
         try:
-            inbox = Inbox.objects.filter(owner=author)
-        except Inbox.DoesNotExist:
+            inbox=Inbox.objects.filter(author=author).get(pk=HOST+"authors/"+author_id/"inbox")
+            serializer=InboxSerializer(inbox)
+            # 1. getting the type
+            inboxDict=dict(serializer.data)
+            inboxDict["type"]="inbox"
+            # 2. getting the author (which is the getter him/herself)
+            serializer= AuthorSerializer(author)
+            inboxDict["author"]=serializer["id"]
+            # 3. getting all of the posts in the server (learned from APIListPosts)
+
+            # 3a filter the posts to ensure they are all followers
+            # 3a.1 Get id for every follower (learned from APIFollowers)
+            user_followers = author.followers.all()
+            followersList = []
+            for user_follower in user_followers:
+                followersList.append(user_follower.user_id)
+
+            # 3b use those id's to get their posts (learned from APIListPosts)
+            postList = []
+            # 3b1.For each follower (each id), get all posts
+            for each in followersList:
+                posts = Post.objects.filter(author=each)
+                serializer = PostSerializer(posts, many=True)
+                # Post list to gather info from all posts
+                for post_serial in serializer.data:
+                    postDict = dict(post_serial)
+                    postDict["type"] = "post"
+                    postDict["url"] = postDict["id"]
+                    serialzer = AuthorSerializer(author)
+                    authorDict = dict(serialzer.data)
+                    authorDict["type"] = "author"
+                    authorDict["url"] = authorDict["id"]
+                    postDict["author"] = authorDict
+                    postDict["count"] = len(Comment.objects.filter(parentPost=post_serial["id"]))
+                    postDict["comments"] = postDict["id"] + "/comments/"
+                    postList.append(postDict)
+            # 3c. setting the items to be the postlist
+            inboxDict["items"]=postList
+            return Response(status=200, data=inboxDict)
+        except:
             return Response(status=404)
-        return Response(ServerSerializer(inbox).data)
     
     # send respective object in body
     def post(request, author_id):
         return Response(status=404)
 
+    
+"""
 # get one server
 @api_view(['GET'])
 def get_server(request, author_id):
@@ -569,3 +608,4 @@ def get_inbox(request, author_id):
 # similar to get_posts, but find them through the server but not the author
 # @api_view(['GET'])
 # def get_inbox_posts(request, server_id):
+"""
