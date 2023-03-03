@@ -342,7 +342,7 @@ class APIListLikesPost(APIView):
             post = Post.objects.filter(author=author).get(pk=HOST+"authors/"+author_id+"/posts/"+post_id)
         except Post.DoesNotExist:
             return Response(status=404)
-        likes = Like.objects.filter(parentPost=post_id)
+        likes = Like.objects.filter(parentPost=post)
         serializer = LikeSerializer(likes, many=True)
         return Response(status=200, data=api_helper.construct_list_of_likes(serializer.data, post.id))
     
@@ -355,11 +355,11 @@ class APIListLikesComments(APIView):
         except Author.DoesNotExist:
             return Response(status=404)
         try:
-            post = Post.objects.filter(posterID=author).get(pk=HOST+"authors/"+author_id+"/posts/"+post_id)
+            post = Post.objects.filter(author=author).get(pk=HOST+"authors/"+author_id+"/posts/"+post_id)
         except Post.DoesNotExist:
             return Response(status=404)
         try: 
-            comment = Comment.objects.filter(parentPost=post_id).get(pk=HOST+"authors/"+
+            comment = Comment.objects.filter(parentPost=post).get(pk=HOST+"authors/"+
                                                                        author_id+"/posts/"+
                                                                        post_id+"/comments/"+
                                                                        comment_id)

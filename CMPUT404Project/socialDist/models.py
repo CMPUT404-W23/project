@@ -52,8 +52,8 @@ class Author(models.Model):
     # Added displayName field, default as empty string
     displayName=models.CharField(default="", max_length=40)
     # github and profileImage fields
-    github = models.TextField()
-    profileImage = models.TextField()
+    github = models.URLField()
+    profileImage = models.URLField()
 
     # # Fields referenced other models externally
     # # check whether the author in a server or not
@@ -135,7 +135,7 @@ class Post(models.Model):
     # changed date to published to fit the requirement
     # date=models.DateField()
     # CONVERT TO DATETIME
-    published = models.DateField()
+    published = models.DateTimeField(auto_created=True)
     # changed the field from CharField to ArrayField
     # visibility = ArrayField(models.CharField(max_length=50), default=list)
     # OR
@@ -162,7 +162,7 @@ class Comment(models.Model):
     content = models.TextField()
     contentType = models.TextField()
 
-    published=models.DateField(auto_created=True)
+    published=models.DateTimeField(auto_created=True)
     parentPost = models.ForeignKey(Post, on_delete=models.CASCADE, related_name="comments")
     
     # # Modified models by added more fields
@@ -176,7 +176,7 @@ class Comment(models.Model):
 # Current Own Fields: author, commentID, content, contentType, published, parentPostID
 # Current foreignkey fields: isLiked
 class Like(models.Model):
-    likeID = models.CharField(primary_key=True, max_length=200)
+    id = models.CharField(primary_key=True, max_length=200)
     summary=models.TextField()
     likeType = models.CharField(max_length=20)
     author = models.ForeignKey(Author, on_delete=models.CASCADE, related_name="liked")

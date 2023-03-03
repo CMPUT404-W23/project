@@ -86,7 +86,7 @@ def construct_list_of_likes(like_list_data, parentObjectID):
     likeList = []
     for like_serial in like_list_data:
         likeAuthor = Author.objects.get(pk=like_serial["author"])
-        likeList.append(construct_like_object(like_serial, likeAuthor, parentObjectID))
+        likeList.append(construct_like_object(like_serial, parentObjectID, likeAuthor))
     likeListDict = {}
     likeListDict["type"] = "likes"
     likeListDict["items"] = likeList
@@ -95,11 +95,11 @@ def construct_list_of_likes(like_list_data, parentObjectID):
 def construct_list_of_liked(liked_list_data, author):
     likeList = []
     for like_serial in liked_list_data:
-        like = Like.objects.get(pk=like_serial["likeID"])        
+        like = Like.objects.get(pk=like_serial["id"])        
         if like.likeType == "Post":
-            likeList.append(construct_like_object(like_serial, author, like.parentPost.id))
+            likeList.append(construct_like_object(like_serial, like.parentPost.id, author))
         else: 
-            likeList.append(construct_like_object(like_serial, author, like.parentComment.id))
+            likeList.append(construct_like_object(like_serial, like.parentComment.id, author))
     likeListDict = {}
     likeListDict["type"] = "liked"
     likeListDict["items"] = likeList
@@ -112,3 +112,4 @@ def construct_list_of_followers(follower_list_data):
     followerListDict = {}
     followerListDict["type"] = "followers"
     followerListDict["items"] = authorList
+    return followerListDict
