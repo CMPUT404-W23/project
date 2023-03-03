@@ -45,8 +45,6 @@
   function sendUserInfo(e) {
     e.preventDefault();
     const httpRequest = new XMLHttpRequest();
-    console.log("Sending user info")
-    const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
     httpRequest.onreadystatechange = () => {
       if (httpRequest.readyState === XMLHttpRequest.DONE) {
         if (httpRequest.status === 201) {

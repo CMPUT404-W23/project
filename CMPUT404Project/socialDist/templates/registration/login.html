@@ -3,15 +3,48 @@
 <div class="container py-5 h-100 w-25">
   <div class="row d-flex justify-content-center align-items-center h-100">
     <div class="card" style="border-radius: 15px;">
-      <div class="card-body p-5">
+      <div class="card-body py-3 px-5">
         <h2 class="text-uppercase text-center mb-4">Log In</h2>
-        <form method="post" class="login-form text-center d-grid gap-2">
+        <form method="post" action="{% url 'login' %}">
           {% csrf_token %}
-          {{ form.as_p }}
-          <button type="submit" class="btn btn-primary mx-4">Log In</button>
+          <!-- {{ form.as_p }}
+          <button type="submit" class="btn btn-primary">Log In</button> -->
+          <div class="mb-3">
+            <label for="username-input" class="form-label">Username</label>
+            <input type="text" class="form-control" id="username-input">
+          </div>
+          <div class="mb-3">
+            <label for="password-input" class="form-label">Password</label>
+            <input type="password" class="form-control" id="password-input">
+          </div>
+          <button type="submit" class="btn btn-primary" onclick="sendRequest(event)">Log In</button>
         </form>
+        <div class="form-text mt-3">Don't have an account? <a href="{% url 'signup' %}">Sign up.</a></div>
       </div>
     </div>
   </div>
 </div>
+
+<script>
+  function sendRequest(e) {
+    e.preventDefault();
+    const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    const username = document.getElementById("username-input").value;
+    const password = document.getElementById("password-input").value;
+    const httpRequest = new XMLHttpRequest();
+    httpRequest.onreadystatechange = () => {
+      if (httpRequest.readyState === XMLHttpRequest.DONE) {
+        if (httpRequest.status === 200) {
+          window.location.replace("/");
+        } else {
+          alert(`Unable to log in: ${httpRequest.statusText}`);
+        }
+      }
+    };
+
+    httpRequest.open("POST", "/user/login/");
+    httpRequest.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+    httpRequest.send(`csrfmiddlewaretoken={{csrf_token}}&username=${username}&password=${password}`);
+  }
+</script>
 {% endblock %}
