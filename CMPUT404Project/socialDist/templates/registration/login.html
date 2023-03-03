@@ -7,8 +7,6 @@
         <h2 class="text-uppercase text-center mb-4">Log In</h2>
         <form method="post" action="{% url 'login' %}">
           {% csrf_token %}
-          <!-- {{ form.as_p }}
-          <button type="submit" class="btn btn-primary">Log In</button> -->
           <div class="mb-3">
             <label for="username-input" class="form-label">Username</label>
             <input type="text" class="form-control" id="username-input">

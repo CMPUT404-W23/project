@@ -6,7 +6,7 @@
     {% load tz %}
     <i>Last login: {{ user.last_login|timezone:"America/Edmonton" }} MST</i>
     <div class="my-3">
-      <label for="username" class="form-label">Username</label>
+      <label for="username" class="form-label" required>Username</label>
       <input type="text" class="form-control" id="username" value={{user.username}}>
     </div>
     <div class="mb-3">
