@@ -1,7 +1,6 @@
 # Social Distribution CMPUT404 Project
 
 ## Resources
-- Will Vincent, [Django Login and Logout Tutorial](https://learndjango.com/tutorials/django-login-and-logout-tutorial)
 - Abhik, [Step by Step guide to add friends with Django](https://medium.com/analytics-vidhya/add-friends-with-689a2fa4e41d)
 - Steve Pousty, [Composite Primary Keys, PostgreSQL and Django](https://www.crunchydata.com/blog/composite-primary-keys-postgresql-and-django)
 - Enthusiast Martin, [How to make follower-following system with django model](https://stackoverflow.com/questions/58794639/how-to-make-follower-following-system-with-django-model)
@@ -13,4 +12,3 @@
   
 OPEN API Specification based off:
 https://swagger.io/specification/
-
