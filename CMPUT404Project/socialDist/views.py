@@ -1,6 +1,6 @@
 # MIT License
 
-# Copyright (c) 2023 CMPUT404-W23
+# Copyright (c) 2023 Warren Lim
 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -21,16 +21,18 @@
 # SOFTWARE.
 
 # Sources:
-# https://testdriven.io/blog/drf-views-part-1/
 # https://docs.djangoproject.com/en/4.1/topics/db/queries/#:~:text=Creating%20objects&text=To%20create%20an%20object%2C%20instantiate,save%20it%20to%20the%20database.&text=This%20performs%20an%20INSERT%20SQL,method%20has%20no%20return%20value.
 # https://docs.djangoproject.com/en/4.1/ref/request-response/
-# https://www.geeksforgeeks.org/adding-permission-in-api-django-rest-framework/
 # https://docs.djangoproject.com/en/4.1/ref/models/querysets/
+# https://testdriven.io/blog/drf-views-part-1/
+# https://www.geeksforgeeks.org/adding-permission-in-api-django-rest-framework/
 # https://stackoverflow.com/questions/25943850/django-package-to-generate-random-alphanumeric-strin
+# https://www.geeksforgeeks.org/encoding-and-decoding-base64-strings-in-python/
 
 from django.shortcuts import render, get_object_or_404
 from rest_framework.permissions import DjangoModelPermissions
 from rest_framework.response import Response
+from django.http import HttpResponse
 from rest_framework.views import APIView
 from rest_framework.decorators import api_view
 from django.http import QueryDict
@@ -123,7 +125,7 @@ class APIPost(APIView):
             return Response(status=404)
         # Check if specfied post exists
         try:
-            post = Post.objects.filter(author=author).get(pk=HOST+"authors/"+author_id+"/posts/"+post_id)
+            post = Post.objects.filter(author=author).filter(visibility="VISIBLE").get(pk=HOST+"authors/"+author_id+"/posts/"+post_id)
             serialzer = PostSerializer(post)
             return Response(status=200, data=api_helper.construct_post_object(serialzer.data, author))
         except Post.DoesNotExist:
@@ -131,6 +133,7 @@ class APIPost(APIView):
         
     # Edit a single post
     # When POSTing, send a post object in JSON with the modified fields
+    # Cannot edit a private post!
     def post(self, request, author_id, post_id):
         # Check if specified author exists
         try:
@@ -139,7 +142,7 @@ class APIPost(APIView):
             return Response(status=404)
         # Check if specfied post exists
         try:
-            post = Post.objects.get(pk=HOST+"authors/"+author_id+"/posts/"+post_id)
+            post = Post.objects.filter(visibility="VISIBLE").get(pk=HOST+"authors/"+author_id+"/posts/"+post_id)
         except Post.DoesNotExist:
             return Response(status=404)
         # Check if request is from an authorized source (only user and admin can call this!), 401 if not
@@ -156,6 +159,8 @@ class APIPost(APIView):
     # Create a single post
     # When PUTTing, send a post object in JSON with the field
     # Note that host and id will be set to HOST and HOST/authors/author_id/posts/post_id
+    # When PUTTing to a public post that already exists, replace post with JSON post object in body
+    # Cannot PUT to an already existing private post!
     def put(self, request, author_id, post_id):
         try:
             author = Author.objects.get(pk=HOST+"authors/"+author_id)
@@ -167,6 +172,8 @@ class APIPost(APIView):
             # Check if request is from an authorized source (only user and admin can call this!), 401 if not
             if not request.user.is_authenticated and request.user.id != author_id:
                 return Response(status=401)
+            if post.visibility == "PRIVATE":
+                return Response(status=404)
             postDict = dict(request.data)
             postDict["author"] = HOST+"authors/"+author_id
             serializer = PostSerializer(post, data=postDict, partial=True)
@@ -188,6 +195,7 @@ class APIPost(APIView):
             return Response(status=400, data=serializer.errors)
         
     # Delete the single post
+    # Cannot delete private posts!
     def delete(self, request, author_id, post_id):
         try:
             author = Author.objects.get(pk=HOST+"authors/"+author_id)
@@ -196,7 +204,7 @@ class APIPost(APIView):
         if not request.user.is_authenticated and request.user.id != author_id:
             return Response(status=401)
         try:
-            post = Post.objects.get(pk=HOST+"authors/"+author_id+"/posts/"+post_id)
+            post = Post.objects.filter(visibility="VISIBLE").get(pk=HOST+"authors/"+author_id+"/posts/"+post_id)
         except Post.DoesNotExist:
             return Response(status=404)
         post.delete()
@@ -211,7 +219,7 @@ class APIListPosts(APIView):
             author = Author.objects.get(pk=HOST+"authors/"+author_id)
         except Author.DoesNotExist:
             return Response(status=404)
-        posts = Post.objects.filter(author=author)
+        posts = Post.objects.filter(author=author).filter(visibility="VISIBLE")
         serializer = PostSerializer(posts, many=True)
         return Response(status=200, data=api_helper.construct_list_of_posts(serializer.data, author))
     
@@ -240,6 +248,25 @@ class APIListPosts(APIView):
                         return Response(status=201, 
                                         data=api_helper.construct_post_object(serializer.data, author))
                 return Response(status=400, data=serializer.errors)
+            
+# WIP: DO NOT USE!
+class APIImage(APIView):
+    def get(self, request, author_id, post_id):
+        try:
+            author = Author.objects.get(pk=HOST+"authors/"+author_id)
+        except Author.DoesNotExist:
+            return Response(status=404)
+        # Check if resource already exists, if it does, acts like POST!
+        try:
+            post = Post.objects.get(pk=HOST+"authors/"+author_id+"/posts/"+post_id)
+            if post.contentType != "image/png" and post.contentType != "image/jpeg":
+                return Response(status=404)
+            # print(post.content.encode('ascii'))
+            return HttpResponse(status=200, 
+                            content=post.content.encode('ascii'), 
+                            content_type=post.contentType)
+        except Post.DoesNotExist:
+            return Response(status=404)
     
 #API View for single comment queries (endpoint /api/authors/<author_id>/posts/<post_id>/comments/<comment_id>)
 class APIComment(APIView):
@@ -278,7 +305,7 @@ class APIListComments(APIView):
         try:
             post = Post.objects.filter(author=author).get(pk=HOST+"authors/"+author_id+"/posts/"+post_id)
         except Post.DoesNotExist:
-            return Response(status=status.HTTP_404_NOT_FOUND)
+            return Response(status=404)
         comments = Comment.objects.filter(parentPost=HOST+"authors/"+author_id+"/posts/"+post_id)
         serializer = CommentSerializer(comments, many=True)
         return Response(status=200, data=api_helper.construct_list_of_comments(serializer.data, author, post))
@@ -342,7 +369,7 @@ class APIListLikesPost(APIView):
             post = Post.objects.filter(author=author).get(pk=HOST+"authors/"+author_id+"/posts/"+post_id)
         except Post.DoesNotExist:
             return Response(status=404)
-        likes = Like.objects.filter(parentPost=post_id)
+        likes = Like.objects.filter(parentPost=post)
         serializer = LikeSerializer(likes, many=True)
         return Response(status=200, data=api_helper.construct_list_of_likes(serializer.data, post.id))
     
@@ -353,30 +380,31 @@ class APIListLikesComments(APIView):
         try:
             author = Author.objects.get(pk=HOST+"authors/"+author_id)
         except Author.DoesNotExist:
-            return Response(status=status.HTTP_404_NOT_FOUND)
+            return Response(status=404)
         try:
-            post = Post.objects.filter(posterID=author).get(pk=HOST+"authors/"+author_id+"/posts/"+post_id)
+            post = Post.objects.filter(author=author).get(pk=HOST+"authors/"+author_id+"/posts/"+post_id)
         except Post.DoesNotExist:
-            return Response(status=status.HTTP_404_NOT_FOUND)
+            return Response(status=404)
         try: 
-            comment = Comment.objects.filter(parentPost=post_id).get(pk=HOST+"authors/"+
+            comment = Comment.objects.filter(parentPost=post).get(pk=HOST+"authors/"+
                                                                        author_id+"/posts/"+
                                                                        post_id+"/comments/"+
                                                                        comment_id)
         except Comment.DoesNotExist:
-            return Response(status=status.HTTP_404_NOT_FOUND)
+            return Response(status=404)
         likes = Like.objects.filter(parentComment=comment)
         serializer = LikeSerializer(likes, many=True)
         return Response(status=200, data=api_helper.construct_list_of_likes(serializer.data, comment.id))
     
 # API view for liked objects by the author (endpoint /api/authors/<author_id>/liked)
 class APILiked(APIView):
-    # Get list of likes originating from this author
+    # Get list of likes on public objects (comments on public posts, public posts)
+    # originating from this author
     def get(self, request, author_id):
         try:
             author = Author.objects.get(pk=HOST+"authors/"+author_id)
         except Author.DoesNotExist:
-            return Response(status=status.HTTP_404_NOT_FOUND)
+            return Response(status=404)
         likes = Like.objects.filter(author=HOST+"authors/"+author_id)
         serializer = LikeSerializer(likes, many=True)
         return Response(status=200, data=api_helper.construct_list_of_liked(serializer.data, author))

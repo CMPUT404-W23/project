@@ -3,13 +3,30 @@
 <div class="container py-5 h-100 w-25">
   <div class="row d-flex justify-content-center align-items-center h-100">
     <div class="card" style="border-radius: 15px;">
-      <div class="card-body p-5">
+      <div class="card-body py-3 px-5">
         <h2 class="text-uppercase text-center mb-4">Log In</h2>
-        <form method="post" class="login-form text-center d-grid gap-2">
+        <form method="post" action="{% url 'login' %}">
           {% csrf_token %}
-          {{ form.as_p }}
-          <button type="submit" class="btn btn-primary mx-4">Log In</button>
+          {% if form.errors %}
+          <div class="alert alert-danger" role="alert">
+            {{ form.non_field_errors }}
+            {{ form.username.errors }}
+            {{ form.password.errors }}
+          </div>
+          {% endif %}
+          <div class="mb-3">
+            <label for="username-input" class="form-label">Username</label>
+            <br>
+            {{ form.username }}
+          </div>
+          <div class="mb-3">
+            <label for="password-input" class="form-label">Password</label>
+            <br>
+            {{ form.password }}
+          </div>
+          <button type="submit" class="btn btn-primary">Log In</button>
         </form>
+        <div class="form-text mt-3">Don't have an account? <a href="{% url 'signup' %}">Sign up.</a></div>
       </div>
     </div>
   </div>

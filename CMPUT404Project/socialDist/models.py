@@ -1,6 +1,6 @@
 # MIT License
 
-# Copyright (c) 2023 CMPUT404-W23
+# Copyright (c) 2023 Warren Lim
 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -22,19 +22,18 @@
 
 from django.db import models
 from django.contrib.auth.models import User
+
 # Added array field to handle categories in post
 # https://stackoverflow.com/questions/4294039/how-can-i-store-an-array-of-strings-in-a-django-model
 from django.contrib.postgres.fields import ArrayField
-
-# Create your models here.
 
 # Sources:
 # https://docs.djangoproject.com/en/dev/topics/auth/customizing/#extending-the-existing-user-model
 # https://docs.djangoproject.com/en/4.1/topics/db/examples/many_to_one/
 # https://www.crunchydata.com/blog/composite-primary-keys-postgresql-and-django
 # https://medium.com/analytics-vidhya/add-friends-with-689a2fa4e41d
-# https://buildatscale.tech/model-inheritance-in-django/
-# https://stackoverflow.com/questions/65895225/django-many-to-one-relationship-with-abstract-entities
+# https://stackoverflow.com/questions/58794639/how-to-make-follower-following-system-with-django-model
+# https://stackoverflow.com/questions/2201598/how-to-define-two-fields-unique-as-coupl
 
 
 # Changes towards Author (02/28)
@@ -52,8 +51,8 @@ class Author(models.Model):
     # Added displayName field, default as empty string
     displayName=models.CharField(default="", max_length=40)
     # github and profileImage fields
-    github = models.TextField()
-    profileImage = models.TextField()
+    github = models.URLField()
+    profileImage = models.URLField()
 
     # # Fields referenced other models externally
     # # check whether the author in a server or not
@@ -102,6 +101,8 @@ class UserFollowing(models.Model):
         unique_together = ('user_id', 'following_user_id')
 
 # Model for a follow request:
+# Source:
+# https://medium.com/analytics-vidhya/add-friends-with-689a2fa4e41d
 class FollowRequest(models.Model):
     sender = models.ForeignKey(User, related_name="send_requests", on_delete=models.CASCADE)
     target = models.ForeignKey(User, related_name="recievced_requests", on_delete=models.CASCADE)
@@ -122,6 +123,7 @@ class Post(models.Model):
     # change name from content to description to fit with requirements
     description = models.TextField()
     contentType = models.TextField()
+    content = models.TextField()
     # author to access the author
     author = models.ForeignKey(Author, on_delete=models.CASCADE, related_name="posts")
     # added categories: use arrayfield from postgres
@@ -135,11 +137,14 @@ class Post(models.Model):
     # changed date to published to fit the requirement
     # date=models.DateField()
     # CONVERT TO DATETIME
-    published = models.DateField()
+    published = models.DateTimeField(auto_created=True)
     # changed the field from CharField to ArrayField
     # visibility = ArrayField(models.CharField(max_length=50), default=list)
     # OR
-    visibility=models.CharField(max_length=30)
+    visibility=models.CharField(max_length=30, choices=[
+        ("VISIBLE", "Public"),
+        ("PRIVATE","Private")
+    ])
     unlisted = models.BooleanField()
     # isLiked=models.BooleanField(default=False)
 
@@ -162,7 +167,7 @@ class Comment(models.Model):
     content = models.TextField()
     contentType = models.TextField()
 
-    published=models.DateField(auto_created=True)
+    published=models.DateTimeField(auto_created=True)
     parentPost = models.ForeignKey(Post, on_delete=models.CASCADE, related_name="comments")
     
     # # Modified models by added more fields
@@ -176,7 +181,7 @@ class Comment(models.Model):
 # Current Own Fields: author, commentID, content, contentType, published, parentPostID
 # Current foreignkey fields: isLiked
 class Like(models.Model):
-    likeID = models.CharField(primary_key=True, max_length=200)
+    id = models.CharField(primary_key=True, max_length=200)
     summary=models.TextField()
     likeType = models.CharField(max_length=20)
     author = models.ForeignKey(Author, on_delete=models.CASCADE, related_name="liked")

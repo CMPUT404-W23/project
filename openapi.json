@@ -40,10 +40,57 @@
                     ],
                     "responses":{
                         "200":{
-
+                            "description":"List of author objects",
+                            "content":{
+                                "appilcation/json":{
+                                    "schema":{
+                                        "type":"object",
+                                        "properties":{
+                                            "type":{
+                                                "type":"string"
+                                            },
+                                            "items":{
+                                                "type":"array",
+                                                "items":{
+                                                    "type":"object",
+                                                    "properties":{
+                                                        "id":{
+                                                            "type":"string",
+                                                            "format":"uri"
+                                                        },
+                                                        "url":{
+                                                            "type":"string",
+                                                            "format":"uri"
+                                                        },
+                                                        "host":{
+                                                            "type":"string",
+                                                            "format":"uri"
+                                                        },
+                                                        "displayName":{
+                                                            "type":"string"
+                                                        },
+                                                        "github":{
+                                                            "type":"string",
+                                                            "format":"uri"
+                                                        },
+                                                        "profileImage":{
+                                                            "type":"string",
+                                                            "format":"uri"
+                                                        },
+                                                        "type":{
+                                                            "type":"string"
+                                                        }
+                                                    }
+                                                }
+                                            }
+   
+                                        }
+                                    }
+                                }
+                            }
                         },
                         "404":{
-
+                            "description":"Incorrect query parameters"
                         }
                     }
                 }
@@ -53,27 +100,97 @@
                     "summary":"Gets the author with the specified ID hosted on this server",
                     "responses":{
                         "200":{
-
+                            "description":"Author object with specified ID",
+                            "content":{
+                                "appilcation/json":{
+                                    "schema":{
+                                        "type":"object",
+                                            "properties":{
+                                                "id":{
+                                                    "type":"string",
+                                                    "format":"uri"
+                                                },
+                                                "url":{
+                                                    "type":"string",
+                                                    "format":"uri"
+                                                },
+                                                "host":{
+                                                    "type":"string",
+                                                    "format":"uri"
+                                                },
+                                                "displayName":{
+                                                    "type":"string"
+                                                },
+                                                "github":{
+                                                    "type":"string",
+                                                    "format":"uri"
+                                                },
+                                                "profileImage":{
+                                                    "type":"string",
+                                                    "format":"uri"
+                                                },
+                                                "type":{
+                                                    "type":"string"
+                                                }
+                                            }
+                                    }
+                                }
+                            }
                         },
                         "404":{
-
+                            "description":"Author does not exist"
                         }
                     }
                 },
                 "post":{
                     "summary":"Edits the author with the specified ID hosted on this server",
                     "responses":{
-                        "200":{
-
+                        "201":{
+                            "description":"Edited author object",
+                            "content":{
+                                "appilcation/json":{
+                                    "schema":{
+                                        "type":"object",
+                                            "properties":{
+                                                "id":{
+                                                    "type":"string",
+                                                    "format":"uri"
+                                                },
+                                                "url":{
+                                                    "type":"string",
+                                                    "format":"uri"
+                                                },
+                                                "host":{
+                                                    "type":"string",
+                                                    "format":"uri"
+                                                },
+                                                "displayName":{
+                                                    "type":"string"
+                                                },
+                                                "github":{
+                                                    "type":"string",
+                                                    "format":"uri"
+                                                },
+                                                "profileImage":{
+                                                    "type":"string",
+                                                    "format":"uri"
+                                                },
+                                                "type":{
+                                                    "type":"string"
+                                                }
+                                            }
+                                    }
+                                }
+                            }
                         },
                         "400":{
-
+                            "description":"POSTed author object incorrectly formatted"
                         },
                         "401":{
-
+                            "description":"Unauthorized to perform API call"
                         },
                         "404":{
-
+                            "description":"Author does not exist"
                         }
                     },
                     "requestBody":{
@@ -173,10 +290,108 @@
                     "summary":"Gets a list of posts made by the specified author",
                     "responses":{
                         "200":{
-
+                            "description":"List of post objects",
+                            "content":{
+                                "appilcation/json":{
+                                    "schema":{
+                                        "type":"object",
+                                        "properties":{
+                                            "type":{
+                                                "type":"string"
+                                            },
+                                            "items":{
+                                                "type":"array",
+                                                "items":{
+                                                    "type":"object",
+                                                    "properties":{
+                                                        "id":{
+                                                            "type":"string",
+                                                            "format":"uri"
+                                                        },
+                                                        "type": {
+                                                            "type":"string"
+                                                        },
+                                                        "count": {
+                                                            "type":"integer"
+                                                        },
+                                                        "comments":{
+                                                            "type":"string",
+                                                            "format":"uri"
+                                                        },
+                                                        "author":{
+                                                            "type":"object",
+                                                            "properties":{
+                                                                "id":{
+                                                                    "type":"string",
+                                                                    "format":"uri"
+                                                                },
+                                                                "url":{
+                                                                    "type":"string",
+                                                                    "format":"uri"
+                                                                },
+                                                                "host":{
+                                                                    "type":"string",
+                                                                    "format":"uri"
+                                                                },
+                                                                "displayName":{
+                                                                    "type":"string"
+                                                                },
+                                                                "github":{
+                                                                    "type":"string",
+                                                                    "format":"uri"
+                                                                },
+                                                                "profileImage":{
+                                                                    "type":"string",
+                                                                    "format":"uri"
+                                                                },
+                                                                "type":{
+                                                                    "type":"string"
+                                                                }
+                                                            }
+                                                        },
+                                                        "title": {
+                                                            "type":"string"
+                                                        },
+                                                        "source": {
+                                                            "type":"string",
+                                                            "format":"uri"
+                                                        },
+                                                        "origin": {
+                                                            "type":"string",
+                                                            "format":"uri"
+                                                        },
+                                                        "description": {
+                                                            "type":"string"
+                                                        },
+                                                        "content": {
+                                                            "type":"string"
+                                                        },
+                                                        "contentType": {
+                                                            "type":"string"
+                                                        },
+                                                        "categories": {
+                                                            "type":"string"
+                                                        },
+                                                        "published": {
+                                                            "type":"string",
+                                                            "format":"datetime"
+                                                        },
+                                                        "visibiitly": {
+                                                            "type":"string"
+                                                        },
+                                                        "unlisted": {
+                                                            "type":"string"
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
                         },
                         "404":{
-                            
+                            "description":"Incorrect query parameters or author does not exist"
                         }
                     },
                     "parameters":[
@@ -203,17 +418,103 @@
                 "post":{
                     "summary":"Creates a new post authored by the specified author with a randomized ID",
                     "responses":{
-                        "200":{
-
+                        "201":{
+                            "description":"New post created",
+                            "content":{
+                                "appilcation/json":{
+                                    "schema":{
+                                        "type":"object",
+                                    "properties":{
+                                        "id":{
+                                            "type":"string",
+                                            "format":"uri"
+                                        },
+                                        "type": {
+                                            "type":"string"
+                                        },
+                                        "count": {
+                                            "type":"integer"
+                                        },
+                                        "comments":{
+                                            "type":"string",
+                                            "format":"uri"
+                                        },
+                                        "author":{
+                                            "type":"object",
+                                            "properties":{
+                                                "id":{
+                                                    "type":"string",
+                                                    "format":"uri"
+                                                },
+                                                "url":{
+                                                    "type":"string",
+                                                    "format":"uri"
+                                                },
+                                                "host":{
+                                                    "type":"string",
+                                                    "format":"uri"
+                                                },
+                                                "displayName":{
+                                                    "type":"string"
+                                                },
+                                                "github":{
+                                                    "type":"string",
+                                                    "format":"uri"
+                                                },
+                                                "profileImage":{
+                                                    "type":"string",
+                                                    "format":"uri"
+                                                },
+                                                "type":{
+                                                    "type":"string"
+                                                }
+                                            }
+                                        },
+                                        "title": {
+                                            "type":"string"
+                                        },
+                                        "source": {
+                                            "type":"string",
+                                            "format":"uri"
+                                        },
+                                        "origin": {
+                                            "type":"string",
+                                            "format":"uri"
+                                        },
+                                        "description": {
+                                            "type":"string"
+                                        },
+                                        "content": {
+                                            "type":"string"
+                                        },
+                                        "contentType": {
+                                            "type":"string"
+                                        },
+                                        "categories": {
+                                            "type":"string"
+                                        },
+                                        "published": {
+                                            "type":"string",
+                                            "format":"datetime"
+                                        },
+                                        "visibiitly": {
+                                            "type":"string"
+                                        },
+                                        "unlisted": {
+                                            "type":"string"
+                                        }
+                                    }
+                                }
+                            }   
                         },
                         "400":{
-
+                            "description":"POSTed post object incorrectly formatted"
                         },
                         "401":{
-
+                            "description":"Unauthorized to perform API call"
                         },
                         "404":{
-
+                            "description":"Author does not exist"
                         }
                     },
                     "requestBody":{
@@ -410,7 +711,14 @@
                     "summary":"Get the post authored by the specified author with the specified ID",
                     "responses":{
                         "200":{
-
+                            "description":"Specified Post object",
+                            "content":{
+                                "appilcation/json":{
+                                    "schema":{
+                                        
+                                    }
+                                }
+                            }
                         },
                         "404":{
                             
