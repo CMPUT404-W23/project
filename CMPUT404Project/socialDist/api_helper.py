@@ -117,3 +117,14 @@ def construct_list_of_followers(follower_list_data):
     followerListDict["type"] = "followers"
     followerListDict["items"] = authorList
     return followerListDict
+
+def construct_follow_request_object(follow_request_data, author, actor):
+    # summary is already in the data
+    followRequestDict=dict(follow_request_data)
+    author_serialzer = AuthorSerializer(author)
+    actor_serializer=AuthorSerializer(actor)
+    followRequestDict["type"]="Follow"
+    # get the object from follower_request
+    followRequestDict["actor"]=construct_author_object(actor_serializer.data)
+    followRequestDict["object"]=construct_author_object(author_serialzer.data)
+    return followRequestDict

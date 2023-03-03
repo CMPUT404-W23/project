@@ -49,4 +49,5 @@ urlpatterns = [path('authors/',
             path('authors/<str:author_id>/posts/<str:post_id>/likes/', 
                  views.APIListLikesPost.as_view()),
             path('authors/<str:author_id>/posts/<str:post_id>/comments/<str:comment_id>/likes', 
-                views.APIListLikesComments.as_view()),]
+                views.APIListLikesComments.as_view()),
+            path('authors/<str:author_id>/inbox', views.APIInbox.as_view())]
