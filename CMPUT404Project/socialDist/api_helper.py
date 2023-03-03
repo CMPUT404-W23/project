@@ -21,7 +21,7 @@
 # SOFTWARE.
 
 from .serializers import AuthorSerializer
-from .models import Comment, Author, Like
+from .models import Comment, Author, Like, Post
 
 def construct_author_object(author_data):
     returnDict = dict(author_data)
@@ -55,6 +55,13 @@ def construct_list_of_posts(post_list_data, author):
     postListDict["type"] = "posts"
     postListDict["items"] = postList
     return postListDict
+
+def construct_list_of_all_posts(author_post_list_data_pair):
+    return {
+        "type": "posts",
+        "items": [[construct_post_object(post_serial, author) for post_serial in post_list_data] for author, post_list_data in author_post_list_data_pair],
+    }
+    
 
 def construct_comment_object(comment_data, author):
     commentDict = dict(comment_data)
