@@ -27,10 +27,12 @@
 # https://www.geeksforgeeks.org/adding-permission-in-api-django-rest-framework/
 # https://docs.djangoproject.com/en/4.1/ref/models/querysets/
 # https://stackoverflow.com/questions/25943850/django-package-to-generate-random-alphanumeric-strin
+# https://www.geeksforgeeks.org/encoding-and-decoding-base64-strings-in-python/
 
 from django.shortcuts import render, get_object_or_404
 from rest_framework.permissions import DjangoModelPermissions
 from rest_framework.response import Response
+from django.http import HttpResponse
 from rest_framework.views import APIView
 from rest_framework.decorators import api_view
 from django.http import QueryDict
@@ -123,7 +125,7 @@ class APIPost(APIView):
             return Response(status=404)
         # Check if specfied post exists
         try:
-            post = Post.objects.filter(author=author).get(pk=HOST+"authors/"+author_id+"/posts/"+post_id)
+            post = Post.objects.filter(author=author).filter(visibility="VISIBLE").get(pk=HOST+"authors/"+author_id+"/posts/"+post_id)
             serialzer = PostSerializer(post)
             return Response(status=200, data=api_helper.construct_post_object(serialzer.data, author))
         except Post.DoesNotExist:
@@ -211,7 +213,7 @@ class APIListPosts(APIView):
             author = Author.objects.get(pk=HOST+"authors/"+author_id)
         except Author.DoesNotExist:
             return Response(status=404)
-        posts = Post.objects.filter(author=author)
+        posts = Post.objects.filter(author=author).filter(visibility="VISIBLE")
         serializer = PostSerializer(posts, many=True)
         return Response(status=200, data=api_helper.construct_list_of_posts(serializer.data, author))
     
@@ -240,6 +242,25 @@ class APIListPosts(APIView):
                         return Response(status=201, 
                                         data=api_helper.construct_post_object(serializer.data, author))
                 return Response(status=400, data=serializer.errors)
+            
+# WIP: DO NOT USE!
+class APIImage(APIView):
+    def get(self, request, author_id, post_id):
+        try:
+            author = Author.objects.get(pk=HOST+"authors/"+author_id)
+        except Author.DoesNotExist:
+            return Response(status=404)
+        # Check if resource already exists, if it does, acts like POST!
+        try:
+            post = Post.objects.get(pk=HOST+"authors/"+author_id+"/posts/"+post_id)
+            if post.contentType != "image/png" and post.contentType != "image/jpeg":
+                return Response(status=404)
+            # print(post.content.encode('ascii'))
+            return HttpResponse(status=200, 
+                            content=post.content.encode('ascii'), 
+                            content_type=post.contentType)
+        except Post.DoesNotExist:
+            return Response(status=404)
     
 #API View for single comment queries (endpoint /api/authors/<author_id>/posts/<post_id>/comments/<comment_id>)
 class APIComment(APIView):

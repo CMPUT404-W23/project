@@ -47,6 +47,7 @@ class PostSerializer(serializers.ModelSerializer):
                   'source',
                   'origin',
                   'description', 
+                  'content',
                   'contentType', 
                   'author', 
                   'published', 

@@ -122,6 +122,7 @@ class Post(models.Model):
     # change name from content to description to fit with requirements
     description = models.TextField()
     contentType = models.TextField()
+    content = models.TextField()
     # author to access the author
     author = models.ForeignKey(Author, on_delete=models.CASCADE, related_name="posts")
     # added categories: use arrayfield from postgres
