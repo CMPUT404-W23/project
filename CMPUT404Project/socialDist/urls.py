@@ -1,6 +1,6 @@
 # MIT License
 
-# Copyright (c) 2023 CMPUT404-W23
+# Copyright (c) 2023 Warren Lim
 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -38,6 +38,8 @@ urlpatterns = [path('authors/',
                     views.APIFollower.as_view()),
                path('authors/<str:author_id>/posts/<str:post_id>/', 
                     views.APIPost.as_view()),
+               path('authors/<str:author_id>/posts/<str:post_id>/image/', 
+                    views.APIImage.as_view()),
                path('authors/<str:author_id>/posts/',
                     views.APIListPosts.as_view()),
                path('authors/<str:author_id>/posts/<str:post_id>/comments/', 
