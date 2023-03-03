@@ -1,40 +1,142 @@
-{% extends 'base.html' %}
-{% block content %}
+{% extends 'base.html' %} {% block content %}
 <div class="container my-4">
+  <div id="save-alert"></div>
   <form>
     <h2 class="border-bottom py-3">Settings</h2>
     {% load tz %}
     <i>Last login: {{ user.last_login|timezone:"America/Edmonton" }} MST</i>
     <div class="my-3">
       <label for="username" class="form-label">Username</label>
-      <input type="text" class="form-control" id="username" value={{user.username}}>
+      <input
+        type="text"
+        class="form-control"
+        id="username"
+        value="{{author.displayName}}"
+        required
+      />
     </div>
     <div class="mb-3">
-      <label for="email" class="form-label">Email address</label>
-      <input type="email" class="form-control" id="email" {% if user.email %} value={{user.email}} {% else %} placeholder="Enter your email" {% endif %}>
+      <label for="github" class="form-label">GitHub</label>
+      <input
+        type="url"
+        class="form-control"
+        id="github"
+        value="{{author.github}}"
+        required
+      />
     </div>
     <div class="mb-3">
-      <label for="first-name" class="form-label">First Name</label>
-      <input type="text" class="form-control" id="first-name" {% if user.first_name %} value={{user.first_name}} {% else %} placeholder="First Name" {% endif %}>
+      <label for="pfp-link" class="form-label">Profile Image Link</label>
+      <input
+        type="url"
+        class="form-control"
+        id="pfp-link"
+        value="{{author.profileImage}}"
+        required
+      />
     </div>
-    <div class="mb-3">
-      <label for="last-name" class="form-label">Last Name</label>
-      <input type="text" class="form-control" id="last-name" {% if user.last_name %} value={{user.last_name}} {% else %} placeholder="Last Name" {% endif %}>
-    </div>
-    <h3 class="mt-5">Change Password</h3>
+    <h3 class="mt-5">Change Password (Coming soon)</h3>
     <div class="mb-3">
       <label for="current-password" class="form-label">Current Password</label>
-      <input type="password" class="form-control" id="current-password" placeholder="Enter your current password">
+      <input
+        type="password"
+        class="form-control"
+        id="current-password"
+        placeholder="Enter your current password"
+        disabled
+      />
     </div>
     <div class="mb-3">
       <label for="new-password" class="form-label">New Password</label>
-      <input type="password" class="form-control" id="new-password" placeholder="Enter new password">
+      <input
+        type="password"
+        class="form-control"
+        id="new-password"
+        placeholder="Enter new password"
+        disabled
+      />
     </div>
     <div class="mb-3">
       <label for="confirm-password" class="form-label">Confirm Password</label>
-      <input type="password" class="form-control" id="confirm-password" placeholder="Re-enter new password">
+      <input
+        type="password"
+        class="form-control"
+        id="confirm-password"
+        placeholder="Re-enter new password"
+        disabled
+      />
     </div>
-    <button type="submit" class="btn btn-primary" id="settings_save_changes">Save Changes</button>
+    <button
+      type="submit"
+      class="btn btn-primary"
+      id="settings_save_changes"
+      onclick="sendUserInfo(event)"
+    >
+      Save Changes
+    </button>
   </form>
 </div>
+{% csrf_token %}
+<script>
+  function displayAlert(alertType, alertMessage) {
+    alertContainer = document.getElementById("save-alert");
+    alertContainer.innerHTML = "";
+    saveAlert = document.createElement("div");
+    saveAlert.classList.add("alert", alertType);
+    saveAlert.innerText = alertMessage;
+    alertContainer.appendChild(saveAlert);
+  }
+
+  function sendUserInfo(e) {
+    alertContainer = document.getElementById("save-alert");
+    e.preventDefault();
+    const httpRequest = new XMLHttpRequest();
+    httpRequest.onreadystatechange = () => {
+      if (httpRequest.readyState === XMLHttpRequest.DONE) {
+        if (httpRequest.status === 201) {
+          displayAlert("alert-success", "Changes saved successfully!");
+        } else {
+          displayAlert(
+            "alert-danger",
+            `An error occurred while saving: ${httpRequest.statusText}`
+          );
+        }
+      }
+    };
+
+    const data = {
+      displayName: document.getElementById("username").value,
+      github: document.getElementById("github").value,
+      profileImage: document.getElementById("pfp-link").value,
+    };
+
+    // if no fields changed
+    if (
+      "{{author.displayName}}" === data.displayName &&
+      "{{author.github}}" === data.github &&
+      "{{author.profileImage}}" === data.profileImage
+    ) {
+      displayAlert("alert-warning", "No changes detected.");
+      return;
+    }
+
+    // if any fields are empty
+    if (
+      data.displayName === "" ||
+      data.github === "" ||
+      data.profileImage === ""
+    ) {
+      displayAlert("alert-danger", "Please fill out all fields.");
+      return;
+    }
+
+    httpRequest.open(
+      "POST",
+      "http://127.0.0.1:8000/api/authors/{{ user.id }}/"
+    );
+    httpRequest.setRequestHeader("X-CSRFToken", "{{ csrf_token }}");
+    httpRequest.setRequestHeader("Content-Type", "application/json");
+    httpRequest.send(JSON.stringify(data));
+  }
+</script>
 {% endblock content %}

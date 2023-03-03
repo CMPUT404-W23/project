@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container py-5 h-100 w-25">
+  <div class="row d-flex justify-content-center align-items-center h-100">
+    <div class="card" style="border-radius: 15px;">
+      <div class="card-body py-3 px-5">
+        <h2 class="text-uppercase text-center mb-4">Sign Up</h2>
+        <form method="post">
+          {% csrf_token %}
+          <div class="mb-3">
+            <label for="email-input" class="form-label">Email address</label>
+            <input type="email" class="form-control" id="email-input">
+          </div>
+          <div class="mb-3">
+            <label for="password-input" class="form-label">Password</label>
+            <input type="password" class="form-control" id="password-input">
+          </div>
+          <div class="mb-3">
+            <label for="password-confirm" class="form-label">Confirm Password</label>
+            <input type="password" class="form-control" id="password-confirm">
+          </div>
+          <button type="submit" class="btn btn-primary" onclick="sendRequest(event)">Sign Up</button>
+        </form>
+        <div class="form-text mt-3">Already have an account? <a href="{% url 'login' %}">Sign in.</a></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function sendRequest(e) {
+    e.preventDefault();
+  }
+</script>
+{% endblock %}
