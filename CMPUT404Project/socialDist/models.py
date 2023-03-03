@@ -1,6 +1,6 @@
 # MIT License
 
-# Copyright (c) 2023 CMPUT404-W23
+# Copyright (c) 2023 Warren Lim
 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -22,19 +22,18 @@
 
 from django.db import models
 from django.contrib.auth.models import User
+
 # Added array field to handle categories in post
 # https://stackoverflow.com/questions/4294039/how-can-i-store-an-array-of-strings-in-a-django-model
 from django.contrib.postgres.fields import ArrayField
-
-# Create your models here.
 
 # Sources:
 # https://docs.djangoproject.com/en/dev/topics/auth/customizing/#extending-the-existing-user-model
 # https://docs.djangoproject.com/en/4.1/topics/db/examples/many_to_one/
 # https://www.crunchydata.com/blog/composite-primary-keys-postgresql-and-django
 # https://medium.com/analytics-vidhya/add-friends-with-689a2fa4e41d
-# https://buildatscale.tech/model-inheritance-in-django/
-# https://stackoverflow.com/questions/65895225/django-many-to-one-relationship-with-abstract-entities
+# https://stackoverflow.com/questions/58794639/how-to-make-follower-following-system-with-django-model
+# https://stackoverflow.com/questions/2201598/how-to-define-two-fields-unique-as-coupl
 
 
 # Changes towards Author (02/28)
@@ -102,6 +101,8 @@ class UserFollowing(models.Model):
         unique_together = ('user_id', 'following_user_id')
 
 # Model for a follow request:
+# Source:
+# https://medium.com/analytics-vidhya/add-friends-with-689a2fa4e41d
 class FollowRequest(models.Model):
     sender = models.ForeignKey(User, related_name="send_requests", on_delete=models.CASCADE)
     target = models.ForeignKey(User, related_name="recievced_requests", on_delete=models.CASCADE)

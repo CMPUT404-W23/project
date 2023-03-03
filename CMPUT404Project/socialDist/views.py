@@ -1,6 +1,6 @@
 # MIT License
 
-# Copyright (c) 2023 CMPUT404-W23
+# Copyright (c) 2023 Warren Lim
 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -21,11 +21,11 @@
 # SOFTWARE.
 
 # Sources:
-# https://testdriven.io/blog/drf-views-part-1/
 # https://docs.djangoproject.com/en/4.1/topics/db/queries/#:~:text=Creating%20objects&text=To%20create%20an%20object%2C%20instantiate,save%20it%20to%20the%20database.&text=This%20performs%20an%20INSERT%20SQL,method%20has%20no%20return%20value.
 # https://docs.djangoproject.com/en/4.1/ref/request-response/
-# https://www.geeksforgeeks.org/adding-permission-in-api-django-rest-framework/
 # https://docs.djangoproject.com/en/4.1/ref/models/querysets/
+# https://testdriven.io/blog/drf-views-part-1/
+# https://www.geeksforgeeks.org/adding-permission-in-api-django-rest-framework/
 # https://stackoverflow.com/questions/25943850/django-package-to-generate-random-alphanumeric-strin
 # https://www.geeksforgeeks.org/encoding-and-decoding-base64-strings-in-python/
 
