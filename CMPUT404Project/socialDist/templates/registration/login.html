@@ -7,15 +7,24 @@
         <h2 class="text-uppercase text-center mb-4">Log In</h2>
         <form method="post" action="{% url 'login' %}">
           {% csrf_token %}
+          {% if form.errors %}
+          <div class="alert alert-danger" role="alert">
+            {{ form.non_field_errors }}
+            {{ form.username.errors }}
+            {{ form.password.errors }}
+          </div>
+          {% endif %}
           <div class="mb-3">
             <label for="username-input" class="form-label">Username</label>
-            <input type="text" class="form-control" id="username-input">
+            <br>
+            {{ form.username }}
           </div>
           <div class="mb-3">
             <label for="password-input" class="form-label">Password</label>
-            <input type="password" class="form-control" id="password-input">
+            <br>
+            {{ form.password }}
           </div>
-          <button type="submit" class="btn btn-primary" onclick="sendRequest(event)">Log In</button>
+          <button type="submit" class="btn btn-primary">Log In</button>
         </form>
         <div class="form-text mt-3">Don't have an account? <a href="{% url 'signup' %}">Sign up.</a></div>
       </div>
@@ -33,14 +42,14 @@
     httpRequest.onreadystatechange = () => {
       if (httpRequest.readyState === XMLHttpRequest.DONE) {
         if (httpRequest.status === 200) {
-          window.location.replace("/");
+          // window.location.replace("/");
         } else {
           alert(`Unable to log in: ${httpRequest.statusText}`);
         }
       }
     };
 
-    httpRequest.open("POST", "/user/login/");
+    httpRequest.open("GET", "/user/login/");
     httpRequest.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
     httpRequest.send(`csrfmiddlewaretoken={{csrf_token}}&username=${username}&password=${password}`);
   }
