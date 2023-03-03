@@ -498,7 +498,8 @@ class APIFollower(APIView):
         except UserFollowing.DoesNotExist:
             return Response(status=404)
 
-class APIInbox(APIView):
+# TODO Fix required
+"""class APIInbox(APIView):
     def get(self, request, author_id):
         # get the owner first in order to get the inbox
         try:
@@ -514,18 +515,19 @@ class APIInbox(APIView):
             # 2. getting the author (which is the getter him/herself)
             serializer= AuthorSerializer(author)
             inboxDict["author"]=serializer["id"]
-            # 3. getting all of the posts in the server (learned from APIListPosts)
 
+            # 3. getting all of the items (post, comment, likes, followrequsts)
+            itemList=[]
+            # 3a. getting post objects
             # 3a filter the posts to ensure they are all followers
             # 3a.1 Get id for every follower (learned from APIFollowers)
             user_followers = author.followers.all()
             followersList = []
             for user_follower in user_followers:
                 followersList.append(user_follower.user_id)
-
-            # 3b use those id's to get their posts (learned from APIListPosts)
+            # 3a.2 use those id's to get their posts (learned from APIListPosts)
             postList = []
-            # 3b1.For each follower (each id), get all posts
+            # 3a.3 For each follower (each id), get all posts
             for each in followersList:
                 posts = Post.objects.filter(author=each)
                 serializer = PostSerializer(posts, many=True)
@@ -542,15 +544,195 @@ class APIInbox(APIView):
                     postDict["count"] = len(Comment.objects.filter(parentPost=post_serial["id"]))
                     postDict["comments"] = postDict["id"] + "/comments/"
                     postList.append(postDict)
-            # 3c. setting the items to be the postlist
-            inboxDict["items"]=postList
+
+            # 3b. get comment object
+            commentList=[]
+            # get the actual comments (learned from APIListComments)
+            comments = Comment.objects.filter(parentPost=postDict["id"])
+            serializer = CommentSerializer(comments, many=True)
+            commentList = []
+            for comment_serial in serializer.data:
+                commentDict = dict(comment_serial)
+                commentAuthor = Author.objects.get(pk=comment_serial["author"])
+                author_serialzer = AuthorSerializer(commentAuthor)
+                authorDict = dict(author_serialzer.data)
+                authorDict["type"] = "author"
+                authorDict["url"] = authorDict["id"]
+                commentDict["author"] = authorDict
+                commentDict["type"] = "comment"
+                commentList.append(commentDict)
+
+
+            # 3c. get like object
+            # get the likes for the post
+            likes = Like.objects.filter(parentPost=postDict["id"])
+            likeList = []
+            serializer = LikeSerializer(likes, many=True)
+            for like_serial in serializer.data:
+                likeDict = dict(like_serial)
+                likeAuthor = Author.objects.get(pk=like_serial["author"])
+                author_serialzer = AuthorSerializer(likeAuthor)
+                authorDict = dict(author_serialzer.data)
+                authorDict["type"] = "author"
+                authorDict["url"] = authorDict["id"]
+                likeDict["author"] = authorDict
+                likeDict["object"] = HOST + "authors/" + author_id + "/posts/" + post_id
+                likeList.append(likeDict)
+
+            # 3d. adding the follower request object
+            # get the id for every follower
+            user_followers = author.followers.all()
+            followersList = []
+            for user_follower in user_followers:
+                followersList.append(user_follower.user_id)
+
+            followRequestList=[]
+            # For each follower (each id), get the follower request
+            for each in followersList:
+                localAuthor=Author.objects.get(pk=each)
+                author_serialzer = AuthorSerializer(localAuthor)
+                localAuthorDict=dict(author_serialzer.data)
+
+                # getting all the fields and append them into a list using request
+                followRequestDict=dict(request.data)
+                followRequestDict["type"]="Follow"
+                followRequestDict["sunmmary"]=request.data["summary"]
+                followRequestDict["actor"]=request.data["actor"]
+                # first get the authors, then get the actors
+                followRequestDict["author"]=localAuthorDict
+                followRequestList.append(followRequestDict)
+
+            # 3e. setting the items to be the postlist
+            itemList=postList+commentList+likeList+followRequestList
+
+            # Finalizing up
+            inboxDict["items"]=itemList
             return Response(status=200, data=inboxDict)
         except:
             return Response(status=404)
     
     # send respective object in body
     def post(request, author_id):
-        return Response(status=404)
+        # get the author object first
+        try:
+            author = Author.objects.get(pk=HOST+"authors/"+author_id)
+        except Author.DoesNotExist:
+            return Response(status=404)
+        # if type is post, add that post (referred from post from APIPost)
+        # getting the post_id through the 
+        if request.data["type"]=="post":
+            # get the post_id
+            post_id=request.data["id"].split("/")[-1]
+            # gettting the post object
+            try:
+                post = Post.objects.get(pk=HOST+"authors/"+author_id+"/posts/"+post_id)
+            except Post.DoesNotExist:
+                return Response(status=404)
+            # Check if request is from an authorized source (only user and admin can call this!), 401 if not
+            if not request.user.is_authenticated and request.user.id != author_id:
+                return Response(status=401)
+            postDict = dict(request.data)
+            postDict["author"] = HOST+"authors/"+author_id
+            serializer = InboxSerializer(data=postDict, partial=True)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(status=201, data=api_helper.construct_post_object(serializer.data, author))
+            return Response(status=400, data=serializer.errors)
+            
+            
+        # if the type is “follow” then add that follow is added to AUTHOR_ID’s inbox to approve later
+        elif request.data["type"]=="follow":
+            followDict=dict(request.data)
+            followDict["author"]=HOST+"authors/"+author_id
+            # get the summary and actor
+            # summary=followDict["summary"]
+            # actor=followDict["actor"]["id"]
+            actor=followDict["actor"]
+            serializer=InboxSerializer(data=followDict, partial=True)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(status=201, data=api_helper.construct_follow_request_object(serializer.data, author, actor))
+            return Response(status=400, data=serializer.error)
+
+        # if the type is “like” then add that like to AUTHOR_ID’s inbox
+        elif request.data["type"]=="like":
+            # (refer from post from APIListLikesPost)
+            # use the request.object to get the post_id
+            post_id=request.data["object"].split("/")[-1]
+            # Try to get the Post object
+            try:
+                post = Post.objects.filter(author=author).get(pk=HOST+"authors/"+author_id+"/posts/"+post_id)
+            except Post.DoesNotExist:
+                return Response(status=404)
+            # Try to get the like
+            try:
+                likes = Like.objects.filter(parentPost=post)
+            except Like.DoesNotExist:
+                return Response(status=404)
+
+            likeDict=dict(serializer.data)
+            likeDict["author"] = HOST+"authors/"+author_id
+            serializer = InboxSerializer(data=likeDict, partial=True)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(status=201, data=api_helper.construct_like_object(serializer.data, post, author))
+            return Response(status=400, data=serializer.errors)
+
+        # if the type is “comment” then add that comment to AUTHOR_ID’s inbox    
+        elif request.data["type"]=="comment":
+            # get the required info from the comment object with endpoint( ://service/authors/{AUTHOR_ID}/posts/{POST_ID}/comments)
+            post_id=request.data["id"].split("/")[-3]
+            comment_id=request.data["id"].split("/")[-1]
+            # check whether the post exist
+            try:
+                post = Post.objects.filter(author=author).get(pk=HOST+"authors/"+author_id+"/posts/"+post_id)
+            except Post.DoesNotExist:
+                return Response(status=404)
+            # getting the comment object itself, then send commentDict later on
+            try:
+                comment=Comment.objects.get(id=HOST+"authors/"+author_id+"/posts/"+post_id+"/comments/"+comment_id)
+            except Comment.DoesNotExist:
+                return Response(status=404)
+
+            # referred from post from APIListComments
+            CommentDict=dict(request.data)
+            CommentDict["id"] = HOST+"authors/"+author_id+"/posts/"+post_id+"/comments/"+comment_id
+            CommentDict["parentPost"] = HOST+"authors/"+author_id+"/posts/"+post_id
+            # check if author is saved in our DB (remote or local)
+            try:
+                commentAuthor = Author.objects.get(pk=newCommentDict["author"]["id"])
+            except Author.DoesNotExist:
+                # check if author is a remote author not yet saved
+                if newCommentDict["author"]["host"] == HOST:
+                    return Response(status=404)
+                # save new remote author into DB
+                commentAuthorSerializer = AuthorSerializer(data=newCommentDict["author"])
+                if not commentAuthorSerializer.is_vaild():
+                    return Response(status=400, data=commentAuthorSerializer.errors)
+                commentAuthorSerializer.save()
+            CommentDict["author"] = newCommentDict["author"]["id"]
+            serializer=InboxSerializer(data=commentDict, partial=True)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(status=201, data=api_helper.construct_comment_object(serializer.data, Author.objects.get(id=newCommentDict["author"])))
+            return Response(status=400, data=serializer.errors)
+            
+
+        # TBA
+    def delete (request, author_id):
+        try:
+            author = Author.objects.get(pk=HOST+"authors/"+author_id)
+        except Author.DoesNotExist:
+            return Response(status=404)
+        try:
+            inbox=Inbox.objects.filter(author=author).get(pk=HOST+"authors/"+author_id+"/inbox")
+        except Inbox.DoesNotExist:
+            return Response(status=404)
+        # making inbox empty by setting all the fields as blank except author, every other field the same
+        inbox["items"]={}
+        return Response(status=200)"""
+
+        
 
 # TODO Please generate appropriate documentation of the following API to root_project/openapi.json
 class APIPosts(APIView):
@@ -564,53 +746,3 @@ class APIPosts(APIView):
             print("num_post for "+dict(AuthorSerializer(each_author).data)["id"]+": "+str(len(posts.data)))
             
         return Response(status=200, data=api_helper.construct_list_of_all_posts(author_posts_pair))
-        
-        
-    
-    
-"""
-# get one server
-@api_view(['GET'])
-def get_server(request, author_id):
-    # get the owner first in order to get the server
-    try:
-        author = Author.objects.get(pk=author_id)
-    except Author.DoesNotExist:
-        return Response(status=status.HTTP_404_NOT_FOUND)
-    try:
-        server = Server.objects.filter(owner=author)
-    except Server.DoesNotExist:
-        return Response(status=status.HTTP_404_NOT_FOUND)
-    return Response(ServerSerializer(server).data)
-
-# Get all of the servers that one owns:
-@api_view(['GET'])
-def get_servers(request, author_id):
-    try:
-        author = Author.objects.get(pk=author_id)
-    except Author.DoesNotExist:
-        return Response(status=status.HTTP_404_NOT_FOUND)
-    servers=Server.objects.filter(owner=author)
-    serializer=ServerSerializer(servers, many=True, context={"type":"post"})
-    serverListDict = {}
-    serverListDict["type"]="servers"
-    postListDict["items"] = serializer.data
-    return Response(serverListDict)
-
-@api_view(['GET'])
-def get_inbox(request, author_id):
-    # get the owner first in order to get the inbox
-    try:
-        author = Author.objects.get(pk=author_id)
-    except Author.DoesNotExist:
-        return Response(status=status.HTTP_404_NOT_FOUND)
-    try:
-        inbox = Inbox.objects.filter(owner=author).get(pk=inboxID)
-    except Inbox.DoesNotExist:
-        return Response(status=status.HTTP_404_NOT_FOUND)
-    return Response(ServerSerializer(inbox).data)
-
-# similar to get_posts, but find them through the server but not the author
-# @api_view(['GET'])
-# def get_inbox_posts(request, server_id):
-"""
