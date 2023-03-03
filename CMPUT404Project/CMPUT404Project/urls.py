@@ -49,4 +49,5 @@ urlpatterns = [
     path("accounts/signup", TemplateView.as_view(template_name="registration/signup.html"), name="signup"),
     path("", TemplateView.as_view(template_name="home.html"), name="home"),
     path("api/", include("socialDist.urls")),
+    path("posts/", TemplateView.as_view(template_name="posts.html"), name="posts"),
 ]
