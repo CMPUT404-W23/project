@@ -72,7 +72,7 @@ class LikeSerializer(serializers.ModelSerializer):
         model = Like
         fields = ('id', 
                   'author',
-                  'dateTime')
+                  'published')
 
 # Added new serlaizers for Server and Inbox
 class ServerSerializer(serializers.ModelSerializer):

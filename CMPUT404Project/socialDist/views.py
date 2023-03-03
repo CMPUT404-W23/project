@@ -278,7 +278,7 @@ class APIListComments(APIView):
         try:
             post = Post.objects.filter(author=author).get(pk=HOST+"authors/"+author_id+"/posts/"+post_id)
         except Post.DoesNotExist:
-            return Response(status=status.HTTP_404_NOT_FOUND)
+            return Response(status=404)
         comments = Comment.objects.filter(parentPost=HOST+"authors/"+author_id+"/posts/"+post_id)
         serializer = CommentSerializer(comments, many=True)
         return Response(status=200, data=api_helper.construct_list_of_comments(serializer.data, author, post))
@@ -342,7 +342,7 @@ class APIListLikesPost(APIView):
             post = Post.objects.filter(author=author).get(pk=HOST+"authors/"+author_id+"/posts/"+post_id)
         except Post.DoesNotExist:
             return Response(status=404)
-        likes = Like.objects.filter(parentPost=post_id)
+        likes = Like.objects.filter(parentPost=post)
         serializer = LikeSerializer(likes, many=True)
         return Response(status=200, data=api_helper.construct_list_of_likes(serializer.data, post.id))
     
@@ -353,18 +353,18 @@ class APIListLikesComments(APIView):
         try:
             author = Author.objects.get(pk=HOST+"authors/"+author_id)
         except Author.DoesNotExist:
-            return Response(status=status.HTTP_404_NOT_FOUND)
+            return Response(status=404)
         try:
-            post = Post.objects.filter(posterID=author).get(pk=HOST+"authors/"+author_id+"/posts/"+post_id)
+            post = Post.objects.filter(author=author).get(pk=HOST+"authors/"+author_id+"/posts/"+post_id)
         except Post.DoesNotExist:
-            return Response(status=status.HTTP_404_NOT_FOUND)
+            return Response(status=404)
         try: 
-            comment = Comment.objects.filter(parentPost=post_id).get(pk=HOST+"authors/"+
+            comment = Comment.objects.filter(parentPost=post).get(pk=HOST+"authors/"+
                                                                        author_id+"/posts/"+
                                                                        post_id+"/comments/"+
                                                                        comment_id)
         except Comment.DoesNotExist:
-            return Response(status=status.HTTP_404_NOT_FOUND)
+            return Response(status=404)
         likes = Like.objects.filter(parentComment=comment)
         serializer = LikeSerializer(likes, many=True)
         return Response(status=200, data=api_helper.construct_list_of_likes(serializer.data, comment.id))
@@ -376,7 +376,7 @@ class APILiked(APIView):
         try:
             author = Author.objects.get(pk=HOST+"authors/"+author_id)
         except Author.DoesNotExist:
-            return Response(status=status.HTTP_404_NOT_FOUND)
+            return Response(status=404)
         likes = Like.objects.filter(author=HOST+"authors/"+author_id)
         serializer = LikeSerializer(likes, many=True)
         return Response(status=200, data=api_helper.construct_list_of_liked(serializer.data, author))
