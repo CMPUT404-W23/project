@@ -133,6 +133,7 @@ class APIPost(APIView):
         
     # Edit a single post
     # When POSTing, send a post object in JSON with the modified fields
+    # Cannot edit a private post!
     def post(self, request, author_id, post_id):
         # Check if specified author exists
         try:
@@ -141,7 +142,7 @@ class APIPost(APIView):
             return Response(status=404)
         # Check if specfied post exists
         try:
-            post = Post.objects.get(pk=HOST+"authors/"+author_id+"/posts/"+post_id)
+            post = Post.objects.filter(visibility="VISIBLE").get(pk=HOST+"authors/"+author_id+"/posts/"+post_id)
         except Post.DoesNotExist:
             return Response(status=404)
         # Check if request is from an authorized source (only user and admin can call this!), 401 if not
@@ -158,6 +159,8 @@ class APIPost(APIView):
     # Create a single post
     # When PUTTing, send a post object in JSON with the field
     # Note that host and id will be set to HOST and HOST/authors/author_id/posts/post_id
+    # When PUTTing to a public post that already exists, replace post with JSON post object in body
+    # Cannot PUT to an already existing private post!
     def put(self, request, author_id, post_id):
         try:
             author = Author.objects.get(pk=HOST+"authors/"+author_id)
@@ -169,6 +172,8 @@ class APIPost(APIView):
             # Check if request is from an authorized source (only user and admin can call this!), 401 if not
             if not request.user.is_authenticated and request.user.id != author_id:
                 return Response(status=401)
+            if post.visibility == "PRIVATE":
+                return Response(status=404)
             postDict = dict(request.data)
             postDict["author"] = HOST+"authors/"+author_id
             serializer = PostSerializer(post, data=postDict, partial=True)
@@ -190,6 +195,7 @@ class APIPost(APIView):
             return Response(status=400, data=serializer.errors)
         
     # Delete the single post
+    # Cannot delete private posts!
     def delete(self, request, author_id, post_id):
         try:
             author = Author.objects.get(pk=HOST+"authors/"+author_id)
@@ -198,7 +204,7 @@ class APIPost(APIView):
         if not request.user.is_authenticated and request.user.id != author_id:
             return Response(status=401)
         try:
-            post = Post.objects.get(pk=HOST+"authors/"+author_id+"/posts/"+post_id)
+            post = Post.objects.filter(visibility="VISIBLE").get(pk=HOST+"authors/"+author_id+"/posts/"+post_id)
         except Post.DoesNotExist:
             return Response(status=404)
         post.delete()
@@ -392,7 +398,8 @@ class APIListLikesComments(APIView):
     
 # API view for liked objects by the author (endpoint /api/authors/<author_id>/liked)
 class APILiked(APIView):
-    # Get list of likes originating from this author
+    # Get list of likes on public objects (comments on public posts, public posts)
+    # originating from this author
     def get(self, request, author_id):
         try:
             author = Author.objects.get(pk=HOST+"authors/"+author_id)

@@ -140,7 +140,10 @@ class Post(models.Model):
     # changed the field from CharField to ArrayField
     # visibility = ArrayField(models.CharField(max_length=50), default=list)
     # OR
-    visibility=models.CharField(max_length=30)
+    visibility=models.CharField(max_length=30, choices=[
+        ("VISIBLE", "Public"),
+        ("PRIVATE","Private")
+    ])
     unlisted = models.BooleanField()
     # isLiked=models.BooleanField(default=False)
 

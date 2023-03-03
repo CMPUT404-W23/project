@@ -97,8 +97,12 @@ def construct_list_of_liked(liked_list_data, author):
     for like_serial in liked_list_data:
         like = Like.objects.get(pk=like_serial["id"])        
         if like.likeType == "Post":
+            if like.parentPost.visibility != "VISIBLE":
+                continue
             likeList.append(construct_like_object(like_serial, like.parentPost.id, author))
         else: 
+            if like.parentComment.parentPost.visibility != "VISIBLE":
+                continue
             likeList.append(construct_like_object(like_serial, like.parentComment.id, author))
     likeListDict = {}
     likeListDict["type"] = "liked"
