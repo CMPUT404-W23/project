@@ -8,3 +8,9 @@
 body {
   background-color: #ededed;
 }
+
+/* specific elements */
+
+#settings_save_changes {
+  margin-bottom: 1em;
+}

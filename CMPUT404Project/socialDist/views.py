@@ -89,7 +89,7 @@ class APIAuthor(APIView):
         except:
             return Response(status=400, data=serializer.errors)
 
-# API View for list of authors API queries (endpoint /api/authors/<author_id>/posts/)
+# API View for list of authors API queries (endpoint /api/authors/)
 class APIListAuthors(APIView):
     # Getting list of authors
     def get(self, request):
@@ -498,7 +498,8 @@ class APIFollower(APIView):
         except UserFollowing.DoesNotExist:
             return Response(status=404)
 
-class APIInbox(APIView):
+# TODO Fix required
+"""class APIInbox(APIView):
     def get(self, request, author_id):
         # get the owner first in order to get the inbox
         try:
@@ -729,6 +730,19 @@ class APIInbox(APIView):
             return Response(status=404)
         # making inbox empty by setting all the fields as blank except author, every other field the same
         inbox["items"]={}
-        return Response(status=200)
+        return Response(status=200)"""
 
         
+
+# TODO Please generate appropriate documentation of the following API to root_project/openapi.json
+class APIPosts(APIView):
+    def get(self, request):
+        author_posts_pair = []
+        for each_author in Author.objects.all():
+            if not Post.objects.filter(author=each_author).count():
+                continue
+            posts = PostSerializer(Post.objects.filter(author=each_author).filter(visibility="VISIBLE").filter(unlisted=False), many=True)
+            author_posts_pair.append([each_author, posts.data])
+            print("num_post for "+dict(AuthorSerializer(each_author).data)["id"]+": "+str(len(posts.data)))
+            
+        return Response(status=200, data=api_helper.construct_list_of_all_posts(author_posts_pair))
