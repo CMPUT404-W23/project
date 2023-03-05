@@ -38,6 +38,7 @@ from rest_framework.decorators import api_view
 from django.http import QueryDict
 from rest_framework import status
 from django.utils.crypto import get_random_string
+from django.contrib.auth.models import User
 from .serializers import AuthorSerializer, PostSerializer, CommentSerializer, LikeSerializer, ServerSerializer, InboxSerializer
 import urllib.parse
 
@@ -88,6 +89,25 @@ class APIAuthor(APIView):
         # Request data is not in right JSON format
         except:
             return Response(status=400, data=serializer.errors)
+    
+    def put(self, request):
+        username = request.data["username"]
+        email = request.data.get("email", "") # if email is not provided, set it to empty string
+        password = request.data["password"]
+        user = User.objects.create_user(username, email, password)
+        try:
+            author = Author.objects.create(
+                user=user,
+                id=HOST+"authors/"+user.pk,
+                host=HOST,
+                displayName=username,
+                github="",
+                profileImage="",
+            )
+            return Response(status=201)
+        except:
+            return Response(status=400)
+
 
 # API View for list of authors API queries (endpoint /api/authors/)
 class APIListAuthors(APIView):
