@@ -89,25 +89,6 @@ class APIAuthor(APIView):
         # Request data is not in right JSON format
         except:
             return Response(status=400, data=serializer.errors)
-    
-    def put(self, request):
-        username = request.data["username"]
-        email = request.data.get("email", "") # if email is not provided, set it to empty string
-        password = request.data["password"]
-        user = User.objects.create_user(username, email, password)
-        try:
-            author = Author.objects.create(
-                user=user,
-                id=HOST+"authors/"+user.pk,
-                host=HOST,
-                displayName=username,
-                github="",
-                profileImage="",
-            )
-            return Response(status=201)
-        except:
-            return Response(status=400)
-
 
 # API View for list of authors API queries (endpoint /api/authors/)
 class APIListAuthors(APIView):
@@ -133,6 +114,24 @@ class APIListAuthors(APIView):
             authors = Author.objects.filter(host=HOST)
             serializer = AuthorSerializer(authors, many=True)
             return Response(status=200, data=api_helper.construct_list_of_authors(serializer.data))
+    
+    def put(self, request):
+        username = request.data["username"]
+        email = request.data.get("email", "") # if email is not provided, set it to empty string
+        password = request.data["password"]
+        user = User.objects.create_user(username, email, password)
+        try:
+            author = Author.objects.create(
+                user=user,
+                id=HOST+"authors/"+user.pk,
+                host=HOST,
+                displayName=username,
+                github="",
+                profileImage="",
+            )
+            return Response(status=201)
+        except:
+            return Response(status=400)
 
 # API View for single post queries (endpoint /api/authors/<author_id>/posts/<post_id>)
 class APIPost(APIView):
