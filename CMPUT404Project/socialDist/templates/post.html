@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+{% block content %}
+<html lang="en">
+    <head>
+        <body>
+            {% if user.is_authenticated %}
+            <div class="m-3">
+                <h1>
+                    Create a Post!
+                </h1>
+                <!--Title-->
+                <div class="mb-3">
+                    <label for="Title" class="form-label">Title:</label>
+                    <input class="form-control" id="Title" style="width:80%" type="text" placeholder="Please enter title of post"></input>
+                </div>
+                <!--Description-->
+                <div class="mb-3">
+                    <label for="Description" class="form-label">Description:</label>
+                    <textarea class="form-control" id="Description" style="width:80%" type="text" placeholder="Please enter post description"></textarea>
+                </div>
+                <!--Text Type-->
+                <div class="mb-3">
+                    <label for="TextType" class="form-label">Text Type:</label>
+                    <select class="form-select" aria-label="Default select example" style="width:80%">
+                        <option selected>Markdown</option>
+                        <option value="1">Plain</option>
+                    </select>
+                </div>
+                <!--Content-->
+                <div class="mb-3">
+                    <label for="Content" class="form-label">Content:</label>
+                    <textarea class="form-control" id="Content" style="width:80%" type="text" placeholder="Please enter content of post"></textarea>
+                </div>
+                <!--Content Type-->
+                <div class="mb-3">
+                    <label for="ContentType" class="form-label">Content Type:</label>
+                    <select class="form-select" aria-label="Default select example" style="width:80%">
+                        <option selected>Plain</option>
+                        <option value="1">Markdown</option>
+                        <option value="2">App</option>
+                        <option value="3">Png</option>
+                        <option value="4">Jpg</option>
+                    </select>
+                </div>
+                <!--Categories-->
+                <div class="mb-3">
+                    <label for="Categories" class="form-label">Categories:</label>
+                    <textarea class="form-control" id="Categories" style="width:80%" type="text" placeholder="Please enter categories of post (seperated by commas)"></textarea>
+                </div>
+                <!--Visibility-->
+                <div class="mb-3">
+                    <label for="Visibility" class="form-label">Visibility:</label>
+                    <select class="form-select" aria-label="Default select example" style="width:80%">
+                        <option selected>Public</option>
+                        <option value="1">Friends</option>
+                    </select>
+                </div>
+                <!--Image Post-->
+                <div class="mb-3">
+                    <label for="ImagePost" class="form-label">Image Post:</label>
+                    <input class="form-control" type="file" id="formFile" style="width:80%">
+                </div>
+                <!--Post-->
+                <button type="button" class="btn btn-dark">Post!</button>
+            </div>
+
+            {% else %}
+                <div>
+                    Please login to post!
+                </div>
+            {% endif %}
+        </body>
+    </head>
+{% endblock content %}
