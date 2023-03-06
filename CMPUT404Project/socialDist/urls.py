@@ -26,9 +26,9 @@ from . import views
 app_name = 'socialDist'
 urlpatterns = [
      path('authors/', 
-          views.APIListAuthors.as_view()),
+          views.APIListAuthors.as_view(),name='authors'),
      path('authors/<str:id>/', 
-          views.APIAuthor.as_view()),
+          views.APIAuthor.as_view(), name='author'),
      # TODO Fix required on APIInbox
      # path('authors/<str:author_id>/inbox/',
      #      views.APIInbox.as_view()),
