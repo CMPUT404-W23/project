@@ -167,7 +167,7 @@ class Comment(models.Model):
     content = models.TextField()
     contentType = models.TextField()
 
-    published=models.DateTimeField(auto_created=True)
+    published = models.DateTimeField(auto_created=True)
     parentPost = models.ForeignKey(Post, on_delete=models.CASCADE, related_name="comments")
     
     # # Modified models by added more fields
