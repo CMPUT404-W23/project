@@ -38,7 +38,7 @@ Including another URLconf
 
 from django.contrib import admin
 from django.urls import include, path
-from django.views.generic.base import TemplateView
+from django.views.generic.base import TemplateView, RedirectView
 from .views import settings
 
 urlpatterns = [
@@ -49,6 +49,7 @@ urlpatterns = [
     path("accounts/signup", TemplateView.as_view(template_name="registration/signup.html"), name="signup"),
     path("", TemplateView.as_view(template_name="home.html"), name="home"),
     path("post", TemplateView.as_view(template_name="post.html"), name="post"),
+    path("api", RedirectView.as_view(url="api/")),
     path("api/", include("socialDist.urls")),
     path("posts/", TemplateView.as_view(template_name="posts.html"), name="posts"),
 ]
