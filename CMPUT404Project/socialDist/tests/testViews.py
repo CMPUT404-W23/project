@@ -38,12 +38,14 @@ class APIAuthorTests(TestCase):
         url = reverse('socialDist:author', args="1")
         self.client.post(url, data, follow=True)  
 
+        
+
 
         url = reverse('socialDist:author', args="1")
         # print()
         # print(url)
         response = self.client.get(url)
 
-        # test basic API fields
+        # test basic API fields (TBA)
         self.assertEqual(response.status_code, 404)
 
