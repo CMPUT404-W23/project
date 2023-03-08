@@ -36,6 +36,7 @@ from django.contrib.postgres.fields import ArrayField
 # https://stackoverflow.com/questions/2201598/how-to-define-two-fields-unique-as-coupl
 
 
+
 # Changes towards Author (02/28)
 # - Added authorId, displayName
 # - Commented/ (later will delete): isServerAdmin, isAuthenticated
@@ -143,7 +144,7 @@ class Post(models.Model):
     # OR
     visibility=models.CharField(max_length=30, choices=[
         ("VISIBLE", "Public"),
-        ("PRIVATE","Private")
+        ("FRIENDS","Private")
     ])
     unlisted = models.BooleanField()
     # isLiked=models.BooleanField(default=False)
