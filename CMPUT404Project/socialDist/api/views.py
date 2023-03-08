@@ -256,10 +256,13 @@ class APIImage(APIView):
             author = Author.objects.get(pk=HOST+"authors/"+author_id)
         except Author.DoesNotExist:
             return Response(status=404)
-        # Check if resource already exists, if it does, acts like POST!
+        # Check if resource already exists, if it does, acts like a GET request
         try:
             post = Post.objects.get(pk=HOST+"authors/"+author_id+"/posts/"+post_id)
-            if post.contentType != "image/png" and post.contentType != "image/jpeg":
+            # TODO: create a function to check if requesting user is allowed
+            if post.visibility == "PRIVATE":
+                return Response(status=401)
+            if post.contentType != "image/png;base64" and post.contentType != "image/jpeg;base64":
                 return Response(status=404)
             # print(post.content.encode('ascii'))
             return HttpResponse(status=200, 
