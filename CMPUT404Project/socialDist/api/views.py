@@ -38,12 +38,11 @@ from rest_framework.decorators import api_view
 from django.http import QueryDict
 from rest_framework import status
 from django.utils.crypto import get_random_string
-from ..serializers import AuthorSerializer, PostSerializer, CommentSerializer, LikeSerializer, ServerSerializer, InboxSerializer
+from .serializers import AuthorSerializer, PostSerializer, CommentSerializer, LikeSerializer, ServerSerializer, InboxSerializer
 import urllib.parse
 
-from ..models import Author, Post, Comment, Like, Server, Inbox, UserFollowing
-from . import api_helper
-import base64 
+from .models import Author, Post, Comment, Like, Server, Inbox, UserFollowing
+from . import api_helper 
 
 HOST = "http://127.0.0.1:8000/"
 
@@ -94,6 +93,7 @@ class APIAuthor(APIView):
 class APIListAuthors(APIView):
     # Getting list of authors
     def get(self, request):
+        # TODO: adjust the query by page and size numbers
         if (request.META["QUERY_STRING"] != ""):
             queryDict = QueryDict(request.META["QUERY_STRING"])
             pageNum = 0
@@ -108,11 +108,6 @@ class APIListAuthors(APIView):
                     sizeNum= int(queryDict["size"])
                 except ValueError:
                     return Response(status=404)
-            authors = Author.objects.filter(host=HOST)
-            serializer = AuthorSerializer(authors, many=True)
-            return Response(status=200, data=api_helper.construct_paginated_list_of_authors(serializer.data,
-                                                                                            pageNum,
-                                                                                            sizeNum))
         # query string not provided, return full list of authors
         else:
             authors = Author.objects.filter(host=HOST)
@@ -217,33 +212,16 @@ class APIPost(APIView):
     
 # API View for a list of post queries (endpoint /api/authors/<author_id>/posts/)
 class APIListPosts(APIView):
-    # Get a list of posts, with paginating support
+    # Get a list of posts
+    #TODO: paginated this!
     def get(self, request, author_id):
         try:
             author = Author.objects.get(pk=HOST+"authors/"+author_id)
         except Author.DoesNotExist:
             return Response(status=404)
-        posts = Post.objects.filter(author=author).filter(visibility="VISIBLE").order_by('published')
+        posts = Post.objects.filter(author=author).filter(visibility="VISIBLE")
         serializer = PostSerializer(posts, many=True)
-        if (request.META["QUERY_STRING"] == ""):
-            return Response(status=200, data=api_helper.construct_list_of_posts(serializer.data, author))
-        queryDict = QueryDict(request.META["QUERY_STRING"])
-        pageNum = 0
-        sizeNum = 0
-        if "page" in queryDict:
-            try:
-                pageNum = int(queryDict["page"])
-            except ValueError:
-                return Response(status=404)
-        if "size" in queryDict:
-            try:
-                sizeNum= int(queryDict["size"])
-            except ValueError:
-                return Response(status=404)
-        return Response(status=200, data=api_helper.construct_list_of_paginated_posts(serializer.data,
-                                                                                    pageNum,
-                                                                                    sizeNum,
-                                                                                    author))
+        return Response(status=200, data=api_helper.construct_list_of_posts(serializer.data, author))
     
     # Add a post with a randomized post id
     # Include a post object in JSON with modified fields
@@ -270,25 +248,22 @@ class APIListPosts(APIView):
                         return Response(status=201, 
                                         data=api_helper.construct_post_object(serializer.data, author))
                 return Response(status=400, data=serializer.errors)
-
-# Endpoint used to fetch image posts as images (endpoint /api/authors/<author_id>/posts/<post_id>/image)
+            
+# WIP: DO NOT USE!
 class APIImage(APIView):
     def get(self, request, author_id, post_id):
         try:
             author = Author.objects.get(pk=HOST+"authors/"+author_id)
         except Author.DoesNotExist:
             return Response(status=404)
-        # Check if resource already exists, if it does, acts like a GET request
+        # Check if resource already exists, if it does, acts like POST!
         try:
             post = Post.objects.get(pk=HOST+"authors/"+author_id+"/posts/"+post_id)
-            # TODO: create a function to check if requesting user is allowed
-            if post.visibility == "PRIVATE":
-                return Response(status=401)
-            if post.contentType != "image/png;base64" and post.contentType != "image/jpeg;base64":
+            if post.contentType != "image/png" and post.contentType != "image/jpeg":
                 return Response(status=404)
-            content_bytes_base64 = post.content.encode('ascii')
+            # print(post.content.encode('ascii'))
             return HttpResponse(status=200, 
-                            content=base64.b64decode(content_bytes_base64), 
+                            content=post.content.encode('ascii'), 
                             content_type=post.contentType)
         except Post.DoesNotExist:
             return Response(status=404)
@@ -304,9 +279,6 @@ class APIComment(APIView):
             post = Post.objects.filter(author=author).get(pk=HOST+"authors/"+author_id+"/posts/"+post_id)
         except Post.DoesNotExist:
             return Response(status=404)
-        # for a private post, only the author can access the comments!
-        if post.visibility == "PRIVATE" and (not request.user.is_authenticated or request.user.author != author):
-            return Response(status=401)
         comment = Comment.objects.filter(parentPost=HOST+
                                                     "authors/"+
                                                     author_id+
@@ -324,6 +296,7 @@ class APIComment(APIView):
 #API View for list of comments queries (endpoint /api/authors/<author_id>/posts/<post_id>/comments/)
 class APIListComments(APIView):
     # Get list of comments
+    #TODO: paginate this!
     def get(self, request, author_id, post_id):
         try:
             author = Author.objects.get(pk=HOST+"authors/"+author_id)
@@ -333,33 +306,9 @@ class APIListComments(APIView):
             post = Post.objects.filter(author=author).get(pk=HOST+"authors/"+author_id+"/posts/"+post_id)
         except Post.DoesNotExist:
             return Response(status=404)
-        # for a private post, only the author can access the comments!
-        if post.visibility == "PRIVATE" and (not request.user.is_authenticated or request.user.author != author):
-            return Response(status=401)
         comments = Comment.objects.filter(parentPost=HOST+"authors/"+author_id+"/posts/"+post_id)
         serializer = CommentSerializer(comments, many=True)
-        if (request.META["QUERY_STRING"] == ""):
-            return Response(status=200, data=api_helper.construct_list_of_comments(serializer.data, 
-                                                                               author, 
-                                                                               post))
-        queryDict = QueryDict(request.META["QUERY_STRING"])
-        pageNum = 0
-        sizeNum = 0
-        if "page" in queryDict:
-            try:
-                pageNum = int(queryDict["page"])
-            except ValueError:
-                return Response(status=404)
-        if "size" in queryDict:
-            try:
-                sizeNum= int(queryDict["size"])
-            except ValueError:
-                return Response(status=404)
-        return Response(status=200, data=api_helper.construct_paginated_list_of_comments(serializer.data,
-                                                                                         pageNum,
-                                                                                         sizeNum,
-                                                                                         author,
-                                                                                         post))
+        return Response(status=200, data=api_helper.construct_list_of_comments(serializer.data, author, post))
     
     # Post a comment under that post
     # Include comment object in body in JSON form
