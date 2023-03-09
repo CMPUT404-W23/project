@@ -82,3 +82,36 @@ urlpatterns = [
      re_path(r'^redoc/$', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
 ]
 >>>>>>>> bb62dc1 (added swagger api spec):CMPUT404Project/socialDist/urls.py
+
+app_name = 'socialDist'
+urlpatterns = [
+     path('authors/', 
+          views.APIListAuthors.as_view(),name='authors'),
+     path('authors/<str:id>/', 
+          views.APIAuthor.as_view(), name='author'),
+     # TODO Fix required on APIInbox
+     # path('authors/<str:author_id>/inbox/',
+     #      views.APIInbox.as_view()),
+     path('authors/<str:author_id>/liked/',
+          views.APILiked.as_view()),
+     path('authors/<str:author_id>/followers/',
+          views.APIFollowers.as_view()),
+     path('authors/<str:author_id>/followers/<path:foreign_author_id>/',
+          views.APIFollower.as_view()),
+     path('authors/<str:author_id>/posts/<str:post_id>/', 
+          views.APIPost.as_view()),
+     path('authors/<str:author_id>/posts/<str:post_id>/image/', 
+          views.APIImage.as_view()),
+     path('authors/<str:author_id>/posts/',
+          views.APIListPosts.as_view()),
+     path('authors/<str:author_id>/posts/<str:post_id>/comments/', 
+          views.APIListComments.as_view()),
+     path('authors/<str:author_id>/posts/<str:post_id>/comments/<str:comment_id>/', 
+          views.APIComment.as_view()),
+     path('authors/<str:author_id>/posts/<str:post_id>/likes/', 
+          views.APIListLikesPost.as_view()),
+     path('authors/<str:author_id>/posts/<str:post_id>/comments/<str:comment_id>/likes', 
+          views.APIListLikesComments.as_view()),
+     path('posts/',
+          views.APIPosts.as_view()),
+]
