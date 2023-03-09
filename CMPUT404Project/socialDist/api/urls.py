@@ -20,10 +20,28 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+<<<<<<<< HEAD:CMPUT404Project/socialDist/api/urls.py
 # File contains URL patterns for the API endpoints
 
 from django.urls import path
+========
+from django.urls import path, re_path
+>>>>>>>> bb62dc1 (added swagger api spec):CMPUT404Project/socialDist/urls.py
 from . import views
+from rest_framework import permissions
+from drf_yasg.views import get_schema_view
+from drf_yasg import openapi
+
+schema_view = get_schema_view(
+   openapi.Info(
+      title="Social Dist API",
+      default_version='v1',
+      description="API for Social Dist",
+      license=openapi.License(name="MIT License"),
+   ),
+   public=True,
+   permission_classes=[permissions.AllowAny],
+)
 
 app_name = 'socialDist'
 urlpatterns = [
@@ -56,4 +74,11 @@ urlpatterns = [
           views.APIListLikesComments.as_view()),
      path('posts/',
           views.APIPosts.as_view()),
+<<<<<<<< HEAD:CMPUT404Project/socialDist/api/urls.py
 ]
+========
+     re_path(r'^swagger(?P<format>\.json|\.yaml)$', schema_view.without_ui(cache_timeout=0), name='schema-json'),
+     re_path(r'^swagger/$', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
+     re_path(r'^redoc/$', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
+]
+>>>>>>>> bb62dc1 (added swagger api spec):CMPUT404Project/socialDist/urls.py
