@@ -78,17 +78,14 @@ class Author(models.Model):
     isAuthenticated=models.BooleanField(default=False)
     """
 
-# Changes towards Server (02/28):
-# No changes this time
-# Current Own Fields: user, serverID, owner, serverName
-# Current foreignkey fields: N/A
+# List of servers authenciated to commuicate with us!
+# NOTE: should include our own host name as well
+# TODO: adjust our authenciation scheme to allow for remote connections, use basic or custom auth?
+# The server admin, should, via the /admin interface, add and remove hosts which this server
+# can serve
 class Server(models.Model):
-    # server id as primary key
-    serverID=models.CharField(primary_key=True, max_length=40)
-    # owner=server admin
-    owner=models.ForeignKey(Author, on_delete=models.CASCADE, null=True)
-    # server name
-    serverName=models.CharField(max_length=50)
+    # serverAddress
+    serverAddress=models.URLField(primary_key=True)
 
 # Model to store relationships between followers
 # Source:

@@ -41,10 +41,54 @@ from django.utils.crypto import get_random_string
 from .serializers import AuthorSerializer, PostSerializer, CommentSerializer, LikeSerializer, ServerSerializer, InboxSerializer
 import urllib.parse
 
+# TODO: we need to support the following operations to connect with other nodes!
+# What is said below appiles to local node elements too!
+# We also need the UI for the corresponding pages
+#   - Home stream or "global stream"
+#   - User profile page with user inbox
+#   - Create post page
+#   - Edit post page
+# - When making a post, we need to send a POST request containing the Post body
+#   to foreign inboxes which are targeted 
+#   - Public posts and private posts with no target, inbox of all followers of poster
+#   - Private posts, inbox of specfic target follower
+#   - Note this should also be forwarded to the inbox of the author!
+# - When we edit a public post, we should re-send the post to the inbox of the foreign node
+# - When making a follow request, we need to send a POST request containing the follow request
+#   body to the foreign author inbox in question
+#   - The follow request interface could be a field allowing us to select users in foriegn server
+#   which we want to follow (suggestion)
+# - On home or global stream, we need to get all of public Post of to all our
+# connected nodes using GET requests 
+#   - For fetching posts with embedded images, we need to fetch the corresponding image post using GET
+# - When making a comment on a foreign post or liking a foreign post (public or private), we need to send
+# a POST request to the foriegn node (to the /comments endpoint and the /inbox for comments and /inbox for likes)
+# - When fetching comments or likes of a foreign post/likes, we need to send a GET request to that node
+#   - How to display fetched likes or comments?
+# - When the inbox recieves a follow request, it should:
+#       - Check if the target author is hosted on the server or not
+#       - Check if the sending author is stored on the server's DB, create an author object if it isn't
+#       - Create a follow request object in the database
+# - When the inbox recieves a like object, it should:
+#       - Check if liking author exists (can be hosted on our server or foreign)
+#           - Create an author object if it isn't (foreign only)
+#       - Create a like object and associated with the parent object
+# - When the inbox recieves a comment object, it should: 
+#       - Check if comment author exists (can be hosted on our server or foreign)
+#           - Create an author object if it isn't (foreign only)
+# - When the post recieves a post object, it should:
+#        - Check if post author exists (can be hosted on our server or foreign)
+#           - Create an author object if it isn't (foreign only)
+# - In order to support cross-origin AJAX requests, we need to allow Cross-Origin on any returned webpages!
+#   - Note: need to see if we use AJAX or node to node commuication
+
 from .models import Author, Post, Comment, Like, Server, Inbox, UserFollowing
 from . import api_helper
 import base64 
 
+#TODO: replace with Heroku hostname when migrating to Heroku, we need to do this to allow connections 
+# to foreign nodes
+#TODO: update README with Heroku hostname as well
 HOST = "http://127.0.0.1:8000/"
 
 # API View for single author API queries (endpoint /api/authors/<author_id>/)
