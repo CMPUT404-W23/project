@@ -10,5 +10,5 @@
 - Špela Giacomelli, [Django REST Framework Views - APIViews](https://testdriven.io/blog/drf-views-part-1/)
 - SonuGeorge, [Adding Permission in API – Django REST Framework](https://www.geeksforgeeks.org/adding-permission-in-api-django-rest-framework/)
   
-OPEN API Specification based off:
-https://swagger.io/specification/
+OPEN API Specification generated with:  
+https://github.com/axnsan12/drf-yasg

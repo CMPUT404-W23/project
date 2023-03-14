@@ -38,6 +38,27 @@ def construct_list_of_authors(author_list_data):
     authorListDict["items"] = returnList
     return authorListDict
 
+def construct_paginated_list_of_authors(author_list_data, pageNum, sizeNum):
+    # not enough authors
+    if (pageNum - 1) * sizeNum > len(author_list_data):
+        return {}
+    author_list = list(author_list_data)
+    index = (pageNum - 1) * sizeNum
+    finalIndex = pageNum * sizeNum
+    returnList = []
+    while index < finalIndex:
+        if index + 1 > len(author_list):
+            break
+        returnList.append(construct_author_object(author_list[index]))
+        index += 1
+    authorListDict = {}
+    authorListDict["type"] = "authors"
+    authorListDict["page"] = pageNum
+    authorListDict["size"] = sizeNum
+    authorListDict["items"] = returnList
+    return authorListDict
+
+
 def construct_post_object(post_data, author):
     postDict = dict(post_data)
     postDict["type"] = "post"
@@ -56,13 +77,32 @@ def construct_list_of_posts(post_list_data, author):
     postListDict["items"] = postList
     return postListDict
 
+def construct_list_of_paginated_posts(post_list_data, pageNum, sizeNum, author):
+    if (pageNum - 1) * sizeNum > len(post_list_data):
+        return {}
+    post_list = list(post_list_data)
+    index = (pageNum - 1) * sizeNum
+    finalIndex = pageNum * sizeNum
+    postList = []
+    while index < finalIndex:
+        if index + 1 > len(post_list):
+            break
+        postList.append(construct_post_object(post_list[index], author))
+        index += 1
+    postListDict = {}
+    postListDict["type"] = "posts"
+    postListDict["page"] = pageNum
+    postListDict["size"] = sizeNum
+    postListDict["items"] = postList
+    return postListDict
+
 def construct_list_of_all_posts(author_post_list_data_pair):
     return {
         "type": "posts",
         "items": [[construct_post_object(post_serial, author) for post_serial in post_list_data] for author, post_list_data in author_post_list_data_pair],
     }
-    
 
+    
 def construct_comment_object(comment_data, author):
     commentDict = dict(comment_data)
     author_serialzer = AuthorSerializer(author)
@@ -77,6 +117,27 @@ def construct_list_of_comments(comment_list_data, author, post):
         commentList.append(construct_comment_object(comment_serial, commentAuthor))
     commentListDict = {}
     commentListDict["type"] = "comments"
+    commentListDict["items"] = commentList
+    commentListDict["post"] = post.id
+    commentListDict["id"] = post.id + "/comments/"
+    return commentListDict
+
+def construct_paginated_list_of_comments(comment_list_data, pageNum, sizeNum, author, post):
+    if (pageNum - 1) * sizeNum > len(comment_list_data):
+        return {}
+    comment_list = list(comment_list_data)
+    index = (pageNum - 1) * sizeNum
+    finalIndex = pageNum * sizeNum
+    commentList = []
+    while index < finalIndex:
+        if index + 1 > len(comment_list):
+            break
+        commentList.append(construct_comment_object(comment_list[index], author))
+        index += 1
+    commentListDict = {}
+    commentListDict["type"] = "comments"
+    commentListDict["page"] = pageNum
+    commentListDict["size"] = sizeNum
     commentListDict["items"] = commentList
     commentListDict["post"] = post.id
     commentListDict["id"] = post.id + "/comments/"
