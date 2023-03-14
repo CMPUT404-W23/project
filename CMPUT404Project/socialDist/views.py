@@ -29,6 +29,7 @@
 # https://stackoverflow.com/questions/25943850/django-package-to-generate-random-alphanumeric-strin
 # https://www.geeksforgeeks.org/encoding-and-decoding-base64-strings-in-python/
 
+from django.db import IntegrityError
 from django.shortcuts import render, get_object_or_404
 from rest_framework.permissions import DjangoModelPermissions
 from rest_framework.response import Response
@@ -167,20 +168,23 @@ class APIListAuthors(APIView):
     def put(self, request):
         username = request.data["username"]
         email = request.data.get("email", "") # if email is not provided, set it to empty string
-        password = request.data["password"]
-        user = User.objects.create_user(username, email, password)
+        password = request.data["password1"]
         try:
+            user = User.objects.create_user(username, email, password)
             author = Author.objects.create(
                 user=user,
-                id=HOST+"authors/"+user.pk,
+                id=HOST+"authors/" + str(user.pk),
                 host=HOST,
                 displayName=username,
                 github="",
                 profileImage="",
             )
             return Response(status=201)
-        except:
-            return Response(status=400)
+        except (IntegrityError, ValueError) as e:
+            if IntegrityError:
+                return Response(status=409, data="An account with that username already exists.")
+            else:
+                return Response(status=400, data="Account creation failed.")
 
 # API View for single post queries (endpoint /api/authors/<author_id>/posts/<post_id>)
 class APIPost(APIView):

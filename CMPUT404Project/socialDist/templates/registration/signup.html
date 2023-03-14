@@ -44,12 +44,12 @@
     const httpRequest = new XMLHttpRequest();
     httpRequest.onreadystatechange = () => {
       if (httpRequest.readyState === XMLHttpRequest.DONE) {
-        if (httpRequest.status === 200) {
+        if (httpRequest.status === 201) {
           displayAlert("alert-success", "Account created successfully!");
         } else {
           displayAlert(
             "alert-danger",
-            `An error occurred: ${httpRequest.statusText}`
+            `An error occurred: ${httpRequest.response}`
           );
         }
       }
@@ -57,14 +57,15 @@
 
     const data = {
       username: document.getElementById("username-input").value,
-      password: document.getElementById("password-confirm").value
+      password1: document.getElementById("password-input").value,
+      password2: document.getElementById("password-confirm").value
     };
 
     // if any fields are empty
     if (
-      data.displayName === "" ||
-      data.github === "" ||
-      data.profileImage === ""
+      data.username === "" ||
+      data.password1 === "" ||
+      data.password2 === ""
     ) {
       displayAlert("alert-danger", "Please fill out all fields.");
       return;
@@ -83,6 +84,11 @@
     httpRequest.setRequestHeader("X-CSRFToken", "{{ csrf_token }}");
     httpRequest.setRequestHeader("Content-Type", "application/json");
     httpRequest.send(JSON.stringify(data));
+    
+    // disable form fields
+    data.username.disabled = true;
+    data.password1.disabled = true;
+    data.password2.disabled = true;
   }
 </script>
 {% endblock %}
