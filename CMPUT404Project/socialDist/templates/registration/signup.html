@@ -20,7 +20,7 @@
             <label for="password-confirm" class="form-label">Confirm Password</label>
             <input type="password" class="form-control" id="password-confirm">
           </div>
-          <button type="submit" class="btn btn-primary" onclick="sendRequest(event)">Sign Up</button>
+          <button id="submit" type="submit" class="btn btn-primary" onclick="sendRequest(event)">Sign Up</button>
         </form>
         <div class="form-text mt-3">Already have an account? <a href="{% url 'login' %}">Sign in.</a></div>
       </div>
@@ -45,7 +45,7 @@
     httpRequest.onreadystatechange = () => {
       if (httpRequest.readyState === XMLHttpRequest.DONE) {
         if (httpRequest.status === 201) {
-          displayAlert("alert-success", "Account created successfully!");
+          displayAlert("alert-success", "Account created successfully! You may now log in.");
         } else {
           displayAlert(
             "alert-danger",
@@ -86,9 +86,10 @@
     httpRequest.send(JSON.stringify(data));
     
     // disable form fields
-    data.username.disabled = true;
-    data.password1.disabled = true;
-    data.password2.disabled = true;
+    document.getElementById("username-input").disabled = true;
+    document.getElementById("password-input").disabled = true;
+    document.getElementById("password-confirm").disabled = true;
+    document.getElementById("submit").disabled = true;
   }
 </script>
 {% endblock %}
