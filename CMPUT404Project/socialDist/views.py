@@ -29,6 +29,7 @@
 # https://stackoverflow.com/questions/25943850/django-package-to-generate-random-alphanumeric-strin
 # https://www.geeksforgeeks.org/encoding-and-decoding-base64-strings-in-python/
 
+from django.db import IntegrityError
 from django.shortcuts import render, get_object_or_404
 from rest_framework.permissions import DjangoModelPermissions
 from rest_framework.response import Response
@@ -38,6 +39,7 @@ from rest_framework.decorators import api_view
 from django.http import QueryDict
 from rest_framework import status
 from django.utils.crypto import get_random_string
+from django.contrib.auth.models import User
 from .serializers import AuthorSerializer, PostSerializer, CommentSerializer, LikeSerializer, ServerSerializer, InboxSerializer
 import urllib.parse
 
@@ -162,6 +164,27 @@ class APIListAuthors(APIView):
             authors = Author.objects.filter(host=HOST)
             serializer = AuthorSerializer(authors, many=True)
             return Response(status=200, data=api_helper.construct_list_of_authors(serializer.data))
+    
+    def put(self, request):
+        username = request.data["username"]
+        email = request.data.get("email", "") # if email is not provided, set it to empty string
+        password = request.data["password1"]
+        try:
+            user = User.objects.create_user(username, email, password)
+            author = Author.objects.create(
+                user=user,
+                id=HOST+"authors/" + str(user.pk),
+                host=HOST,
+                displayName=username,
+                github="",
+                profileImage="",
+            )
+            return Response(status=201)
+        except (IntegrityError, ValueError) as e:
+            if IntegrityError:
+                return Response(status=409, data="An account with that username already exists.")
+            else:
+                return Response(status=400, data="Account creation failed.")
 
 # API View for single post queries (endpoint /api/authors/<author_id>/posts/<post_id>)
 class APIPost(APIView):
