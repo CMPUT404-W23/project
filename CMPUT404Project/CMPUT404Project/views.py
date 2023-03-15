@@ -11,3 +11,7 @@ def settings(request):
         author = None
     context = {'author': author}
     return render(request, 'settings.html', context)
+
+@login_required
+def home(request):
+    return render(request, 'home.html')
