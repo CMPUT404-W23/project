@@ -51,6 +51,7 @@ urlpatterns = [
     path("post/", TemplateView.as_view(template_name="post.html"), name="post"),
     path("api/", include("socialDist.urls")),
     path("posts/", TemplateView.as_view(template_name="posts.html"), name="posts"),
+    path("search/", TemplateView.as_view(template_name="search.html"), name="search"),
     
     # redirect urls without slash to links with slash
     # TODO Automate this (jayden)

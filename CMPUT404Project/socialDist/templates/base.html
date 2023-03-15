@@ -31,7 +31,9 @@
           </li> {% endcomment %}
           <li class="nav-item">
             <a class="nav-link {% if request.resolver_match.url_name == 'post' %}active{% endif %}" aria-current="page" href="/post">Create Post</a>
-
+          </li>
+          <li class="nav-item">
+            <a class="nav-link {% if request.resolver_match.url_name == 'search' %}active{% endif %}" aria-current="page" href="/search">Search</a>
           </li>
         </ul>
         <ul class="navbar-nav">
