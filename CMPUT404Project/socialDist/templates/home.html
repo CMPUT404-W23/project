@@ -13,7 +13,7 @@
         posts = data.items[0];
         document.getElementById('posts').innerHTML = posts.map(post => 
             `
-            <div class="card">
+            <div class="card my-3">
                 <div class="card-body">
                     <h5 class="card-title">${post.title}</h5>
                     <h6 class="card-subtitle mb-2 text-muted">${post.description} <span class="badge bg-secondary">${post.categories}</span></h6>
