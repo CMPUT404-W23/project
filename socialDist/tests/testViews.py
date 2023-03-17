@@ -278,6 +278,7 @@ class APIPostTests(TestCase):
         url=reverse('socialDist:post', kwargs={'author_id':2, 'post_id':2})
         response=self.client.get(url, testData, format='json')
         self.assertEqual(response.status_code, 404)
+        
 
     # POSTing (editing) an existing Post
     def testPOSTPostSuccess(self):
