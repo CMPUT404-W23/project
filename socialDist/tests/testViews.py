@@ -164,6 +164,7 @@ class APIAuthorTests(TestCase):
         response=self.client.post(url, failData, id="3", follow=True, format='json')
         expected_data={'id': 'http://127.0.0.1:8000/authors/3', 'host': 'http://127.0.0.1:8000/', 'displayName': 'New test', 'github': 'http://github.com/testnew', 'profileImage': 'https://i.imgur.com/newtest2.jpeg', 'type': 'author', 'url': 'http://127.0.0.1:8000/authors/2'}
         self.assertEqual(response.status_code, 404)
+        
 
 class APIPostTests(TestCase):
     def setUp(self):
