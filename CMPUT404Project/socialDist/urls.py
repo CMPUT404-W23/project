@@ -22,9 +22,13 @@
 
 from django.urls import path
 from . import views
+from rest_framework_swagger.views import get_swagger_view
+
+schema_view = get_swagger_view(title='Jaseci API')
 
 app_name = 'socialDist'
 urlpatterns = [
+     path('docs/', schema_view),
      path('authors/', 
           views.APIListAuthors.as_view(),name='authors'),
      path('authors/<str:id>/', 
