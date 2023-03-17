@@ -43,4 +43,5 @@ class APIAuthorTests(TestCase):
 
         # test basic API fields (TBA)
         self.assertEqual(response.status_code, 404)
+        
 
