@@ -12,3 +12,6 @@
   
 OPEN API Specification generated with:  
 https://github.com/axnsan12/drf-yasg
+
+Deploying to Heroku:
+https://sweetcode.io/deploying-your-django-web-app-to-heroku/
