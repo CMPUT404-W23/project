@@ -16,3 +16,12 @@ https://github.com/axnsan12/drf-yasg
 Deploying to Heroku:
 https://sweetcode.io/deploying-your-django-web-app-to-heroku/
 https://www.codejava.net/heroku/enable-secure-connection-for-apps
+
+URL to web appilication:
+https://socialdistcmput404.herokuapp.com/
+
+Access the API with:
+https://socialdistcmput404.herokuapp.com/api/'''api-path'''
+
+Access the API docs with:
+https://socialdistcmput404.herokuapp.com/api/swagger
