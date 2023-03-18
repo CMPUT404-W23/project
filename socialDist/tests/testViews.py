@@ -21,7 +21,8 @@ class APIListAuthorTests(TestCase):
     # Setup client, a dummy broswer used for testing
     def setUp(self):
         self.client = APIClient()
-        self.user=User.objects.create_user('test','test@gmail.com', 'password')
+        # self.user=User.objects.create_user('test','test@gmail.com', 'password')
+        self.user=User.objects.create_user(username='test',email='test@gmail.com', password='password')
         self.client.force_authenticate(user=self.user)
         # client = APIClient(enforce_csrf_checks=True)
         # client.login()
@@ -51,8 +52,13 @@ class APIListAuthorTests(TestCase):
         # Author.objects.get(id="http://127.0.0.1:8000/authors/1")
 
 
-    # Basic test 
+    # Basic test: DONE 
     def testGetListAuthors(self):
+
+        # Work by creating objects, but want to create through POST
+        author1=Author.objects.create(id="http://127.0.0.1:8000/authors/1", host="http://127.0.0.1:8000/", displayName="tester1", github="http://github.com/test1", profileImage="https://i.imgur.com/test1.jpeg")
+        author2=Author.objects.create(id="http://127.0.0.1:8000/authors/2", host="http://127.0.0.1:8000/", displayName="tester2", github="http://github.com/test2", profileImage="https://i.imgur.com/test2.jpeg") 
+
         url=reverse('socialDist:authors')
         response = self.client.get(url)
         # test basic API fields
@@ -89,6 +95,14 @@ class APIListAuthorTests(TestCase):
 
         self.assertEqual(409, response.status_code)
         self.assertEqual(response.content.decode("utf-8"), '"An account with that username already exists."')
+
+class APIAuthorTests(TestCase):
+    def setUp(self):
+        self.client = APIClient()
+        self.user=User.objects.create_user('test','test@gmail.com', 'password')
+        self.client.force_authenticate(user=self.user)
+        # client = APIClient(enforce_csrf_checks=True)
+        # client.login()
 
 class APIAuthorTests(TestCase):
     def setUp(self):
@@ -429,6 +443,21 @@ class APIListPostsTests(TestCase):
                     "comments": "http://127.0.0.1:8000/authors/2/posts/1/comments/"
                     }
 
+        # PASSED the author get
+        # 2 users
+        # print(User.objects.all())
+        # 1 author: [<Author: Author object (http://127.0.0.1:8000/authors/2)>], it binds with the user I created earlier in this fucntion
+        # print(Author.objects.get(id="http://127.0.0.1:8000/authors/2").user)
+        
+        # Success case
+        url = reverse('socialDist:author', args="2")
+        # new data is from the testing user with some udpated fields
+        newData={'user_id': None, 'id': 'http://127.0.0.1:8000/authors/3', 'host': 'http://127.0.0.1:8000/', 'displayName': 'New test', 'github': 'http://github.com/testnew', 'profileImage': 'https://i.imgur.com/newtest2.jpeg'}
+        response=self.client.post(url, newData, id=2, follow=True, format='json')
+
+        expected_data={'id': 'http://127.0.0.1:8000/authors/2', 'host': 'http://127.0.0.1:8000/', 'displayName': 'New test', 'github': 'http://github.com/testnew', 'profileImage': 'https://i.imgur.com/newtest2.jpeg', 'type': 'author', 'url': 'http://127.0.0.1:8000/authors/2'}
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.data, expected_data)
         
 
     def testPOSTListPostsSuccess(self):
