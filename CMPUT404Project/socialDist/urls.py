@@ -39,7 +39,8 @@ schema_view = get_schema_view(
 
 app_name = 'socialDist'
 urlpatterns = [
-     path('docs/', schema_view),
+     # Commented just for testing
+     # path('docs/', schema_view),
      path('authors/', 
           views.APIListAuthors.as_view(),name='authors'),
      path('authors/<str:id>/', 
