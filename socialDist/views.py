@@ -32,11 +32,13 @@
 import datetime
 from django.db import IntegrityError
 from django.shortcuts import render, get_object_or_404
-from rest_framework.permissions import DjangoModelPermissions
+from rest_framework.permissions import IsAuthenticated
+from . import auth
+from rest_framework.authentication import BasicAuthentication
 from rest_framework.response import Response
 from django.http import HttpResponse
 from rest_framework.views import APIView
-from rest_framework.decorators import api_view
+from rest_framework.decorators import permission_classes, authentication_classes
 from django.http import QueryDict
 from rest_framework import status
 from django.utils.crypto import get_random_string
@@ -94,6 +96,7 @@ HOST = "https://socialdistcmput404.herokuapp.com/"
 # API View for single author API queries (endpoint /api/authors/<author_id>/)
 class APIAuthor(APIView):
     # Getting the information of a single author with that id
+    permission_classes = [auth.RemotePermission]
     def get(self, request, id):
         try:
             # find author object
@@ -137,6 +140,7 @@ class APIAuthor(APIView):
 # API View for list of authors API queries (endpoint /api/authors/)
 class APIListAuthors(APIView):
     # Getting list of authors
+    permission_classes = [auth.RemotePermission]
     def get(self, request):
         if (request.META["QUERY_STRING"] != ""):
             queryDict = QueryDict(request.META["QUERY_STRING"])
@@ -187,6 +191,7 @@ class APIListAuthors(APIView):
 # API View for single post queries (endpoint /api/authors/<author_id>/posts/<post_id>)
 class APIPost(APIView):
     # Get a single post
+    permission_classes = [auth.RemotePermission]
     def get(self, request, author_id, post_id):
         # Check if specified author exists
         try:
@@ -286,6 +291,7 @@ class APIPost(APIView):
 # API View for a list of post queries (endpoint /api/authors/<author_id>/posts/)
 class APIListPosts(APIView):
     # Get a list of posts, with paginating support
+    permission_classes = [auth.RemotePermission]
     def get(self, request, author_id):
         try:
             author = Author.objects.get(pk=HOST+"authors/"+author_id)
@@ -311,8 +317,7 @@ class APIListPosts(APIView):
         return Response(status=200, data=api_helper.construct_list_of_paginated_posts(serializer.data,
                                                                                     pageNum,
                                                                                     sizeNum,
-                                                                                    author))
-    
+                                                                                    author))  
     # Add a post with a randomized post id
     # Include a post object in JSON with modified fields
     # Note that host and id field will be ignored!
@@ -342,6 +347,7 @@ class APIListPosts(APIView):
 
 # Endpoint used to fetch image posts as images (endpoint /api/authors/<author_id>/posts/<post_id>/image)
 class APIImage(APIView):
+    permission_classes = [auth.RemotePermission]
     def get(self, request, author_id, post_id):
         try:
             author = Author.objects.get(pk=HOST+"authors/"+author_id)
@@ -365,6 +371,7 @@ class APIImage(APIView):
     
 #API View for single comment queries (endpoint /api/authors/<author_id>/posts/<post_id>/comments/<comment_id>)
 class APIComment(APIView):
+    permission_classes = [auth.RemotePermission]
     def get(self, request, author_id, post_id, comment_id):
         try:
             author = Author.objects.get(pk=HOST+"authors/"+author_id)
@@ -394,6 +401,7 @@ class APIComment(APIView):
 #API View for list of comments queries (endpoint /api/authors/<author_id>/posts/<post_id>/comments/)
 class APIListComments(APIView):
     # Get list of comments
+    permission_classes = [auth.RemotePermission]
     def get(self, request, author_id, post_id):
         try:
             author = Author.objects.get(pk=HOST+"authors/"+author_id)
@@ -481,6 +489,7 @@ class APIListComments(APIView):
 
 # API view for likes on a post (endpoint /api/authors/<author_id>/posts/<post_id>/likes/)
 class APIListLikesPost(APIView):
+    permission_classes = [auth.RemotePermission]
     def get(self, request, author_id, post_id):
         try:
             author = Author.objects.get(pk=HOST+"authors/"+author_id)
@@ -497,6 +506,7 @@ class APIListLikesPost(APIView):
 # API view for likes on a comment (endpoint /api/authors/<author_id>/posts/<post_id>/comments/<comment_id>/likes)
 class APIListLikesComments(APIView):
     # Get list of likes originating on this comment
+    permission_classes = [auth.RemotePermission]
     def get(self, request, author_id, post_id, comment_id):
         try:
             author = Author.objects.get(pk=HOST+"authors/"+author_id)
@@ -521,6 +531,7 @@ class APIListLikesComments(APIView):
 class APILiked(APIView):
     # Get list of likes on public objects (comments on public posts, public posts)
     # originating from this author
+    permission_classes = [auth.RemotePermission]
     def get(self, request, author_id):
         try:
             author = Author.objects.get(pk=HOST+"authors/"+author_id)
@@ -533,6 +544,7 @@ class APILiked(APIView):
 # API View for followers (endpoint /api/authors/<author_id>/followers)
 class APIFollowers(APIView):
     # Get list of followers
+    permission_classes = [auth.RemotePermission]
     def get(self, request, author_id):
         try:
             author = Author.objects.get(pk=HOST+"authors/"+author_id)
@@ -550,6 +562,7 @@ class APIFollowers(APIView):
 class APIFollower(APIView):
     # Check if the specified foreign author is a follower of the author
     # Returns the author object if it exists
+    permission_classes = [auth.RemotePermission]
     def get(self, request, author_id, foreign_author_id):
         try:
             targetAuthor = Author.objects.get(pk=HOST+"authors/"+author_id)
