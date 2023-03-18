@@ -21,18 +21,38 @@ class APIListAuthorTests(TestCase):
     # Setup client, a dummy broswer used for testing
     def setUp(self):
         self.client = APIClient()
-        # self.user=User.objects.create_user('test','test@gmail.com', 'password')
-        self.user=User.objects.create_user(username='test',email='test@gmail.com', password='password')
+        self.user=User.objects.create_user('test','test@gmail.com', 'password')
         self.client.force_authenticate(user=self.user)
-
-
-    # Basic test: DONE 
-    def testGETListAuthors(self):
+        # client = APIClient(enforce_csrf_checks=True)
+        # client.login()
 
         # Work by creating objects, but want to create through POST
         author1=Author.objects.create(id="http://127.0.0.1:8000/authors/1", host="http://127.0.0.1:8000/", displayName="tester1", github="http://github.com/test1", profileImage="https://i.imgur.com/test1.jpeg")
         author2=Author.objects.create(id="http://127.0.0.1:8000/authors/2", host="http://127.0.0.1:8000/", displayName="tester2", github="http://github.com/test2", profileImage="https://i.imgur.com/test2.jpeg") 
 
+        """
+        # The API way
+        data={
+        "id": "http://127.0.0.1:8000/authors/1",
+        "host": "http://127.0.0.1:8000/",
+        "displayName": "jasonKNEWaaaa",
+        "github": "aaaaakkkkkkkkkk",
+        "profileImage": "new",
+        "type": "author",
+        "url": "http://127.0.0.1:8000/authors/1"
+        }
+
+        # Testing on POSTing (TBA)
+        # url = reverse('socialDist:author', args="1")
+        response=self.client.post('authors/1/',data, follow=True)
+        # printing a 404, why?
+        print(response.status_code)
+        """
+        # Author.objects.get(id="http://127.0.0.1:8000/authors/1")
+
+
+    # Basic test 
+    def testGetListAuthors(self):
         url=reverse('socialDist:authors')
         response = self.client.get(url)
         # test basic API fields
