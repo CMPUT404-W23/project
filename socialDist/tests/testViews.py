@@ -25,10 +25,6 @@ class APIListAuthorTests(TestCase):
         # client = APIClient(enforce_csrf_checks=True)
         # client.login()
 
-        # Work by creating objects, but want to create through POST
-        author1=Author.objects.create(id="http://127.0.0.1:8000/authors/1", host="http://127.0.0.1:8000/", displayName="tester1", github="http://github.com/test1", profileImage="https://i.imgur.com/test1.jpeg")
-        author2=Author.objects.create(id="http://127.0.0.1:8000/authors/2", host="http://127.0.0.1:8000/", displayName="tester2", github="http://github.com/test2", profileImage="https://i.imgur.com/test2.jpeg") 
-
 
         """
         # The API way
