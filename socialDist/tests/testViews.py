@@ -8,7 +8,7 @@ from socialDist.models import Author, Post, Comment, Like, Server, Inbox, UserFo
 from django.contrib.auth.models import User
 from django.forms.models import model_to_dict
 from rest_framework.test import APIClient, force_authenticate
-# Reference (TBA): https://www.django-rest-framework.org/api-guide/testing/ 
+# Reference (TBA): https://www.django-rest-framework.org/api-guide/testing/
 
 # BACK-END tests for views
 # TO RUN THIS TEST: Command "python manage.py test socialDist.tests.testViews"
@@ -24,6 +24,10 @@ class APIListAuthorTests(TestCase):
         self.client.force_authenticate(user=self.user)
         # client = APIClient(enforce_csrf_checks=True)
         # client.login()
+
+        # Work by creating objects, but want to create through POST
+        author1=Author.objects.create(id="http://127.0.0.1:8000/authors/1", host="http://127.0.0.1:8000/", displayName="tester1", github="http://github.com/test1", profileImage="https://i.imgur.com/test1.jpeg")
+        author2=Author.objects.create(id="http://127.0.0.1:8000/authors/2", host="http://127.0.0.1:8000/", displayName="tester2", github="http://github.com/test2", profileImage="https://i.imgur.com/test2.jpeg") 
 
 
         """
