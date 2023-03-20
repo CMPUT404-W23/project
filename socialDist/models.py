@@ -91,11 +91,6 @@ class Server(models.Model):
     # Is this server the local one?
     isLocalServer=models.BooleanField()
 
-    def save(self):
-        hash = hashlib.sha1()
-        hash.update(self.serverAddress.encode('utf-8'))
-        self.serverKey = hash.hexdigest()
-
 
 # Model to store relationships between followers
 # Source:
