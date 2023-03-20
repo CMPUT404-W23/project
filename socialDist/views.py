@@ -34,7 +34,7 @@ from django.db import IntegrityError
 from django.shortcuts import render, get_object_or_404
 from rest_framework.permissions import IsAuthenticated
 from . import auth
-from rest_framework.authentication import BasicAuthentication
+from rest_framework.authentication import BasicAuthentication, TokenAuthentication
 from rest_framework.response import Response
 from django.http import HttpResponse
 from rest_framework.views import APIView
