@@ -11,6 +11,7 @@
     .then((response) => response.json())
     .then((data) => {
         posts = data.items[0];
+        console.log(posts)
         document.getElementById('posts').innerHTML = posts.map(post => 
             `
             <div class="card my-3">
