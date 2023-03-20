@@ -15,3 +15,7 @@ def settings(request):
 @login_required
 def home(request):
     return render(request, 'home.html')
+
+@login_required
+def create_post(request):
+    return render(request, 'post.html')
