@@ -9,6 +9,8 @@ from django.contrib.auth.models import User
 from django.forms.models import model_to_dict
 from rest_framework.test import APIClient, force_authenticate
 # Reference (TBA): https://www.django-rest-framework.org/api-guide/testing/
+import base64
+import io
 
 # BACK-END tests for views
 # TO RUN THIS TEST: Command "python manage.py test socialDist.tests.testViews"
@@ -22,29 +24,6 @@ class APIListAuthorTests(TestCase):
         # self.user=User.objects.create_user('test','test@gmail.com', 'password')
         self.user=User.objects.create_user(username='test',email='test@gmail.com', password='password')
         self.client.force_authenticate(user=self.user)
-        # client = APIClient(enforce_csrf_checks=True)
-        # client.login()
-
-
-        """
-        # The API way
-        data={
-        "id": "http://127.0.0.1:8000/authors/1",
-        "host": "http://127.0.0.1:8000/",
-        "displayName": "jasonKNEWaaaa",
-        "github": "aaaaakkkkkkkkkk",
-        "profileImage": "new",
-        "type": "author",
-        "url": "http://127.0.0.1:8000/authors/1"
-        }
-
-        # Testing on POSTing (TBA)
-        # url = reverse('socialDist:author', args="1")
-        response=self.client.post('authors/1/',data, follow=True)
-        # printing a 404, why?
-        print(response.status_code)
-        """
-        # Author.objects.get(id="http://127.0.0.1:8000/authors/1")
 
 
     # Basic test: DONE 
@@ -549,6 +528,121 @@ class APIListPostsTests(TestCase):
         response=self.client.get(url, testData, format='json')
         self.assertEqual(response.status_code, 404)
 
+# Test for APIImage
+class APIImageTests(TestCase):
+    # Setup the image from user --> post --> image
+    def setUp(self):
+        # Creeate User
+        self.client = APIClient()
+        self.user=User.objects.create_user('test','test@gmail.com', 'password')
+        self.client.force_authenticate(user=self.user)
+
+        # use user to create author
+        data={'username': 'alex', "email": 'alexmail', "password1": 'a'}
+        url=reverse('socialDist:authors')
+        response=self.client.put(url, data)
+        self.testAuthor=Author.objects.filter(id="http://127.0.0.1:8000/authors/2").values()
+
+        # reading an image for good post
+        with open("socialDist/tests/testImage1.jpg", "rb") as image:
+            imageString=base64.b64encode(image.read())
+
+        # Add a post that has the image type
+        self.goodPostData={"id":"http://127.0.0.1:8000/authors/1", 
+                    "title":'testTitle', 
+                    'source':"testSource", 
+                    'origin':"testOrigin", 
+                    'descritption':"testDescription", 
+                    'content': imageString, 
+                    'contentType': "image/png;base64", 
+                    'author': self.testAuthor[0], 
+                    'published':"2023-03-03T00:41:14Z",
+                    'visibility': 'VISIBLE', 
+                    'categories': 'test', 
+                    'unlisted': False, 
+                    "type": "post",
+                    "count": 1,
+                    "comments": "http://127.0.0.1:8000/authors/2/posts/1/comments/"
+                    }
+
+         # Create good post using author
+        url=reverse('socialDist:post', kwargs={'author_id':2, 'post_id':1})
+        response=self.client.put(url, self.goodPostData, format='json')
+
+        # Add a post that does NOT have the image type
+        self.badPostData={"id":"http://127.0.0.1:8000/authors/1", 
+                    "title":'testTitle', 
+                    'source':"testSource", 
+                    'origin':"testOrigin", 
+                    'descritption':"testDescription", 
+                    'content': 'testContent', 
+                    'contentType': "text/plain", 
+                    'author': self.testAuthor[0], 
+                    'published':"2023-03-03T00:41:14Z",
+                    'visibility': 'VISIBLE', 
+                    'categories': 'test', 
+                    'unlisted': False, 
+                    "type": "post",
+                    "count": 1,
+                    "comments": "http://127.0.0.1:8000/authors/2/posts/1/comments/"
+                    }
+
+        # Create bad post using author
+        url=reverse('socialDist:post', kwargs={'author_id':2, 'post_id':2})
+        response=self.client.get(url, self.badPostData, format='json')
+
+    # TODO: finish success once image post is done
+    def testGETImageSuccess(self):
+        url=reverse('socialDist:image', kwargs={'author_id':2, 'post_id': 1})
+        response=self.client.get(url, {}, format='json')
+        self.assertEqual(response.status_code, 200)
+
+    # Getting the image when the post's type is not "image/png;base64": expect 404
+    def testGETImageFail(self):
+        url=reverse('socialDist:image', kwargs={'author_id':2, 'post_id': 2})
+        response=self.client.get(url, {}, format='json')
+        
+        self.assertEqual(response.status_code, 404)
+
+"""
+# Test for APIComment
+class APICommentTests(TestCase):
+    # Setup the image from user --> post --> comment
+    def setUp(self):       
+        # Creeate User
+        self.client = APIClient()
+        self.user=User.objects.create_user('test','test@gmail.com', 'password')
+        self.client.force_authenticate(user=self.user)
+
+        # use user to create author
+        data={'username': 'alex', "email": 'alexmail', "password1": 'a'}
+        url=reverse('socialDist:authors')
+        response=self.client.put(url, data)
+        self.testAuthor=Author.objects.filter(id="http://127.0.0.1:8000/authors/2").values()
+
+        
+        self.postData={"id":"http://127.0.0.1:8000/authors/1", 
+                    "title":'testTitle', 
+                    'source':"testSource", 
+                    'origin':"testOrigin", 
+                    'descritption':"testDescription", 
+                    'content': 'testContent', 
+                    'contentType': "text/plain", 
+                    'author': self.testAuthor[0], 
+                    'published':"2023-03-03T00:41:14Z",
+                    'visibility': 'VISIBLE', 
+                    'categories': 'test', 
+                    'unlisted': False, 
+                    "type": "post",
+                    "count": 1,
+                    "comments": "http://127.0.0.1:8000/authors/2/posts/1/comments/"
+                    }
+
+        # Create a post using author
+        url=reverse('socialDist:post', kwargs={'author_id':2, 'post_id':1})
+        response=self.client.put(url, self.postData, format='json')
+
+"""
 
 
 
