@@ -480,34 +480,57 @@ class APIListPostsTests(TestCase):
     # add posts, then get it
     def testGETListPostsSuccess(self):
 
+        # adding both posts, then getting it
         url=reverse('socialDist:posts', kwargs={'author_id':2})
-
-        # adding first post
         response=self.client.post(url, self.post1Data, format='json')
-        self.assertEqual(response.status_code, 201)
 
-        # Getting it
-        testData={}
-        testResponse=self.client.get(url, testData, format='json')
-        self.assertEqual(testResponse.status_code, 200)
+        url=reverse('socialDist:posts', kwargs={'author_id':2})
+        response=self.client.post(url, self.post2Data, format='json')
 
+        # GETing it
+        response=self.client.get(url, {})
+        
         # Check the values from response's fields:
         # Can only check upto id's last 10 char due to randomness of string producing
-        self.assertEqual(response.data['id'][:-10], 'http://127.0.0.1:8000/authors/2/posts/')
-        self.assertEqual(response.data['title'], 'testTitle1')
-        self.assertEqual(response.data['source'], 'testSource1')
-        self.assertEqual(response.data['origin'], 'testOrigin1')
-        self.assertEqual(response.data['description'], '')
+
+        # Test first post
+        self.assertEqual(response.data['items'][0]['id'][:-10], 'http://127.0.0.1:8000/authors/2/posts/')
+        self.assertEqual(response.data['items'][0]['title'], 'testTitle1')
+        self.assertEqual(response.data['items'][0]['source'], 'testSource1')
+        self.assertEqual(response.data['items'][0]['origin'], 'testOrigin1')
+        self.assertEqual(response.data['items'][0]['description'], '')
         expectedData={'id': 'http://127.0.0.1:8000/authors/2', 'host': 'http://127.0.0.1:8000/', 'displayName': 'alex', 'github': '', 'profileImage': '', 'type': 'author', 'url': 'http://127.0.0.1:8000/authors/2'}
-        self.assertEqual(response.data['author'], expectedData)
-        self.assertEqual(response.data['content'], 'testContent1')
-        self.assertEqual(response.data['contentType'], 'text/plain')
-        self.assertEqual(response.data['published'], '2023-03-03T00:41:14Z')
-        self.assertEqual(response.data['visibility'], 'VISIBLE')
-        self.assertEqual(response.data['categories'], 'test')
-        self.assertEqual(response.data['unlisted'], False)
-        self.assertEqual(response.data['type'], 'post')
-        self.assertEqual(response.data['count'], 0)
+        self.assertEqual(response.data['items'][0]['author'], expectedData)
+        self.assertEqual(response.data['items'][0]['content'], 'testContent1')
+        self.assertEqual(response.data['items'][0]['contentType'], 'text/plain')
+        self.assertEqual(response.data['items'][0]['published'], '2023-03-03T00:41:14Z')
+        self.assertEqual(response.data['items'][0]['visibility'], 'VISIBLE')
+        self.assertEqual(response.data['items'][0]['categories'], 'test')
+        self.assertEqual(response.data['items'][0]['unlisted'], False)
+        self.assertEqual(response.data['items'][0]['type'], 'post')
+        self.assertEqual(response.data['items'][0]['count'], 0)
+        self.assertEqual(response.data['items'][0]['comments'][-10:],"/comments/")
+
+        # Test second post content
+        self.assertEqual(response.data['items'][1]['id'][:-10], 'http://127.0.0.1:8000/authors/2/posts/')
+        self.assertEqual(response.data['items'][1]['title'], 'testTitle2')
+        self.assertEqual(response.data['items'][1]['source'], 'testSource2')
+        self.assertEqual(response.data['items'][1]['origin'], 'testOrigin2')
+        self.assertEqual(response.data['items'][1]['description'], '')
+        expectedData={'id': 'http://127.0.0.1:8000/authors/2', 'host': 'http://127.0.0.1:8000/', 'displayName': 'alex', 'github': '', 'profileImage': '', 'type': 'author', 'url': 'http://127.0.0.1:8000/authors/2'}
+        self.assertEqual(response.data['items'][1]['author'], expectedData)
+        self.assertEqual(response.data['items'][1]['content'], 'testContent2')
+        self.assertEqual(response.data['items'][1]['contentType'], 'text/plain')
+        self.assertEqual(response.data['items'][1]['published'], '2023-03-03T00:41:14Z')
+        self.assertEqual(response.data['items'][1]['visibility'], 'VISIBLE')
+        self.assertEqual(response.data['items'][1]['categories'], 'test')
+        self.assertEqual(response.data['items'][1]['unlisted'], False)
+        self.assertEqual(response.data['items'][1]['type'], 'post')
+        self.assertEqual(response.data['items'][1]['count'], 0)
+        self.assertEqual(response.data['items'][1]['comments'][-10:],"/comments/")
+
+
+        
 
     # GET when there are no posts
     def testGETListPostsEmpty(self):
@@ -530,8 +553,6 @@ class APIListPostsTests(TestCase):
 
     
         # TODO: Issue found: Only returns the latest author for api_helper.construct_list_of_posts
-
-
 
 
 
