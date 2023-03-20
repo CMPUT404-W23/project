@@ -166,7 +166,6 @@ class APIAuthorTests(TestCase):
         self.assertEqual(response.status_code, 404)
 
 class APIPostTests(TestCase):
-    # order: GET, POST, PUT, DELETE
     def setUp(self):
         self.client = APIClient()
         self.user=User.objects.create_user('test','test@gmail.com', 'password')
@@ -346,7 +345,7 @@ class APIPostTests(TestCase):
 
 
     # Delete a created post
-    def testDeletePostSuccess(self):
+    def testDELETEPostSuccess(self):
         # Created a post
         url=reverse('socialDist:post', kwargs={'author_id':2, 'post_id':1})
         response=self.client.put(url, self.postData, format='json')
@@ -363,7 +362,7 @@ class APIPostTests(TestCase):
         self.assertEqual(getResponse.status_code, 404)
 
     # Delete an not existed post
-    def testDeletePostFail(self):
+    def testDELETEPostFail(self):
         # Created a post
         url=reverse('socialDist:post', kwargs={'author_id':2, 'post_id':1})
         response=self.client.put(url, self.postData, format='json')
@@ -381,8 +380,163 @@ class APIPostTests(TestCase):
         expectedData={'id': 'http://127.0.0.1:8000/authors/2/posts/1', 'title': 'testTitle', 'source': 'testSource', 'origin': 'testOrigin', 'description': '', 'content': 'testContent', 'contentType': 'text/plain', 'author': {'id': 'http://127.0.0.1:8000/authors/2', 'host': 'http://127.0.0.1:8000/', 'displayName': 'alex', 'github': '', 'profileImage': '', 'type': 'author', 'url': 'http://127.0.0.1:8000/authors/2'}, 'published': '2023-03-03T00:41:14Z', 'visibility': 'VISIBLE', 'categories': 'test', 'unlisted': False, 'type': 'post', 'count': 0, 'comments': 'http://127.0.0.1:8000/authors/2/posts/1/comments/'}
         self.assertEqual(getResponse.data, expectedData)
 
+# Tests for APIListPosts
+class APIListPostsTests(TestCase):
+    def setUp(self):
+        self.client = APIClient()
+        self.user=User.objects.create_user('test','test@gmail.com', 'password')
+        self.client.force_authenticate(user=self.user)
+
+        # add an User and Author first
+        data={'username': 'alex', "email": 'alexmail', "password1": 'a'}
+        url=reverse('socialDist:authors')
+        response=self.client.put(url, data)
+        self.testAuthor=Author.objects.filter(id="http://127.0.0.1:8000/authors/2").values()
+
+        
+        self.post1Data={"id":"http://127.0.0.1:8000/authors/1", 
+                    "title":'testTitle1', 
+                    'source':"testSource1", 
+                    'origin':"testOrigin1", 
+                    'descritption':"testDescription1", 
+                    'content': 'testContent1', 
+                    'contentType': "text/plain", 
+                    'author': self.testAuthor[0], 
+                    'published':"2023-03-03T00:41:14Z",
+                    'visibility': 'VISIBLE', 
+                    'categories': 'test', 
+                    'unlisted': False, 
+                    "type": "post",
+                    "count": 1,
+                    "comments": "http://127.0.0.1:8000/authors/2/posts/1/comments/"
+                    }
+        
+        self.post2Data={"id":"http://127.0.0.1:8000/authors/1", 
+                    "title":'testTitle2', 
+                    'source':"testSource2", 
+                    'origin':"testOrigin2", 
+                    'descritption':"testDescription2", 
+                    'content': 'testContent2', 
+                    'contentType': "text/plain", 
+                    'author': self.testAuthor[0], 
+                    'published':"2023-03-03T00:41:14Z",
+                    'visibility': 'VISIBLE', 
+                    'categories': 'test', 
+                    'unlisted': False, 
+                    "type": "post",
+                    "count": 1,
+                    "comments": "http://127.0.0.1:8000/authors/2/posts/1/comments/"
+                    }
+
+        
+
+    def testPOSTListPostsSuccess(self):
+        # Create a post
+        url=reverse('socialDist:posts', kwargs={'author_id':2})
+        response=self.client.post(url, self.post1Data, format='json')
+        self.assertEqual(response.status_code, 201)
+
+        # Check the values from response's fields:
+        # Can only check upto id's last 10 char due to randomness of string producing
+        self.assertEqual(response.data['id'][:-10], 'http://127.0.0.1:8000/authors/2/posts/')
+        self.assertEqual(response.data['title'], 'testTitle1')
+        self.assertEqual(response.data['source'], 'testSource1')
+        self.assertEqual(response.data['origin'], 'testOrigin1')
+        self.assertEqual(response.data['description'], '')
+        expectedData={'id': 'http://127.0.0.1:8000/authors/2', 'host': 'http://127.0.0.1:8000/', 'displayName': 'alex', 'github': '', 'profileImage': '', 'type': 'author', 'url': 'http://127.0.0.1:8000/authors/2'}
+        self.assertEqual(response.data['author'], expectedData)
+        self.assertEqual(response.data['content'], 'testContent1')
+        self.assertEqual(response.data['contentType'], 'text/plain')
+        self.assertEqual(response.data['published'], '2023-03-03T00:41:14Z')
+        self.assertEqual(response.data['visibility'], 'VISIBLE')
+        self.assertEqual(response.data['categories'], 'test')
+        self.assertEqual(response.data['unlisted'], False)
+        self.assertEqual(response.data['type'], 'post')
+        self.assertEqual(response.data['count'], 0)
+        
+    # POST with invalid model field
+    def testPOSTListPostsFail(self):
+        self.post2Data={"id":"http://127.0.0.1:8000/authors/1", 
+                    "title":'testTitle2', 
+                    'source':"testSource2", 
+                    'origin':"testOrigin2", 
+                    'descritption':"testDescription2", 
+                    'content': 'testContent2', 
+                    'contentType': "text/plain", 
+                    'author': self.testAuthor[0], 
+                    'published':"2023-03-03T00:41:14Z",
+                    'visibility': 'private', 
+                    'categories': 'test', 
+                    'unlisted': False, 
+                    "type": "post",
+                    "count": 1,
+                    "comments": "http://127.0.0.1:8000/authors/2/posts/1/comments/"
+                    }
+
+        url=reverse('socialDist:posts', kwargs={'author_id':2})
+        response=self.client.post(url, self.post2Data, format='json')
+        self.assertEqual(response.status_code, 400)
+
+    # add posts, then get it
+    def testGETListPostsSuccess(self):
+
+        url=reverse('socialDist:posts', kwargs={'author_id':2})
+
+        # adding first post
+        response=self.client.post(url, self.post1Data, format='json')
+        self.assertEqual(response.status_code, 201)
+
+        # Getting it
+        testData={}
+        testResponse=self.client.get(url, testData, format='json')
+        self.assertEqual(testResponse.status_code, 200)
+
+        # Check the values from response's fields:
+        # Can only check upto id's last 10 char due to randomness of string producing
+        self.assertEqual(response.data['id'][:-10], 'http://127.0.0.1:8000/authors/2/posts/')
+        self.assertEqual(response.data['title'], 'testTitle1')
+        self.assertEqual(response.data['source'], 'testSource1')
+        self.assertEqual(response.data['origin'], 'testOrigin1')
+        self.assertEqual(response.data['description'], '')
+        expectedData={'id': 'http://127.0.0.1:8000/authors/2', 'host': 'http://127.0.0.1:8000/', 'displayName': 'alex', 'github': '', 'profileImage': '', 'type': 'author', 'url': 'http://127.0.0.1:8000/authors/2'}
+        self.assertEqual(response.data['author'], expectedData)
+        self.assertEqual(response.data['content'], 'testContent1')
+        self.assertEqual(response.data['contentType'], 'text/plain')
+        self.assertEqual(response.data['published'], '2023-03-03T00:41:14Z')
+        self.assertEqual(response.data['visibility'], 'VISIBLE')
+        self.assertEqual(response.data['categories'], 'test')
+        self.assertEqual(response.data['unlisted'], False)
+        self.assertEqual(response.data['type'], 'post')
+        self.assertEqual(response.data['count'], 0)
+
+    # GET when there are no posts
+    def testGETListPostsEmpty(self):
+        # GET without adding and post
+        url=reverse('socialDist:posts', kwargs={'author_id':2})
+        # adding first post
+        testData={}
+        response=self.client.get(url, testData, format='json')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data['type'], 'posts')
+        self.assertEqual(response.data['items'], [])
+
+    def testGETListPostsFail(self):
+        # GET with an invalid author
+        url=reverse('socialDist:posts', kwargs={'author_id':3})
+        # adding first post
+        testData={}
+        response=self.client.get(url, testData, format='json')
+        self.assertEqual(response.status_code, 404)
+
+    
+        # TODO: Issue found: Only returns the latest author for api_helper.construct_list_of_posts
 
 
-       
 
 
+
+
+
+
+
+# TODO: APIPosts?

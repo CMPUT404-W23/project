@@ -59,7 +59,7 @@ urlpatterns = [
      path('authors/<str:author_id>/posts/<str:post_id>/image/', 
           views.APIImage.as_view()),
      path('authors/<str:author_id>/posts/',
-          views.APIListPosts.as_view()),
+          views.APIListPosts.as_view(), name='posts'),
      path('authors/<str:author_id>/posts/<str:post_id>/comments/', 
           views.APIListComments.as_view()),
      path('authors/<str:author_id>/posts/<str:post_id>/comments/<str:comment_id>/', 
