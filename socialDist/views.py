@@ -29,6 +29,7 @@
 # https://stackoverflow.com/questions/25943850/django-package-to-generate-random-alphanumeric-strin
 # https://www.geeksforgeeks.org/encoding-and-decoding-base64-strings-in-python/
 
+import datetime
 from django.db import IntegrityError
 from django.shortcuts import render, get_object_or_404
 from rest_framework.permissions import DjangoModelPermissions
@@ -334,6 +335,7 @@ class APIListPosts(APIView):
                 newPostDict = dict(request.data)
                 newPostDict["id"] = HOST+"authors/"+author_id+"/posts/"+post_id
                 newPostDict["author"]=HOST+"authors/"+author_id
+                newPostDict["published"] = datetime.datetime.now().isoformat()
                 serializer = PostSerializer(data=newPostDict, partial=True)
                 if serializer.is_valid():
                         serializer.save()
