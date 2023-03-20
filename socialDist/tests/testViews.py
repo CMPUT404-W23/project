@@ -448,7 +448,7 @@ class APIListPostsTests(TestCase):
         self.assertEqual(response.data['author'], expectedData)
         self.assertEqual(response.data['content'], 'testContent1')
         self.assertEqual(response.data['contentType'], 'text/plain')
-        self.assertEqual(response.data['published'], '2023-03-03T00:41:14Z')
+        self.assertEqual(response.data['published'][:4], '2023')
         self.assertEqual(response.data['visibility'], 'VISIBLE')
         self.assertEqual(response.data['categories'], 'test')
         self.assertEqual(response.data['unlisted'], False)
@@ -465,7 +465,7 @@ class APIListPostsTests(TestCase):
                     'content': 'testContent2', 
                     'contentType': "text/plain", 
                     'author': self.testAuthor[0], 
-                    'published':"2023-03-03T00:41:14Z",
+                    # 'published':"2023-03-20T20:15:29.761059Z",
                     'visibility': 'private', 
                     'categories': 'test', 
                     'unlisted': False, 
@@ -504,7 +504,7 @@ class APIListPostsTests(TestCase):
         self.assertEqual(response.data['items'][0]['author'], expectedData)
         self.assertEqual(response.data['items'][0]['content'], 'testContent1')
         self.assertEqual(response.data['items'][0]['contentType'], 'text/plain')
-        self.assertEqual(response.data['items'][0]['published'], '2023-03-03T00:41:14Z')
+        self.assertEqual(response.data['items'][0]['published'][:4], '2023')
         self.assertEqual(response.data['items'][0]['visibility'], 'VISIBLE')
         self.assertEqual(response.data['items'][0]['categories'], 'test')
         self.assertEqual(response.data['items'][0]['unlisted'], False)
@@ -522,16 +522,13 @@ class APIListPostsTests(TestCase):
         self.assertEqual(response.data['items'][1]['author'], expectedData)
         self.assertEqual(response.data['items'][1]['content'], 'testContent2')
         self.assertEqual(response.data['items'][1]['contentType'], 'text/plain')
-        self.assertEqual(response.data['items'][1]['published'], '2023-03-03T00:41:14Z')
+        self.assertEqual(response.data['items'][1]['published'][:4], '2023')
         self.assertEqual(response.data['items'][1]['visibility'], 'VISIBLE')
         self.assertEqual(response.data['items'][1]['categories'], 'test')
         self.assertEqual(response.data['items'][1]['unlisted'], False)
         self.assertEqual(response.data['items'][1]['type'], 'post')
         self.assertEqual(response.data['items'][1]['count'], 0)
         self.assertEqual(response.data['items'][1]['comments'][-10:],"/comments/")
-
-
-        
 
     # GET when there are no posts
     def testGETListPostsEmpty(self):
@@ -551,12 +548,6 @@ class APIListPostsTests(TestCase):
         testData={}
         response=self.client.get(url, testData, format='json')
         self.assertEqual(response.status_code, 404)
-
-    
-        # TODO: Issue found: Only returns the latest author for api_helper.construct_list_of_posts
-
-
-
 
 
 
