@@ -6,7 +6,7 @@ from django.test import TestCase, Client
 from django.urls import reverse
 from socialDist.models import Author, Post, Comment, Like, Server, Inbox, UserFollowing, FollowRequest
 from django.contrib.auth.models import User
-
+from django.forms.models import model_to_dict
 from rest_framework.test import APIClient, force_authenticate
 # Reference (TBA): https://www.django-rest-framework.org/api-guide/testing/ 
 
@@ -48,7 +48,7 @@ class APIListAuthorTests(TestCase):
 
 
     # Basic test: DONE 
-    def testGetListAuthors(self):
+    def testGETListAuthors(self):
 
         # Work by creating objects, but want to create through POST
         author1=Author.objects.create(id="http://127.0.0.1:8000/authors/1", host="http://127.0.0.1:8000/", displayName="tester1", github="http://github.com/test1", profileImage="https://i.imgur.com/test1.jpeg")
@@ -65,7 +65,7 @@ class APIListAuthorTests(TestCase):
         self.assertEqual(response.data, expectedData)
 
     # test by replacing the second author with a third author: intend to give 409
-    def testPutListAuthors(self):
+    def testPUTListAuthorsSuccess(self):
         # Successful case, should return 201
         data={'username': 'sigh', "email": 'sighmail', "password1": 'sighpwd'}
 
@@ -73,8 +73,19 @@ class APIListAuthorTests(TestCase):
         response=self.client.put(url, data)
         self.assertEqual(201, response.status_code)
 
+    def testPUTListAuthorsFailure(self):
         # Failure case: test with existing user (same data) --> give 409
+
+        # same beginning as the success case
+        data={'username': 'sigh', "email": 'sighmail', "password1": 'sighpwd'}
+        url=reverse('socialDist:authors')
+        response=self.client.put(url, data)
+        self.assertEqual(201, response.status_code)
+
+        # put a again with new data, but same user
         newdata={'username': 'sigh', "email": 'sighmail', "password1": 'sighpwd'}
+        url=reverse('socialDist:authors')
+        
         response=self.client.put(url, newdata)
 
         self.assertEqual(409, response.status_code)
@@ -95,7 +106,7 @@ class APIAuthorTests(TestCase):
         """
 
     # Get for 1 author
-    def testgetAuthor(self):
+    def testGETAuthorSuccess(self):
 
         # Work by creating objects, but want to create through POST
         author1=Author.objects.create(id="http://127.0.0.1:8000/authors/1", host="http://127.0.0.1:8000/", displayName="tester1", github="http://github.com/test1", profileImage="https://i.imgur.com/test1.jpeg")
@@ -109,20 +120,26 @@ class APIAuthorTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data, expectedData)
 
+    # Find an author doesn't exist
+    def testGETAuthorFailure(self):
+        # Work by creating objects, but want to create through POST
+        author1=Author.objects.create(id="http://127.0.0.1:8000/authors/1", host="http://127.0.0.1:8000/", displayName="tester1", github="http://github.com/test1", profileImage="https://i.imgur.com/test1.jpeg")
+
+        url = reverse('socialDist:author', args="2")
+        response = self.client.get(url)
+        expectedData={'id': 'http://127.0.0.1:8000/authors/1', 'host': 'http://127.0.0.1:8000/', 'displayName': 'tester1', 'github': 'http://github.com/test1', 'profileImage': 'https://i.imgur.com/test1.jpeg', 'type': 'author', 'url': 'http://127.0.0.1:8000/authors/1'}
+
+        self.assertEqual(response.status_code, 404)
+        self.assertNotEqual(response.data, expectedData)
+
     # for POST: add a new author
     # Problem: dict exist, serializer is not valid
-    def testPostAuthor(self):
+    def testPOSTAuthorSuccess(self):
 
         # using PUT author list to create both author and user; WORKED
         data={'username': 'alex', "email": 'alexmail', "password1": 'a'}
         url=reverse('socialDist:authors')
         response=self.client.put(url, data)
-
-        # PASSED the author get
-        # 2 users
-        # print(User.objects.all())
-        # 1 author: [<Author: Author object (http://127.0.0.1:8000/authors/2)>], it binds with the user I created earlier in this fucntion
-        # print(Author.objects.get(id="http://127.0.0.1:8000/authors/2").user)
         
         # Success case
         url = reverse('socialDist:author', args="2")
@@ -133,12 +150,239 @@ class APIAuthorTests(TestCase):
         expected_data={'id': 'http://127.0.0.1:8000/authors/2', 'host': 'http://127.0.0.1:8000/', 'displayName': 'New test', 'github': 'http://github.com/testnew', 'profileImage': 'https://i.imgur.com/newtest2.jpeg', 'type': 'author', 'url': 'http://127.0.0.1:8000/authors/2'}
         self.assertEqual(response.status_code, 201)
         self.assertEqual(response.data, expected_data)
-        
+
+    def testPOSTAuthorFailure(self):
+        # using PUT author list to create both author and user; WORKED
+        data={'username': 'alex', "email": 'alexmail', "password1": 'a'}
+        url=reverse('socialDist:authors')
+        response=self.client.put(url, data)
 
         # Fail case: author doesn't exist
-        url = reverse('socialDist:author', args="5")
-        failData={}
-        response=self.client.post(url, failData, id="4", follow=True, format='json')
+        # send url with author's id not exist
+        url = reverse('socialDist:author', args="3")
+        failData={'user_id': None, 'id': 'http://127.0.0.1:8000/authors/3', 'host': 'http://127.0.0.1:8000/', 'displayName': 'New test', 'github': 'http://github.com/testnew', 'profileImage': 'https://i.imgur.com/newtest2.jpeg'}
+        response=self.client.post(url, failData, id="3", follow=True, format='json')
         expected_data={'id': 'http://127.0.0.1:8000/authors/3', 'host': 'http://127.0.0.1:8000/', 'displayName': 'New test', 'github': 'http://github.com/testnew', 'profileImage': 'https://i.imgur.com/newtest2.jpeg', 'type': 'author', 'url': 'http://127.0.0.1:8000/authors/2'}
         self.assertEqual(response.status_code, 404)
+
+class APIPostTests(TestCase):
+    # order: GET, POST, PUT, DELETE
+    def setUp(self):
+        self.client = APIClient()
+        self.user=User.objects.create_user('test','test@gmail.com', 'password')
+        self.client.force_authenticate(user=self.user)
+
+        # add an User and Author first
+        data={'username': 'alex', "email": 'alexmail', "password1": 'a'}
+        url=reverse('socialDist:authors')
+        response=self.client.put(url, data)
+        self.testAuthor=Author.objects.filter(id="http://127.0.0.1:8000/authors/2").values()
+
+        self.postData={"id":"http://127.0.0.1:8000/authors/1", 
+                    "title":'testTitle', 
+                    'source':"testSource", 
+                    'origin':"testOrigin", 
+                    'descritption':"testDescription", 
+                    'content': 'testContent', 
+                    'contentType': "text/plain", 
+                    'author': self.testAuthor[0], 
+                    'published':"2023-03-03T00:41:14Z",
+                    'visibility': 'VISIBLE', 
+                    'categories': 'test', 
+                    'unlisted': False, 
+                    "type": "post",
+                    "count": 1,
+                    "comments": "http://127.0.0.1:8000/authors/2/posts/1/comments/"
+                    }
+
+
+    # Test creating a post
+    def testPUTPostSuccess(self):
+        # Create a post first with id=1 using PUT
+        # post=Post.objects.create(id="http://127.0.0.1:8000/authors/1", title="testTitle", source="testSource", origin="testOrigin", descritption="testDescription")
+
+        url=reverse('socialDist:post', kwargs={'author_id':2, 'post_id':1})
+
+        response=self.client.put(url, self.postData, format='json')
+
+        expectedData={'id': 'http://127.0.0.1:8000/authors/2/posts/1', 'title': 'testTitle', 'source': 'testSource', 'origin': 'testOrigin', 'description': '', 'content': 'testContent', 'contentType': 'text/plain', 'author': {'id': 'http://127.0.0.1:8000/authors/2', 'host': 'http://127.0.0.1:8000/', 'displayName': 'alex', 'github': '', 'profileImage': '', 'type': 'author', 'url': 'http://127.0.0.1:8000/authors/2'}, 'published': '2023-03-03T00:41:14Z', 'visibility': 'VISIBLE', 'categories': 'test', 'unlisted': False, 'type': 'post', 'count': 0, 'comments': 'http://127.0.0.1:8000/authors/2/posts/1/comments/'}
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.data, expectedData)
+
+
+        # Test 2.0: test existed post (also give 201)
+        newPostData={"id":"http://127.0.0.1:8000/authors/1", 
+                    "title":'newTestTitle', 
+                    'source':"newTestSource", 
+                    'origin':"newTestOrigin", 
+                    'descritption':"newTestDescription", 
+                    'content': 'newTestContent', 
+                    'contentType': "text/plain", 
+                    'author': self.testAuthor[0], 
+                    'published':"2023-03-03T00:41:14Z",
+                    'visibility': 'VISIBLE', 
+                    'categories': 'test', 
+                    'unlisted': False, 
+                    "type": "post",
+                    "count": 1,
+                    "comments": "http://127.0.0.1:8000/authors/2/posts/1/comments/"
+                    }
+
+        response=self.client.put(url, newPostData, format='json')
+
+        newExpectedData={'id': 'http://127.0.0.1:8000/authors/1', 'title': 'newTestTitle', 'source': 'newTestSource', 'origin': 'newTestOrigin', 'description': '', 'content': 'newTestContent', 'contentType': 'text/plain', 'author': {'id': 'http://127.0.0.1:8000/authors/2', 'host': 'http://127.0.0.1:8000/', 'displayName': 'alex', 'github': '', 'profileImage': '', 'type': 'author', 'url': 'http://127.0.0.1:8000/authors/2'}, 'published': '2023-03-03T00:41:14Z', 'visibility': 'VISIBLE', 'categories': 'test', 'unlisted': False, 'type': 'post', 'count': 0, 'comments': 'http://127.0.0.1:8000/authors/1/comments/'}
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.data, newExpectedData)
+
+    
+    # changing the visibility of a post: give 400
+    def testPUTPostFail(self):
+        # Create a post first with id=1 using PUT
+        # post=Post.objects.create(id="http://127.0.0.1:8000/authors/1", title="testTitle", source="testSource", origin="testOrigin", descritption="testDescription")
+
+        url=reverse('socialDist:post', kwargs={'author_id':2, 'post_id':1})
+
+        response=self.client.put(url, self.postData, format='json')
+
+        expectedData={'id': 'http://127.0.0.1:8000/authors/2/posts/1', 'title': 'testTitle', 'source': 'testSource', 'origin': 'testOrigin', 'description': '', 'content': 'testContent', 'contentType': 'text/plain', 'author': {'id': 'http://127.0.0.1:8000/authors/2', 'host': 'http://127.0.0.1:8000/', 'displayName': 'alex', 'github': '', 'profileImage': '', 'type': 'author', 'url': 'http://127.0.0.1:8000/authors/2'}, 'published': '2023-03-03T00:41:14Z', 'visibility': 'VISIBLE', 'categories': 'test', 'unlisted': False, 'type': 'post', 'count': 0, 'comments': 'http://127.0.0.1:8000/authors/2/posts/1/comments/'}
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.data, expectedData)
+
+        
+        # make it to private by putting it again
+        newPostData={"id":"http://127.0.0.1:8000/authors/1", 
+                    "title":'testTitle', 
+                    'source':"testSource", 
+                    'origin':"testOrigin", 
+                    'descritption':"testDescription", 
+                    'content': 'testContent', 
+                    'contentType': "text/plain", 
+                    'author': self.testAuthor[0], 
+                    'published':"2023-03-03T00:41:14Z",
+                    'visibility': "Public", 
+                    'categories': 'test', 
+                    'unlisted': False, 
+                    "type": "post",
+                    "count": 1,
+                    "comments": "http://127.0.0.1:8000/authors/2/posts/1/comments/"
+                    }
+
+        response=self.client.put(url, newPostData, format='json')
+        self.assertEqual(response.status_code, 400)
+    
+    # Test creating a post
+    def testGETPostSuccess(self):
+        # creating a post, then getting it
+        url=reverse('socialDist:post', kwargs={'author_id':2, 'post_id':1})
+
+        response=self.client.put(url, self.postData, format='json')
+
+        expectedData={'id': 'http://127.0.0.1:8000/authors/2/posts/1', 'title': 'testTitle', 'source': 'testSource', 'origin': 'testOrigin', 'description': '', 'content': 'testContent', 'contentType': 'text/plain', 'author': {'id': 'http://127.0.0.1:8000/authors/2', 'host': 'http://127.0.0.1:8000/', 'displayName': 'alex', 'github': '', 'profileImage': '', 'type': 'author', 'url': 'http://127.0.0.1:8000/authors/2'}, 'published': '2023-03-03T00:41:14Z', 'visibility': 'VISIBLE', 'categories': 'test', 'unlisted': False, 'type': 'post', 'count': 0, 'comments': 'http://127.0.0.1:8000/authors/2/posts/1/comments/'}
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.data, expectedData)
+
+        # Getting the created post
+
+        testData={}
+        url=reverse('socialDist:post', kwargs={'author_id':2, 'post_id':1})
+        response=self.client.get(url, testData, format='json')
+        newExpectedData={'id': 'http://127.0.0.1:8000/authors/2/posts/1', 'title': 'testTitle', 'source': 'testSource', 'origin': 'testOrigin', 'description': '', 'content': 'testContent', 'contentType': 'text/plain', 'author': {'id': 'http://127.0.0.1:8000/authors/2', 'host': 'http://127.0.0.1:8000/', 'displayName': 'alex', 'github': '', 'profileImage': '', 'type': 'author', 'url': 'http://127.0.0.1:8000/authors/2'}, 'published': '2023-03-03T00:41:14Z', 'visibility': 'VISIBLE', 'categories': 'test', 'unlisted': False, 'type': 'post', 'count': 0, 'comments': 'http://127.0.0.1:8000/authors/2/posts/1/comments/'}
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data, newExpectedData)
+
+    # Getting a post that doesn't exist
+    def testGETPostFail(self):
+        # data can be empty
+        testData={}
+        # change post_id to 2 (which post doesn't exist)
+        url=reverse('socialDist:post', kwargs={'author_id':2, 'post_id':2})
+        response=self.client.get(url, testData, format='json')
+        self.assertEqual(response.status_code, 404)
+
+    # POSTing (editing) an existing Post
+    def testPOSTPostSuccess(self):
+        # Created a post
+        url=reverse('socialDist:post', kwargs={'author_id':2, 'post_id':1})
+        response=self.client.put(url, self.postData, format='json')
+
+        # Update the created post
+        updatedPostData={"id":"http://127.0.0.1:8000/authors/1", 
+                    "title":'newTestTitle', 
+                    'source':"newTestSource", 
+                    'origin':"newTestOrigin", 
+                    'descritption':"newTestDescription", 
+                    'content': 'newTestContent', 
+                    'contentType': "text/plain", 
+                    'author': self.testAuthor[0], 
+                    'published':"2023-03-03T00:41:14Z",
+                    'visibility': 'VISIBLE', 
+                    'categories': 'test', 
+                    'unlisted': False, 
+                    "type": "post",
+                    "count": 1,
+                    "comments": "http://127.0.0.1:8000/authors/2/posts/1/comments/"
+                    }
+
+        updatedResponse=self.client.post(url, updatedPostData, format='json')
+        updatedData={'id': 'http://127.0.0.1:8000/authors/1', 'title': 'newTestTitle', 'source': 'newTestSource', 'origin': 'newTestOrigin', 'description': '', 'content': 'newTestContent', 'contentType': 'text/plain', 'author': {'id': 'http://127.0.0.1:8000/authors/2', 'host': 'http://127.0.0.1:8000/', 'displayName': 'alex', 'github': '', 'profileImage': '', 'type': 'author', 'url': 'http://127.0.0.1:8000/authors/2'}, 'published': '2023-03-03T00:41:14Z', 'visibility': 'VISIBLE', 'categories': 'test', 'unlisted': False, 'type': 'post', 'count': 0, 'comments': 'http://127.0.0.1:8000/authors/1/comments/'}
+
+        self.assertEqual(updatedResponse.status_code, 201)
+        self.assertEqual(updatedResponse.data, updatedData)
+        
+    # Updating a post without valid fields
+    def testPOSTPostFail(self):
+        # Created a post
+        url=reverse('socialDist:post', kwargs={'author_id':2, 'post_id':1})
+        response=self.client.put(url, self.postData, format='json')
+
+        # Update the created post (with eding fields with invalid values)
+        updatedPostData={"id":"http://127.0.0.1:8000/authors/1",'visibility': 'PRIVATE'}
+
+        updatedResponse=self.client.post(url, updatedPostData, format='json')
+        updatedData={'id': 'http://127.0.0.1:8000/authors/1', 'title': 'newTestTitle', 'source': 'newTestSource', 'origin': 'newTestOrigin', 'description': '', 'content': 'newTestContent', 'contentType': 'text/plain', 'author': {'id': 'http://127.0.0.1:8000/authors/2', 'host': 'http://127.0.0.1:8000/', 'displayName': 'alex', 'github': '', 'profileImage': '', 'type': 'author', 'url': 'http://127.0.0.1:8000/authors/2'}, 'published': '2023-03-03T00:41:14Z', 'visibility': 'VISIBLE', 'categories': 'test', 'unlisted': False, 'type': 'post', 'count': 0, 'comments': 'http://127.0.0.1:8000/authors/1/comments/'}
+
+        self.assertEqual(updatedResponse.status_code, 400)
+
+
+    # Delete a created post
+    def testDeletePostSuccess(self):
+        # Created a post
+        url=reverse('socialDist:post', kwargs={'author_id':2, 'post_id':1})
+        response=self.client.put(url, self.postData, format='json')
+
+        # Delete the created post using DELETE
+        url=reverse('socialDist:post', kwargs={'author_id':2, 'post_id':1})
+        newPostData={}
+        newResponse=self.client.delete(url, newPostData)
+        self.assertEqual(newResponse.status_code, 200)
+ 
+        # Try GETing the deleted post: expect 404
+        url=reverse('socialDist:post', kwargs={'author_id':2, 'post_id':1})
+        getResponse=self.client.get(url, newPostData)
+        self.assertEqual(getResponse.status_code, 404)
+
+    # Delete an not existed post
+    def testDeletePostFail(self):
+        # Created a post
+        url=reverse('socialDist:post', kwargs={'author_id':2, 'post_id':1})
+        response=self.client.put(url, self.postData, format='json')
+
+        # Delete an unexisted post (id=2) using DELETE
+        url=reverse('socialDist:post', kwargs={'author_id':2, 'post_id':2})
+        newPostData={}
+        newResponse=self.client.delete(url, newPostData)
+        self.assertEqual(newResponse.status_code, 404)
+ 
+        # Try GETing the creaed post: expect 200
+        url=reverse('socialDist:post', kwargs={'author_id':2, 'post_id':1})
+        getResponse=self.client.get(url, newPostData)
+        self.assertEqual(getResponse.status_code, 200)
+        expectedData={'id': 'http://127.0.0.1:8000/authors/2/posts/1', 'title': 'testTitle', 'source': 'testSource', 'origin': 'testOrigin', 'description': '', 'content': 'testContent', 'contentType': 'text/plain', 'author': {'id': 'http://127.0.0.1:8000/authors/2', 'host': 'http://127.0.0.1:8000/', 'displayName': 'alex', 'github': '', 'profileImage': '', 'type': 'author', 'url': 'http://127.0.0.1:8000/authors/2'}, 'published': '2023-03-03T00:41:14Z', 'visibility': 'VISIBLE', 'categories': 'test', 'unlisted': False, 'type': 'post', 'count': 0, 'comments': 'http://127.0.0.1:8000/authors/2/posts/1/comments/'}
+        self.assertEqual(getResponse.data, expectedData)
+
+
+
+       
+
 

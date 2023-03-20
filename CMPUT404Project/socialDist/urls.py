@@ -55,7 +55,7 @@ urlpatterns = [
      path('authors/<str:author_id>/followers/<path:foreign_author_id>/',
           views.APIFollower.as_view()),
      path('authors/<str:author_id>/posts/<str:post_id>/', 
-          views.APIPost.as_view()),
+          views.APIPost.as_view(), name='post'),
      path('authors/<str:author_id>/posts/<str:post_id>/image/', 
           views.APIImage.as_view()),
      path('authors/<str:author_id>/posts/',

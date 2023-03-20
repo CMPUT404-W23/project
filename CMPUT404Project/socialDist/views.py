@@ -263,7 +263,10 @@ class APIPost(APIView):
             serializer = PostSerializer(data=postDict, partial=True)
             if serializer.is_valid():
                 serializer.save()
-                return Response(status=201, data=api_helper.construct_post_object(serializer.data))
+                # OLD
+                # return Response(status=201, data=api_helper.construct_post_object(serializer.data))
+                # NEW: add argument for author since that's what needed from api_helper
+                return Response(status=201, data=api_helper.construct_post_object(serializer.data, author))
             return Response(status=400, data=serializer.errors)
         
     # Delete the single post
