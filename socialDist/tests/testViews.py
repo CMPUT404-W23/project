@@ -167,7 +167,6 @@ class APIAuthorTests(TestCase):
         
 
 class APIPostTests(TestCase):
-    # order: GET, POST, PUT, DELETE
     def setUp(self):
         self.client = APIClient()
         self.user=User.objects.create_user('test','test@gmail.com', 'password')
