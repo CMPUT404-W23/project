@@ -646,8 +646,8 @@ class APIImageTests(TestCase):
         # Create bad post using author
         url=reverse('socialDist:post', kwargs={'author_id':2, 'post_id':2})
         response=self.client.get(url, self.badPostData, format='json')
-
-    # TODO: finish success once image post is done
+   
+    # Getting the image when the post's type is "image/png;base64": expect 200
     def testGETImageSuccess(self):
         url=reverse('socialDist:image', kwargs={'author_id':2, 'post_id': 1})
         response=self.client.get(url, {}, format='json')
@@ -660,12 +660,12 @@ class APIImageTests(TestCase):
         
         self.assertEqual(response.status_code, 404)
 
-"""
-# Test for APIComment
-class APICommentTests(TestCase):
+
+# Test for APIListComments
+class APIListCommentsTests(TestCase):
     # Setup the image from user --> post --> comment
     def setUp(self):       
-        # Creeate User
+        # Create User
         self.client = APIClient()
         self.user=User.objects.create_user('test','test@gmail.com', 'password')
         self.client.force_authenticate(user=self.user)
@@ -698,7 +698,17 @@ class APICommentTests(TestCase):
         url=reverse('socialDist:post', kwargs={'author_id':2, 'post_id':1})
         response=self.client.put(url, self.postData, format='json')
 
-"""
+    def testPOSTListCommentsSuccess(self):
+        # add a new comment based on the created post
+        url=reverse('socialDist:post', kwargs={'author_id':2, 'post_id':1})
+        response=self.client.post(url, {}, format='json')
+
+        
+        print(response.status_code)
+
+
+
+
 
 
 
