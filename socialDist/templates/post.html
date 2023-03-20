@@ -91,6 +91,25 @@
         alertContainer.appendChild(saveAlert);
     }
 
+    async function toBase64() {
+        return new Promise((resolve, reject) => {
+            const input = document.getElementById("ImagePost");
+            const file = input.files[0];
+
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+
+            reader.onload = function () {
+                const base64String = reader.result.split(',')[1];
+                resolve(base64String);
+            }
+
+            reader.onerror = function (error) {
+                reject(error);
+            }
+        });
+    }
+
     async function postData() {
         const url = "/api/authors/{{user.id}}/posts/"
         const data = {
@@ -106,6 +125,11 @@
             displayAlert("alert-danger", "Please fill out required (*) fields!");
             return;
         }
+        if (data.imagepost) {
+            const base64String = await toBase64();
+            console.log(base64String);
+            data.imagepost = base64String;
+        }
         const response = await fetch(url, {
             method: "POST",
             headers: {
@@ -116,7 +140,7 @@
         });
         if (response.status == 201) {
             displayAlert("alert-success", "Post created successfully!");
-            window.location.href ="/";
+            window.location.href = "/";
         } else {
             displayAlert("alert-danger", "Post creation failed!");
         }
