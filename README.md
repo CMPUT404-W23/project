@@ -26,7 +26,7 @@ https://socialdistcmput404.herokuapp.com/api/swagger
 
 To gain authorization to access API:
  - Consult with server admin, and get a API token 
- - Provide the following header in the HTTP request to API: ```Authorization: <provided Token>```
+ - Provide the following header in the HTTP request to API: ```Authorization: Token <provided Token>```
 
 Groups connected with:
 
