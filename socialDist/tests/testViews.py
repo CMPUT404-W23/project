@@ -7,6 +7,7 @@ from django.urls import reverse
 from socialDist.models import Author, Post, Comment, Like, Server, Inbox, UserFollowing, FollowRequest
 from django.contrib.auth.models import User
 from django.forms.models import model_to_dict
+from django.forms.models import model_to_dict
 from rest_framework.test import APIClient, force_authenticate
 # Reference (TBA): https://www.django-rest-framework.org/api-guide/testing/
 import base64
@@ -53,7 +54,7 @@ class APIListAuthorTests(TestCase):
 
 
     # Basic test: DONE 
-    def testGetListAuthors(self):
+    def testGETListAuthors(self):
 
         # Work by creating objects, but want to create through POST
         author1=Author.objects.create(id="http://127.0.0.1:8000/authors/1", host="http://127.0.0.1:8000/", displayName="tester1", github="http://github.com/test1", profileImage="https://i.imgur.com/test1.jpeg")
@@ -458,7 +459,12 @@ class APIListPostsTests(TestCase):
         expected_data={'id': 'http://127.0.0.1:8000/authors/2', 'host': 'http://127.0.0.1:8000/', 'displayName': 'New test', 'github': 'http://github.com/testnew', 'profileImage': 'https://i.imgur.com/newtest2.jpeg', 'type': 'author', 'url': 'http://127.0.0.1:8000/authors/2'}
         self.assertEqual(response.status_code, 201)
         self.assertEqual(response.data, expected_data)
-        
+
+    def testPOSTAuthorFailure(self):
+        # using PUT author list to create both author and user; WORKED
+        data={'username': 'alex', "email": 'alexmail', "password1": 'a'}
+        url=reverse('socialDist:authors')
+        response=self.client.put(url, data)
 
     def testPOSTListPostsSuccess(self):
         # Create a post
