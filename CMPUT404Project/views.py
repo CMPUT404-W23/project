@@ -51,3 +51,7 @@ def authorPage(request, author_id):
     # return render()
     #TODO: create a page for the author, if the requester is the author, add inbox here!
     return HttpResponse("Temp Author page for " + author.displayName)
+
+@login_required
+def create_post(request):
+    return render(request, 'post.html')
