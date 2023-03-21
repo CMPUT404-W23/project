@@ -1,6 +1,6 @@
 # MIT License
 
-# Copyright (c) 2023 Warren Lim
+# Copyright (c) 2023 Warren Lim, Jason Kim
 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -39,8 +39,6 @@ schema_view = get_schema_view(
 
 app_name = 'socialDist'
 urlpatterns = [
-     # Commented just for testing
-     # path('docs/', schema_view),
      path('authors/', 
           views.APIListAuthors.as_view(),name='authors'),
      path('authors/<str:id>/', 
@@ -74,3 +72,4 @@ urlpatterns = [
      re_path(r'^swagger/$', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
      re_path(r'^redoc/$', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
 ]
+

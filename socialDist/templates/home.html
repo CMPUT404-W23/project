@@ -7,7 +7,7 @@
         </div>
         <script>
             let posts;
-            fetch("/api/posts")
+            fetch("/api/posts", {headers: new Headers({"Authorization": "Token 516e5c3d636f46228edb8f09b9613d5b4b166816"})})
                 .then((response) => response.json())
                 .then((data) => {
                     posts = data.items[0];
