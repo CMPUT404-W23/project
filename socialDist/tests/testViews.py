@@ -604,9 +604,9 @@ class APIImageTests(TestCase):
         
         self.assertEqual(response.status_code, 404)
 
-"""
+
 # Test for APIComment
-class APICommentTests(TestCase):
+class APIListCommentTests(TestCase):
     # Setup the image from user --> post --> comment
     def setUp(self):       
         # Creeate User
@@ -620,7 +620,7 @@ class APICommentTests(TestCase):
         response=self.client.put(url, data)
         self.testAuthor=Author.objects.filter(id="http://127.0.0.1:8000/authors/2").values()
 
-        
+        # Create that post
         self.postData={"id":"http://127.0.0.1:8000/authors/1", 
                     "title":'testTitle', 
                     'source':"testSource", 
@@ -642,7 +642,11 @@ class APICommentTests(TestCase):
         url=reverse('socialDist:post', kwargs={'author_id':2, 'post_id':1})
         response=self.client.put(url, self.postData, format='json')
 
-"""
+    def testPOSTListCommentSuccess(self):
+        # adding the comments from the post
+        commentData={}
+        url=reverse('socialDist:comments', kwargs={'author_id':2, 'post_id':1})
+        response=self.client.put(url, {}, format='json')
 
 
 
