@@ -122,19 +122,21 @@
 
     async function postData() {
         const url = "/api/authors/{{user.id}}/posts/"
-        let postContent;
-        if (document.getElementById("ImagePost").value) {
+        let postContent, contentType;
+        if (document.getElementById("ImagePost").value) { // if post is an image
             const base64String = await toBase64();
             postContent = base64String;
+            contentType = `image/${document.getElementById("ImagePost").value.split('.').pop()};base64`; // get file extension
         }
         else {
-            postContent = document.getElementById("Content").value;
+            contentType = document.getElementById("ContentType").value;
+            postContent = document.getElementById("Content").value; // if post is text
         }
         
         const data = {
             title: document.getElementById("Title").value,
             description: document.getElementById("Description").value,
-            contenttype: document.getElementById("ContentType").value,
+            contentType: contentType,
             categories: document.getElementById("Categories").value,
             visibility: document.getElementById("Visibility").value,
             content: postContent,

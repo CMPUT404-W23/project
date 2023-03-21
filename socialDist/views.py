@@ -353,7 +353,7 @@ class APIImage(APIView):
             # TODO: create a function to check if requesting user is allowed
             if post.visibility == "PRIVATE":
                 return Response(status=401)
-            if post.contentType != "image/png;base64" and post.contentType != "image/jpeg;base64":
+            if post.contentType != "image/png;base64" and post.contentType != "image/jpeg;base64" and post.contentType != "image/jpg;base64":
                 return Response(status=404)
             content_bytes_base64 = post.content.encode('ascii')
             return HttpResponse(status=200, 
