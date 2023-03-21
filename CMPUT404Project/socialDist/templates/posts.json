@@ -1,6 +1,0 @@
-{
-    "posts": [
-      {"id":"1","title": "Post 1", "description": "Posts 1 description", "content":"Posts 1 content", "categories":"cat 1, cat 2"},
-      {"id":"2","title": "Post 2", "description": "Posts 2 description", "content":"Posts 2 content", "categories":"cat 1, cat 2"}
-    ]
-}

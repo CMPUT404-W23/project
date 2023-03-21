@@ -26,7 +26,7 @@ SECRET_KEY = 'w$g_)+ikk2@#c*9!dy#vyf9s&*m#b-fw2t(1dt)b)&_)ha4u(1'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['127.0.0.1:8000', 'socialdistcmput404.herokuapp.com']
 
 
 # Application definition
@@ -40,7 +40,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    'rest_framework.authtoken',
+    'corsheaders',
+    # 'rest_framework.authtoken',
     'bootstrap5',
     'drf_yasg',
 ]
@@ -52,7 +53,7 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.BasicAuthentication',
         'rest_framework.authentication.SessionAuthentication',
-        'rest_framework.authentication.TokenAuthentication'
+        # 'rest_framework.authentication.TokenAuthentication'
     )
 }
 
@@ -64,6 +65,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.common.CommonMiddleware',
 ]
 
 ROOT_URLCONF = 'CMPUT404Project.urls'
@@ -130,6 +133,12 @@ USE_L10N = True
 
 USE_TZ = True
 
+# Attach domains of external domains
+CORS_ALLOWED_ORIGINS = [
+"https://socialdictcmput404.herokuapp.com",
+"http://localhost:8000",
+"http://127.0.0.1:8000"
+]
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.1/howto/static-files/

@@ -79,7 +79,7 @@
 
     httpRequest.open(
       "PUT",
-      "http://127.0.0.1:8000/api/authors/"
+      "/api/authors/"
     );
     httpRequest.setRequestHeader("X-CSRFToken", "{{ csrf_token }}");
     httpRequest.setRequestHeader("Content-Type", "application/json");

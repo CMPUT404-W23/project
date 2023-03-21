@@ -22,6 +22,7 @@
 
 from django.db import models
 from django.contrib.auth.models import User
+import hashlib
 
 # Added array field to handle categories in post
 # https://stackoverflow.com/questions/4294039/how-can-i-store-an-array-of-strings-in-a-django-model
@@ -47,12 +48,12 @@ class Author(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, null=True)
     # authorID: ID of the author
     id=models.CharField(primary_key=True, max_length=200)
-    host=models.CharField(max_length=40)
+    host=models.CharField(max_length=200)
     # Added displayName field, default as empty string
     displayName=models.CharField(default="", max_length=40)
     # github and profileImage fields
-    github = models.URLField()
-    profileImage = models.URLField()
+    github = models.URLField(null=True, blank=True)
+    profileImage = models.URLField(null=True, blank=True)
 
     # # Fields referenced other models externally
     # # check whether the author in a server or not
@@ -79,13 +80,24 @@ class Author(models.Model):
     """
 
 # List of servers authenciated to commuicate with us!
-# NOTE: should include our own host name as well
-# TODO: adjust our authenciation scheme to allow for remote connections, use basic or custom auth?
-# The server admin, should, via the /admin interface, add and remove hosts which this server
-# can serve
+# Source: https://stackoverflow.com/questions/72371106/how-to-auto-generate-a-field-value-with-the-input-field-value-in-django-model
+# https://docs.python.org/3/library/hashlib.html
 class Server(models.Model):
-    # serverAddress
+    # server Address, provided to us by connecting node
     serverAddress=models.URLField(primary_key=True)
+    # server key or token used to access API, based on host name (SHA1 hash)
+    serverKey=models.TextField(blank=True)
+    # Is this server the local one?
+    isLocalServer=models.BooleanField()
+
+# Model to store the auth info of all server we are connecting with
+class Connection(models.Model):
+    # API address, provided to us by node we want to connect to, 
+    # simply append API endpoint path to the end of this
+    apiAddress=models.URLField(primary_key=True)
+    # Creditentals used to connect to API of node, add this to Authorization header
+    # when sending HTTP requests to fetch external data
+    apiCreds=models.TextField()
 
 # Model to store relationships between followers
 # Source:
