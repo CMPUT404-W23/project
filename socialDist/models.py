@@ -119,7 +119,8 @@ class Post(models.Model):
         ("text/markdown", "markdown"),
         ("application/base64", "binary"),
         ("image/png;base64", "PNG image"),
-        ("image/jpeg;base64", "JPEG image")
+        ("image/jpeg;base64", "JPEG image"),
+        ("image/jpg;base64", "JPG image")
     ])
     content = models.TextField()
     # author to access the author
