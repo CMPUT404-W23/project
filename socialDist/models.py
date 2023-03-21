@@ -85,12 +85,19 @@ class Author(models.Model):
 class Server(models.Model):
     # server Address, provided to us by connecting node
     serverAddress=models.URLField(primary_key=True)
-    # server key or token used to access API, based on host name
-    #TODO: come up with API token generation techinque, right now it is SHA1 hash
+    # server key or token used to access API, based on host name (SHA1 hash)
     serverKey=models.TextField(blank=True)
     # Is this server the local one?
     isLocalServer=models.BooleanField()
 
+# Model to store the auth info of all server we are connecting with
+class Connection(models.Model):
+    # API address, provided to us by node we want to connect to, 
+    # simply append API endpoint path to the end of this
+    apiAddress=models.URLField(primary_key=True)
+    # Creditentals used to connect to API of node, add this to Authorization header
+    # when sending HTTP requests to fetch external data
+    apiCreds=models.TextField()
 
 # Model to store relationships between followers
 # Source:
