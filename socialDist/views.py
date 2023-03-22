@@ -1,6 +1,6 @@
 # MIT License
 
-# Copyright (c) 2023 Warren Lim
+# Copyright (c) 2023 Warren Lim, Junhyeon Cho, Alex Mak, Jason Kim, Filippo Ciandy
 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -19,6 +19,8 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+
+# This file contains the views for our API
 
 # Sources:
 # https://docs.djangoproject.com/en/4.1/topics/db/queries/#:~:text=Creating%20objects&text=To%20create%20an%20object%2C%20instantiate,save%20it%20to%20the%20database.&text=This%20performs%20an%20INSERT%20SQL,method%20has%20no%20return%20value.
@@ -266,7 +268,11 @@ class APIPost(APIView):
             serializer = PostSerializer(data=postDict, partial=True)
             if serializer.is_valid():
                 serializer.save()
-                return Response(status=201, data=api_helper.construct_post_object(serializer.data))
+                # OLD
+                # return Response(status=201, data=api_helper.construct_post_object(serializer.data))
+                # NEW: add argument for author since that's what needed from api_helper
+                return Response(status=201, data=api_helper.construct_post_object(serializer.data, author))
+                # return Response(status=201, data=api_helper.construct_post_object(serializer.data))
             return Response(status=400, data=serializer.errors)
         
     # Delete the single post
@@ -314,7 +320,7 @@ class APIListPosts(APIView):
         return Response(status=200, data=api_helper.construct_list_of_paginated_posts(serializer.data,
                                                                                     pageNum,
                                                                                     sizeNum,
-                                                                                    author))  
+                                                                                    author))
     # Add a post with a randomized post id
     # Include a post object in JSON with modified fields
     # Note that host and id field will be ignored!
@@ -356,7 +362,7 @@ class APIImage(APIView):
             # TODO: create a function to check if requesting user is allowed
             if post.visibility == "PRIVATE":
                 return Response(status=401)
-            if post.contentType != "image/png;base64" and post.contentType != "image/jpeg;base64":
+            if post.contentType != "image/png;base64" and post.contentType != "image/jpeg;base64" and post.contentType != "image/jpg;base64":
                 return Response(status=404)
             content_bytes_base64 = post.content.encode('ascii')
             return HttpResponse(status=200, 
@@ -866,7 +872,7 @@ class APIFollower(APIView):
 
 # TODO Please generate appropriate documentation of the following API to root_project/openapi.json
 
-class APIPosts(APIView):
+class APIPosts(APIView): 
     permission_classes = [auth.RemotePermission]
     def get(self, request):
         author_posts_pair = []

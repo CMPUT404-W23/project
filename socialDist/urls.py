@@ -1,6 +1,6 @@
 # MIT License
 
-# Copyright (c) 2023 Warren Lim
+# Copyright (c) 2023 Warren Lim, Junhyeon Cho, Alex Mak, Jason Kim, Filippo Ciandy
 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -53,15 +53,15 @@ urlpatterns = [
      path('authors/<str:author_id>/followers/<path:foreign_author_id>/',
           views.APIFollower.as_view()),
      path('authors/<str:author_id>/posts/<str:post_id>/', 
-          views.APIPost.as_view()),
+          views.APIPost.as_view(), name='post'),
      path('authors/<str:author_id>/posts/<str:post_id>/image/', 
-          views.APIImage.as_view()),
+          views.APIImage.as_view(), name='image'),
      path('authors/<str:author_id>/posts/',
-          views.APIListPosts.as_view()),
+          views.APIListPosts.as_view(), name='posts'),
      path('authors/<str:author_id>/posts/<str:post_id>/comments/', 
-          views.APIListComments.as_view()),
+          views.APIListComments.as_view(), name='comments'),
      path('authors/<str:author_id>/posts/<str:post_id>/comments/<str:comment_id>/', 
-          views.APIComment.as_view()),
+          views.APIComment.as_view(), name='comment'),
      path('authors/<str:author_id>/posts/<str:post_id>/likes/', 
           views.APIListLikesPost.as_view()),
      path('authors/<str:author_id>/posts/<str:post_id>/comments/<str:comment_id>/likes', 
@@ -72,3 +72,4 @@ urlpatterns = [
      re_path(r'^swagger/$', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
      re_path(r'^redoc/$', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
 ]
+
