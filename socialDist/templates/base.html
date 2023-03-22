@@ -29,12 +29,14 @@
 
             <a class="nav-link" aria-current="page" href="{% url 'posts' %}">Posts</a>
           </li> {% endcomment %}
+          {% if user.is_authenticated %}
           <li class="nav-item">
             <a class="nav-link {% if request.resolver_match.url_name == 'post' %}active{% endif %}" aria-current="page" href="/post">Create Post</a>
 
           </li>
-          {% if user.is_authenticated and user.author != None %}
-          <li class="nav-i">
+          {% endif %}
+          {% if user.is_authenticated and not user.is_staff %}
+          <li class="nav-item">
             <a class="nav-link" aria-current="page" href={{user.author.id}}>Profile</a>
           </li>
           {% endif %}
