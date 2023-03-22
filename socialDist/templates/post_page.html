@@ -1,10 +1,12 @@
+<!-- https://getbootstrap.com/docs/5.3/components/dropdowns/ -->
+
 {% extends 'base.html' %}
 {% block content %}
 <div class="grid">
     <div class="g-col-1">
         <div class="card">
             <div class="card-body" id="posts">
-                <h5 class="card-title"><a href={{post.id}}>{{post.title}}</a></h5>
+                <h5 class="card-title"><a href={{post.id}}>{{post.title}}</a></h5> 
                 <h6 class="card-subtitle mb-2 text-muted"><a href={{post.author.id}}>{{post.author.displayName}}</a></h6>
                 <h6 class="card-subtitle mb-2 text-muted">{{post.description}} <span class="badge bg-secondary">{{post.categories}}</span></h6>
                 <p class="card-text">{{post.content}}</p>
