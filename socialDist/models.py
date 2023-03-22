@@ -22,6 +22,7 @@
 
 from django.db import models
 from django.contrib.auth.models import User
+import hashlib
 
 # Added array field to handle categories in post
 # https://stackoverflow.com/questions/4294039/how-can-i-store-an-array-of-strings-in-a-django-model
@@ -36,23 +37,23 @@ from django.contrib.postgres.fields import ArrayField
 # https://stackoverflow.com/questions/2201598/how-to-define-two-fields-unique-as-coupl
 
 
+
 # Changes towards Author (02/28)
 # - Added authorId, displayName
 # - Commented/ (later will delete): isServerAdmin, isAuthenticated
 # Current Own Fields: user, authorId, displayName, github, profileImg
 # Current foreignkey fields: inServer, isFriendWith (nore sure to keep or not)
-
 class Author(models.Model):
     # user: one to one field 
     user = models.OneToOneField(User, on_delete=models.CASCADE, null=True)
     # authorID: ID of the author
     id=models.CharField(primary_key=True, max_length=200)
-    host=models.CharField(max_length=40)
+    host=models.CharField(max_length=200)
     # Added displayName field, default as empty string
     displayName=models.CharField(default="", max_length=40)
     # github and profileImage fields
-    github = models.URLField()
-    profileImage = models.URLField()
+    github = models.URLField(null=True, blank=True)
+    profileImage = models.URLField(null=True, blank=True)
 
     # # Fields referenced other models externally
     # # check whether the author in a server or not
@@ -78,17 +79,25 @@ class Author(models.Model):
     isAuthenticated=models.BooleanField(default=False)
     """
 
-# Changes towards Server (02/28):
-# No changes this time
-# Current Own Fields: user, serverID, owner, serverName
-# Current foreignkey fields: N/A
+# List of servers authenciated to commuicate with us!
+# Source: https://stackoverflow.com/questions/72371106/how-to-auto-generate-a-field-value-with-the-input-field-value-in-django-model
+# https://docs.python.org/3/library/hashlib.html
 class Server(models.Model):
-    # server id as primary key
-    serverID=models.CharField(primary_key=True, max_length=40)
-    # owner=server admin
-    owner=models.ForeignKey(Author, on_delete=models.CASCADE, null=True)
-    # server name
-    serverName=models.CharField(max_length=50)
+    # server Address, provided to us by connecting node
+    serverAddress=models.URLField(primary_key=True)
+    # server key or token used to access API, based on host name (SHA1 hash)
+    serverKey=models.TextField(blank=True)
+    # Is this server the local one?
+    isLocalServer=models.BooleanField()
+
+# Model to store the auth info of all server we are connecting with
+class Connection(models.Model):
+    # API address, provided to us by node we want to connect to, 
+    # simply append API endpoint path to the end of this
+    apiAddress=models.URLField(primary_key=True)
+    # Creditentals used to connect to API of node, add this to Authorization header
+    # when sending HTTP requests to fetch external data
+    apiCreds=models.TextField()
 
 # Model to store relationships between followers
 # Source:
@@ -100,7 +109,7 @@ class UserFollowing(models.Model):
     class Meta:
         unique_together = ('user_id', 'following_user_id')
 
-# Model for a follow request:
+# Model demonstarting a follow request sent to the inbox of an author on this server:
 # Source:
 # https://medium.com/analytics-vidhya/add-friends-with-689a2fa4e41d
 class FollowRequest(models.Model):
@@ -108,21 +117,23 @@ class FollowRequest(models.Model):
     target = models.ForeignKey(User, related_name="recievced_requests", on_delete=models.CASCADE)
     date = models.DateTimeField(auto_created=True)
 
-# Changes towards Post (02/28):
-# - Added fields: source, origin, categories, count
-# - changed name: content (to description), date (to published), server (to inServer), posterID (to author)
-# - Commented/ (later will delete): N/A
-# Current Own Fields: postID, title, source, origin, description, contentType, posterID, categories, count, published, visibility, unlisted, inServer, isLiked
-# Current foreignkey fields: inServer, isLiked
+# Model demonstrating a Post stored on this server
+# Posts stored on this server are posts made by authors hosted on this server, and any post
+# sent to the inbox of an author on this server
 class Post(models.Model):
     id = models.CharField(primary_key=True, max_length=200)
     title = models.CharField(max_length=50)
-    # Added source, origin
     source = models.CharField(max_length=50)
     origin = models.CharField(max_length=50)
-    # change name from content to description to fit with requirements
     description = models.TextField()
-    contentType = models.TextField()
+    contentType = models.TextField(choices=[
+        ("text/plain", "plaintext"),
+        ("text/markdown", "markdown"),
+        ("application/base64", "binary"),
+        ("image/png;base64", "PNG image"),
+        ("image/jpeg;base64", "JPEG image"),
+        ("image/jpg;base64", "JPG image")
+    ])
     content = models.TextField()
     # author to access the author
     author = models.ForeignKey(Author, on_delete=models.CASCADE, related_name="posts")
@@ -130,22 +141,13 @@ class Post(models.Model):
     # categories=ArrayField(models.CharField(max_length=50), default=list)
     # # OR
     categories=models.CharField(max_length=100)
-
-    # # Added count
-    # count=models.IntegerField()
-
-    # changed date to published to fit the requirement
-    # date=models.DateField()
-    # CONVERT TO DATETIME
     published = models.DateTimeField(auto_created=True)
-    # changed the field from CharField to ArrayField
-    # visibility = ArrayField(models.CharField(max_length=50), default=list)
-    # OR
     visibility=models.CharField(max_length=30, choices=[
         ("VISIBLE", "Public"),
-        ("PRIVATE","Private")
+        ("FRIENDS","Private")
     ])
     unlisted = models.BooleanField()
+
     # isLiked=models.BooleanField(default=False)
 
     # # Foreignkey fields:
@@ -165,9 +167,12 @@ class Comment(models.Model):
     author = models.ForeignKey(Author, on_delete=models.CASCADE, related_name="comments")
   
     content = models.TextField()
-    contentType = models.TextField()
+    contentType = models.TextField(choices=[
+        ("text/plain", "plaintext"),
+        ("text/markdown", "markdown")
+    ])
 
-    published=models.DateTimeField(auto_created=True)
+    published = models.DateTimeField(auto_created=True)
     parentPost = models.ForeignKey(Post, on_delete=models.CASCADE, related_name="comments")
     
     # # Modified models by added more fields

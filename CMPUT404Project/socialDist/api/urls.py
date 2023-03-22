@@ -1,6 +1,6 @@
 # MIT License
 
-# Copyright (c) 2023 Warren Lim
+# Copyright (c) 2023 Warren Lim, Jason Kim
 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -20,15 +20,35 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+<<<<<<<< HEAD:CMPUT404Project/socialDist/api/urls.py
+# File contains URL patterns for the API endpoints
+
 from django.urls import path
+========
+from django.urls import path, re_path
+>>>>>>>> f38c25dcda8af63362c75cf6a31b109ba42fcda7:socialDist/urls.py
 from . import views
+from rest_framework import permissions
+from drf_yasg.views import get_schema_view
+from drf_yasg import openapi
+
+schema_view = get_schema_view(
+   openapi.Info(
+      title="Social Dist API",
+      default_version='v1',
+      description="API for Social Dist",
+      license=openapi.License(name="MIT License"),
+   ),
+   public=True,
+   permission_classes=[permissions.AllowAny],
+)
 
 app_name = 'socialDist'
 urlpatterns = [
      path('authors/', 
-          views.APIListAuthors.as_view()),
+          views.APIListAuthors.as_view(),name='authors'),
      path('authors/<str:id>/', 
-          views.APIAuthor.as_view()),
+          views.APIAuthor.as_view(), name='author'),
      # TODO Fix required on APIInbox
      # path('authors/<str:author_id>/inbox/',
      #      views.APIInbox.as_view()),
@@ -54,4 +74,11 @@ urlpatterns = [
           views.APIListLikesComments.as_view()),
      path('posts/',
           views.APIPosts.as_view()),
+<<<<<<<< HEAD:CMPUT404Project/socialDist/api/urls.py
 ]
+========
+     re_path(r'^swagger(?P<format>\.json|\.yaml)$', schema_view.without_ui(cache_timeout=0), name='schema-json'),
+     re_path(r'^swagger/$', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
+     re_path(r'^redoc/$', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
+]
+>>>>>>>> f38c25dcda8af63362c75cf6a31b109ba42fcda7:socialDist/urls.py

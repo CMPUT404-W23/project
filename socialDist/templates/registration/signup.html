@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container py-5 h-100 w-25" style="min-width: 21em">
+  <div id="save-alert"></div>
+  <div class="row d-flex justify-content-center align-items-center h-100">
+    <div class="card" style="border-radius: 15px;">
+      <div class="card-body py-3 px-5">
+        <h2 class="text-uppercase text-center mb-4">Sign Up</h2>
+        <form method="post">
+          {% csrf_token %}
+          <div class="mb-3">
+            <label for="username-input" class="form-label">Username</label>
+            <input type="text" class="form-control" id="username-input">
+          </div>
+          <div class="mb-3">
+            <label for="password-input" class="form-label">Password</label>
+            <input type="password" class="form-control" id="password-input">
+          </div>
+          <div class="mb-3">
+            <label for="password-confirm" class="form-label">Confirm Password</label>
+            <input type="password" class="form-control" id="password-confirm">
+          </div>
+          <button id="submit" type="submit" class="btn btn-primary" onclick="sendRequest(event)">Sign Up</button>
+        </form>
+        <div class="form-text mt-3">Already have an account? <a href="{% url 'login' %}">Sign in.</a></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function displayAlert(alertType, alertMessage) {
+    alertContainer = document.getElementById("save-alert");
+    alertContainer.innerHTML = "";
+    saveAlert = document.createElement("div");
+    saveAlert.classList.add("alert", alertType);
+    saveAlert.innerText = alertMessage;
+    alertContainer.appendChild(saveAlert);
+  }
+
+  function sendRequest(e) {
+    e.preventDefault();
+
+    const httpRequest = new XMLHttpRequest();
+    httpRequest.onreadystatechange = () => {
+      if (httpRequest.readyState === XMLHttpRequest.DONE) {
+        if (httpRequest.status === 201) {
+          displayAlert("alert-success", "Account created successfully! You may now log in.");
+        } else {
+          displayAlert(
+            "alert-danger",
+            `An error occurred: ${httpRequest.response}`
+          );
+        }
+      }
+    };
+
+    const data = {
+      username: document.getElementById("username-input").value,
+      password1: document.getElementById("password-input").value,
+      password2: document.getElementById("password-confirm").value
+    };
+
+    // if any fields are empty
+    if (
+      data.username === "" ||
+      data.password1 === "" ||
+      data.password2 === ""
+    ) {
+      displayAlert("alert-danger", "Please fill out all fields.");
+      return;
+    }
+
+    // if passwords don't match
+    if (data.password1 !== data.password2) {
+      displayAlert("alert-danger", "Passwords must match.");
+      return;
+    }
+
+    httpRequest.open(
+      "PUT",
+      "/api/authors/"
+    );
+    httpRequest.setRequestHeader("X-CSRFToken", "{{ csrf_token }}");
+    httpRequest.setRequestHeader("Content-Type", "application/json");
+    httpRequest.setRequestHeader("Authorization", "Token 516e5c3d636f46228edb8f09b9613d5b4b166816");
+    httpRequest.send(JSON.stringify(data));
+    
+    // disable form fields
+    document.getElementById("username-input").disabled = true;
+    document.getElementById("password-input").disabled = true;
+    document.getElementById("password-confirm").disabled = true;
+    document.getElementById("submit").disabled = true;
+  }
+</script>
+{% endblock %}

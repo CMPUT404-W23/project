@@ -1,0 +1,167 @@
+{% extends 'base.html' %}
+{% block content %}
+<main>
+    <div class="container-md mt-2">
+        <form method="post">
+            {% csrf_token %}
+            <div class="m-3">
+                <h1>
+                    Create a Post!
+                </h1>
+                <!--Post Type-->
+                <div class="mb-3">
+                    <label for="PostType" class="form-label">Post Type:</label>
+                    <select class="form-select" id="PostType" aria-label="Default select example" style="width:80%">
+                        <option selected value="text">Text</option>
+                        <option value="img">Image</option>
+                    </select>
+                </div>
+                <!--Content Type-->
+                <div class="mb-3" id="content-type">
+                    <label for="ContentType" class="form-label">Content Type:</label>
+                    <select class="form-select" id="ContentType" aria-label="Default select example" style="width:80%">
+                        <option selected value="text/plain">Plain Text</option>
+                        <option value="text/markdown">Markdown</option>
+                    </select>
+                </div>
+                <!--Title-->
+                <div class="mb-3">
+                    <label for="Title" class="form-label">Title*:</label>
+                    <input class="form-control" id="Title" style="width:80%" type="text"
+                        placeholder="Please enter title of post"></input>
+                </div>
+                <!--Description-->
+                <div class="mb-3">
+                    <label for="Description" class="form-label">Description*:</label>
+                    <textarea class="form-control" id="Description" style="width:80%" type="text"
+                        placeholder="Please enter post description"></textarea>
+                </div>
+                <!--Content-->
+                <div class="mb-3" id="post-content">
+                    <label for="Content" class="form-label">Content:</label>
+                    <textarea class="form-control" id="Content" style="width:80%" type="text"
+                        placeholder="Please enter content of post"></textarea>
+                </div>
+                <!--Image Post-->
+                <div class="mb-3" id="post-image" hidden>
+                    <label for="ImagePost" class="form-label">Upload Image:</label>
+                    <input class="form-control" type="file" id="ImagePost" style="width:80%"
+                        accept="image/png, image/jpeg">
+                </div>
+                <!--Categories-->
+                <div class="mb-3">
+                    <label for="Categories" class="form-label">Categories*:</label>
+                    <textarea class="form-control" id="Categories" style="width:80%" type="text"
+                        placeholder="Please enter categories of post (seperated by commas)"></textarea>
+                </div>
+                <!--Visibility-->
+                <div class="mb-3">
+                    <label for="Visibility" class="form-label">Visibility*:</label>
+                    <select class="form-select" style="width:80%" id="Visibility">
+                        <option selected value="VISIBLE"> Visible</option>
+                        <option value="PRIVATE">Private</option>
+                    </select>
+                </div>
+                <!--Unlisted-->
+                <div class="mb-3">
+                    <label for="Unlisted" class="form-label">Unlisted:</label>
+                    <select class="form-select" id="Unlisted" style="width:80%">
+                        <option value="yes">Yes</option>
+                        <option selected value="no">No</option>
+                    </select>
+                </div>
+                <!--Post-->
+                <div id="save-alert"></div>
+                <button type="button" class="btn btn-dark" onclick="postData()">Post!</button>
+            </div>
+        </form>
+    </div>
+</main>
+
+<script>
+    document.getElementById("PostType").addEventListener("change", () => {
+        const postType = document.getElementById("PostType").value;
+        let toggle = false;
+        if (postType == "text") {
+            toggle = false;
+        } else if (postType == "img") {
+            toggle = true;
+        }
+        document.getElementById("content-type").hidden = toggle;
+        document.getElementById("post-content").hidden = toggle;
+        document.getElementById("post-image").hidden = !toggle;
+    });
+
+    function displayAlert(alertType, alertMessage) {
+        alertContainer = document.getElementById("save-alert");
+        alertContainer.innerHTML = "";
+        saveAlert = document.createElement("div");
+        saveAlert.classList.add("alert", alertType);
+        saveAlert.innerText = alertMessage;
+        alertContainer.appendChild(saveAlert);
+    }
+
+    async function toBase64() {
+        return new Promise((resolve, reject) => {
+            const input = document.getElementById("ImagePost");
+            const file = input.files[0];
+
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+
+            reader.onload = function () {
+                const base64String = reader.result.split(',')[1];
+                resolve(base64String);
+            }
+
+            reader.onerror = function (error) {
+                reject(error);
+            }
+        });
+    }
+
+    async function postData() {
+        const url = "/api/authors/{{user.id}}/posts/"
+        let postContent, contentType;
+        if (document.getElementById("ImagePost").value) { // if post is an image
+            const base64String = await toBase64();
+            postContent = base64String;
+            contentType = `image/${document.getElementById("ImagePost").value.split('.').pop()};base64`; // get file extension
+        }
+        else {
+            contentType = document.getElementById("ContentType").value;
+            postContent = document.getElementById("Content").value; // if post is text
+        }
+        
+        const data = {
+            title: document.getElementById("Title").value,
+            description: document.getElementById("Description").value,
+            contentType: contentType,
+            categories: document.getElementById("Categories").value,
+            visibility: document.getElementById("Visibility").value,
+            content: postContent,
+            unlisted: document.getElementById("Unlisted").value,
+        };
+        if (data.title == "" || data.description == "" || data.categories == "" || data.visibility == "") {
+            displayAlert("alert-danger", "Please fill out required (*) fields!");
+            return;
+        }
+        const response = await fetch(url, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": "{{ csrf_token }}",
+                "Authorization": "Token 516e5c3d636f46228edb8f09b9613d5b4b166816"
+            },
+            body: JSON.stringify(data),
+        });
+        if (response.status == 201) {
+            displayAlert("alert-success", "Post created successfully!");
+            window.location.href = "/";
+        } else {
+            displayAlert("alert-danger", "Post creation failed!");
+        }
+    }
+
+</script>
+{% endblock content %}

@@ -1,0 +1,1 @@
+web: gunicorn CMPUT404Project.wsgi

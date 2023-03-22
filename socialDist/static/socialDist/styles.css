@@ -1,0 +1,59 @@
+:root {
+  --primary-color: #007bff;
+  --border-color: #e4e4e4;
+  --dark-blue: #242936;
+  --default-font: 'Roboto', sans-serif;
+}
+
+body {
+  background-color: #ededed;
+}
+
+/* specific elements */
+
+#settings_save_changes {
+  margin-bottom: 1em;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: Arial, sans-serif;
+}
+
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #fff;
+  padding: 10px;
+  position: fixed;
+  top: 0;
+  width: 100%;
+  z-index: 999;
+}
+
+.logo img {
+  height: 30px;
+}
+
+
+.menu-icons a {
+  margin-left: 20px;
+  font-size: 24px;
+  color: #000;
+}
+
+.menu-icons a:hover {
+  color: #0095f6;
+}
+
+.post {
+  margin: 80px auto;
+  max-width: 600px;
+  border: 1px solid #ddd;
+}
