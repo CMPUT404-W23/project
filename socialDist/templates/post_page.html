@@ -4,8 +4,9 @@
     <div class="g-col-1">
         <div class="card">
             <div class="card-body" id="posts">
-                <h5 class="card-title">{{post.title}}</h5>
+                <h5 class="card-title"><a href={{post.id}}>{{post.title}}</a></h5>
                 <h6 class="card-subtitle mb-2 text-muted">{{post.description}}</h6>
+                <h6 class="card-subtitle mb-2 text-muted"><a href={{post.author.id}}>{{post.author.displayName}}</a></h6>
                 <p class="card-text">{{post.content}}</p>
                 <p> {{post.categories}}</p>
                 <button type="button" class="btn btn-secondary btn-sm">
