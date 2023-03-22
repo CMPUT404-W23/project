@@ -1,8 +1,10 @@
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
-from socialDist.models import Author, Post
+from socialDist.models import Author, Post, Connection
+from socialDist.serializers import ConnectionSerializer
 import base64
+import json
 import marko
 
 # MIT License
@@ -31,6 +33,13 @@ import marko
 
 HOST = "https://socialdistcmput404.herokuapp.com/"
 
+
+def home(request):
+    connections = Connection.objects.all()
+    connections_serial = ConnectionSerializer(connections, many=True) 
+    context = {'connections': json.dumps(connections_serial.data)}
+    return render(request, 'home.html', context)
+
 @login_required
 def settings(request):
     # Get Author instance for the current user
@@ -41,9 +50,6 @@ def settings(request):
     context = {'author': author}
     return render(request, 'settings.html', context)
 
-def home(request):
-    return render(request, 'home.html')
-
 # URL to public post, even if unlisted, if image, will be actual image!
 def postPage(request, author_id, post_id):
     try:
@@ -52,14 +58,8 @@ def postPage(request, author_id, post_id):
         return HttpResponse(status=404, content="Post does not exist")
     try:
         post = Post.objects.filter(visibility="VISIBLE").get(id=HOST+"authors/"+author_id+"/posts/"+post_id)
-        if post.contentType == "image/png;base64" or post.contentType == "image/jpeg;base64" or post.contentType == "image/jpg;base64":
-            content_bytes_base64 = post.content.encode('ascii')
-            return HttpResponse(status=200, 
-                            content=base64.b64decode(content_bytes_base64), 
-                            content_type=post.contentType)
-        else:
-            context = {'post': post}
-            return render(request, 'post_page.html', context)
+        context = {'post': post}
+        return render(request, 'post_page.html', context)
     except Post.DoesNotExist:
         return HttpResponse(status=404, content="Post does not exist")
 
@@ -74,12 +74,13 @@ def authorPage(request, author_id):
     #TODO: create a page for the author, if the requester is the author, add inbox here!
     return render(request, 'profile.html', context)
 
+@login_required
 def editPost(request, author_id, post_id):
     try:
         author =  Author.objects.get(id=HOST+"authors/"+author_id)
     except Author.DoesNotExist:
         return HttpResponse(status=404, content="Post does not exist")
-    if (not (request.user.is_authenticated and (request.user.is_staff or request.user.author == author))):
+    if (not (request.user.is_staff or request.user.author == author)):
         return HttpResponse(status=401)
     try:
         post = Post.objects.filter(visibility="VISIBLE").get(id=HOST+"authors/"+author_id+"/posts/"+post_id)
@@ -92,7 +93,6 @@ def editPost(request, author_id, post_id):
     except Post.DoesNotExist:
         return HttpResponse(status=404, content="Post does not exist")
     
-
 @login_required
 def create_post(request):
     return render(request, 'post.html')
