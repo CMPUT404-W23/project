@@ -1,6 +1,6 @@
 # MIT License
 
-# Copyright (c) 2023 Warren Lim
+# Copyright (c) 2023 Warren Lim, Junhyeon Cho, Alex Mak, Jason Kim, Filippo Ciandy
 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -23,16 +23,13 @@
 from django.contrib import admin
 from .models import Author, Comment, Like, Post, Server, Inbox, FollowRequest, UserFollowing, Connection
 # Register your models here.
+
 admin.site.register(Author)
 admin.site.register(Comment)
 admin.site.register(Like)
 admin.site.register(Post)
-
-# test the new added models in the admin site
 admin.site.register(Server)
 admin.site.register(Inbox)
-
 admin.site.register(FollowRequest)
 admin.site.register(UserFollowing)
-
 admin.site.register(Connection)
