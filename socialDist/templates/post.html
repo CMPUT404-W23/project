@@ -38,7 +38,7 @@
                 </div>
                 <!--Content-->
                 <div class="mb-3" id="post-content">
-                    <label for="Content" class="form-label">Content:</label>
+                    <label for="Content" class="form-label">Content*:</label>
                     <textarea class="form-control" id="Content" style="width:80%" type="text"
                         placeholder="Please enter content of post"></textarea>
                 </div>
@@ -142,7 +142,7 @@
             content: postContent,
             unlisted: document.getElementById("Unlisted").value,
         };
-        if (data.title == "" || data.description == "" || data.categories == "" || data.visibility == "") {
+        if (data.title == "" || data.description == "" || data.categories == "" || data.visibility == "" || data.content == "") {
             displayAlert("alert-danger", "Please fill out required (*) fields!");
             return;
         }

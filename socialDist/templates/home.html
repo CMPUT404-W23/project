@@ -10,6 +10,7 @@
                 </div>
               </div>
         </div>
+        <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
         <script>
             let posts;
             fetch("/api/posts", {headers: new Headers({"Authorization": "Token 516e5c3d636f46228edb8f09b9613d5b4b166816"})})
@@ -24,14 +25,20 @@
                         let content;
                         if (post.contentType.startsWith("image")) {
                             content = `<img class="img-fluid mx-auto d-block" style="max-width: 50%" src="data:${post.contentType}, ${post.content}"/><br>`;
+                        } else if (post.contentType === "text/markdown") {
+                            post.title = marked.parse(post.title);
+                            post.description = marked.parse(post.description);
+                            content = `<p class="card-text">${marked.parse(post.content)}</p>`;
                         } else {
                             content = `<p class="card-text">${post.content}</p>`;
                         }
                         return (`
                         <div class="card my-3">
                             <div class="card-body">
-                                <h5 class="card-title">${post.title}</h5>
-                                <h6 class="card-subtitle mb-2 text-muted">${post.description} <span class="badge bg-secondary">${post.categories}</span></h6>
+                                <h4 class="card-title">${post.title}</h4>
+                                <h5 class="card-subtitle mb-2 text-muted">${post.description}</h5>
+                                <h6 class="card-subtitle mb-2 text-muted">${post.author.displayName}</h6>
+                                <span class="badge bg-secondary">${post.categories}</span>
                                 ${content}
                                 <button type="button" class="btn btn-secondary btn-sm">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-heart" viewBox="0 0 16 16">
