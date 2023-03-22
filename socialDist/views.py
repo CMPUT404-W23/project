@@ -633,7 +633,8 @@ class APIFollower(APIView):
             return Response(status=404)
 
 # TODO Fix required
-"""class APIInbox(APIView):
+"""
+class APIInbox(APIView):
     def get(self, request, author_id):
         # get the owner first in order to get the inbox
         try:
