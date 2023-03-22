@@ -870,7 +870,7 @@ class APIFollower(APIView):
 
 # TODO Please generate appropriate documentation of the following API to root_project/openapi.json
 
-class APIPosts(APIView):
+class APIPosts(APIView): 
     permission_classes = [auth.RemotePermission]
     def get(self, request):
         author_posts_pair = []
