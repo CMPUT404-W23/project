@@ -3,6 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from socialDist.models import Author, Post
 import base64
+import marko
 
 # MIT License
 
@@ -25,6 +26,8 @@ import base64
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+
+# Markdown parser: https://marko-py.readthedocs.io/en/latest/
 
 HOST = "https://socialdistcmput404.herokuapp.com/"
 
