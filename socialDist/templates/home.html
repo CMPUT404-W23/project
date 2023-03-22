@@ -71,6 +71,7 @@
                 let returnedDatatext = await returnedData.text();
                 let returnedDataList = JSON.parse(returnedDatatext);
                 for (data of returnedDataList.items) {
+                     // https://dmitripavlutin.com/parse-url-javascript/
                     let data_url = new URL(data.id);
                     let data_path = data_url.pathname;
                     let posts_response = await fetch(connection.apiAddress + data_path + "/posts/",
@@ -92,8 +93,8 @@
                         var htmlElement = htmlToElement(`
                         <div class="card my-3">
                             <div class="card-body">
-                                <h5 class="card-title"><a href="${post.id}">${post.title}</a></h5>
-                                <h6 class="card-subtitle mb-2 text-muted"><a href="${post.author.id}">${post.author.displayName}</a></h6>
+                                <h5 class="card-title"><a href="${post.url}">${post.title}</a></h5>
+                                <h6 class="card-subtitle mb-2 text-muted"><a href="${post.author.url}">${post.author.displayName}</a></h6>
                                 <h6 class="card-subtitle mb-2 text-muted">${post.description} <span class="badge bg-secondary">${post.categories}</span></h6>
                                 ${content}
                                 <button type="button" class="btn btn-secondary btn-sm">

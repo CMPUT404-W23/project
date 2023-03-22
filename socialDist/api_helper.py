@@ -139,10 +139,10 @@ def construct_list_of_paginated_posts(post_list_data, pageNum, sizeNum, author):
 # Returns: dict representing a list of all public, listed posts on server JSON object
 # Source:
 # https://www.tutorialsteacher.com/articles/how-to-flatten-list-in-python
-def construct_list_of_all_posts(author_post_list_data_pair):
+def construct_list_of_all_posts(author_post_list):
     return {
         "type": "posts",
-        "items": reduce(lambda a, b:a+b, [[construct_post_object(post_serial, author) for post_serial in post_list_data] for author, post_list_data in author_post_list_data_pair]),
+        "items": list(author_post_list)
     }
 
 # Constructs a comment JSON object to be returned by the API

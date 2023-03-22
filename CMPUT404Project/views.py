@@ -58,14 +58,8 @@ def postPage(request, author_id, post_id):
         return HttpResponse(status=404, content="Post does not exist")
     try:
         post = Post.objects.filter(visibility="VISIBLE").get(id=HOST+"authors/"+author_id+"/posts/"+post_id)
-        if post.contentType == "image/png;base64" or post.contentType == "image/jpeg;base64" or post.contentType == "image/jpg;base64":
-            content_bytes_base64 = post.content.encode('ascii')
-            return HttpResponse(status=200, 
-                            content=base64.b64decode(content_bytes_base64), 
-                            content_type=post.contentType)
-        else:
-            context = {'post': post}
-            return render(request, 'post_page.html', context)
+        context = {'post': post}
+        return render(request, 'post_page.html', context)
     except Post.DoesNotExist:
         return HttpResponse(status=404, content="Post does not exist")
 
