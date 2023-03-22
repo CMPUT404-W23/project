@@ -10,6 +10,7 @@
                 </div>
               </div>
         </div>
+        <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
         <script>
             let posts;
             fetch("/api/posts", {headers: new Headers({"Authorization": "Token 516e5c3d636f46228edb8f09b9613d5b4b166816"})})
@@ -24,6 +25,10 @@
                         let content;
                         if (post.contentType.startsWith("image")) {
                             content = `<img class="img-fluid mx-auto d-block" style="max-width: 50%" src="data:${post.contentType}, ${post.content}"/><br>`;
+                        } else if (post.contentType === "text/markdown") {
+                            post.title = marked.parse(post.title);
+                            post.description = marked.parse(post.description);
+                            content = `<p class="card-text">${marked.parse(post.content)}</p>`;
                         } else {
                             content = `<p class="card-text">${post.content}</p>`;
                         }

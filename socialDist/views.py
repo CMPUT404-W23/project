@@ -268,7 +268,11 @@ class APIPost(APIView):
             serializer = PostSerializer(data=postDict, partial=True)
             if serializer.is_valid():
                 serializer.save()
-                return Response(status=201, data=api_helper.construct_post_object(serializer.data))
+                # OLD
+                # return Response(status=201, data=api_helper.construct_post_object(serializer.data))
+                # NEW: add argument for author since that's what needed from api_helper
+                return Response(status=201, data=api_helper.construct_post_object(serializer.data, author))
+                # return Response(status=201, data=api_helper.construct_post_object(serializer.data))
             return Response(status=400, data=serializer.errors)
         
     # Delete the single post
@@ -316,7 +320,7 @@ class APIListPosts(APIView):
         return Response(status=200, data=api_helper.construct_list_of_paginated_posts(serializer.data,
                                                                                     pageNum,
                                                                                     sizeNum,
-                                                                                    author))  
+                                                                                    author))
     # Add a post with a randomized post id
     # Include a post object in JSON with modified fields
     # Note that host and id field will be ignored!
@@ -868,7 +872,7 @@ class APIFollower(APIView):
 
 # TODO Please generate appropriate documentation of the following API to root_project/openapi.json
 
-class APIPosts(APIView):
+class APIPosts(APIView): 
     permission_classes = [auth.RemotePermission]
     def get(self, request):
         author_posts_pair = []
