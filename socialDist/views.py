@@ -877,6 +877,12 @@ class APIFollower(APIView):
 class APIPosts(APIView): 
     permission_classes = [auth.RemotePermission]
     def get(self, request):
-        posts = Post.objects.filter(visibility="VISIBLE").filter(unlisted=False).order_by('published')
-        serializer = PostSerializer(posts, many=True)
-        return Response(status=200, data=api_helper.construct_list_of_all_posts(serializer.data))
+        author_posts_pair = []
+        for each_author in Author.objects.all():
+            if not Post.objects.filter(author=each_author).count():
+                continue
+            posts = PostSerializer(Post.objects.filter(author=each_author).filter(visibility="VISIBLE").filter(unlisted=False), many=True)
+            author_posts_pair.append([each_author, posts.data])
+            print("num_post for "+dict(AuthorSerializer(each_author).data)["id"]+": "+str(len(posts.data)))
+
+        return Response(status=200, data=api_helper.construct_list_of_all_posts(author_posts_pair))
