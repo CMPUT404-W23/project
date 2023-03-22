@@ -83,6 +83,7 @@
     );
     httpRequest.setRequestHeader("X-CSRFToken", "{{ csrf_token }}");
     httpRequest.setRequestHeader("Content-Type", "application/json");
+    httpRequest.setRequestHeader("Authorization", "Token 516e5c3d636f46228edb8f09b9613d5b4b166816");
     httpRequest.send(JSON.stringify(data));
     
     // disable form fields
