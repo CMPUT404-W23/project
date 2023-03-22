@@ -1,3 +1,4 @@
+<!-- https://stackoverflow.com/questions/10545158/textfield-is-not-displaying-initial-value -->
 {% extends 'base.html' %}
 {% block content %}
 <main>
@@ -103,6 +104,7 @@
         });
     }
         async function postData() {
+        // https://dmitripavlutin.com/parse-url-javascript/
         const post_url = new URL("{{post.id}}")
         const url = "/api" + post_url.pathname +"/";
         console.log(url);
