@@ -15,6 +15,10 @@
             fetch("/api/posts", {headers: new Headers({"Authorization": "Token 516e5c3d636f46228edb8f09b9613d5b4b166816"})})
                 .then((response) => response.json())
                 .then((data) => {
+                    if (data.items.length === 0) {
+                        document.getElementById('posts').innerHTML = `<div class="d-flex justify-content-center py-4"><h3>No posts to show.</h3></div>`
+                        return
+                    }
                     posts = data.items[0];
                     document.getElementById('posts').innerHTML = posts.map((post) => {
                         let content;
@@ -41,7 +45,7 @@
                 })
                 .catch((error) => {
                     console.error("Fetch error:", error);
-                    document.getElementById('posts').innerHTML = "Error fetching posts";
+                    document.getElementById('posts').innerHTML = `<div class="d-flex justify-content-center py-4"><h3>Error fetching posts</h3></div>`
                 });
 
         </script>
