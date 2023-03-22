@@ -1,0 +1,153 @@
+<!-- https://stackoverflow.com/questions/10545158/textfield-is-not-displaying-initial-value -->
+{% extends 'base.html' %}
+{% block content %}
+<main>
+    <div class="container-md mt-2">
+        <form method="post">
+            {% csrf_token %}
+            <div class="m-3">
+                <h1>
+                    Editing post!
+                </h1>
+                <!--Content Type-->
+                {% if not isImage %}
+                <div class="mb-3" id="content-type">
+                    <label for="ContentType" class="form-label">Content Type:</label>
+                    <select class="form-select" id="ContentType" aria-label="Default select example" style="width:80%">
+                        {% if post.contentType == "text/plain" %}
+                        <option selected value="text/plain">Plain Text</option>
+                        <option value="text/markdown">Markdown</option>
+                        {% else %}
+                        <option value="text/plain">Plain Text</option>
+                        <option selected value="text/markdown">Markdown</option>
+                        {% endif %}
+                    </select>
+                </div>
+                {% endif %}
+                <!--Title-->
+                <div class="mb-3">
+                    <label for="Title" class="form-label">Title*:</label>
+                    <input class="form-control" id="Title" style="width:80%" type="text"
+                        placeholder="Please enter title of post"  value={{post.title}}></input>
+                </div>
+                <!--Description-->
+                <div class="mb-3">
+                    <label for="Description" class="form-label">Description*:</label>
+                    <textarea class="form-control" id="Description" style="width:80%" type="text"
+                        placeholder="Please enter post description">{{post.description}}</textarea>
+                </div>
+                {% if not isImage %}
+                <!--Content-->
+                <div class="mb-3" id="post-content">
+                    <label for="Content" class="form-label">Content*:</label>
+                    <textarea class="form-control" id="Content" style="width:80%" type="text"
+                        placeholder="Please enter content of post">{{post.content}}</textarea>
+                </div>
+                <!--Image Post-->
+                {% else %}
+                <div class="mb-3" id="post-image">
+                    <label for="ImagePost" class="form-label">Upload Image:</label>
+                    <input class="form-control" type="file" id="ImagePost" style="width:80%"
+                        accept="image/png, image/jpeg">
+                </div>
+                {% endif %}
+                <!--Categories-->
+                <div class="mb-3">
+                    <label for="Categories" class="form-label">Categories*:</label>
+                    <textarea class="form-control" id="Categories" style="width:80%" type="text"
+                        placeholder="Please enter categories of post (seperated by commas)">{{post.categories}}</textarea>
+                </div>
+                <!--Unlisted-->
+                <div class="mb-3">
+                    <label for="Unlisted" class="form-label">Unlisted:</label>
+                    <select class="form-select" id="Unlisted" style="width:80%">
+                        {% if not post.unlisted %}
+                        <option value="yes">Yes</option>
+                        <option selected value="no">No</option>
+                        {% else %}
+                        <option selected value="yes">Yes</option>
+                        <option value="no">No</option>
+                        {% endif %}
+                    </select>
+                </div>
+                <!--Post-->
+                <div id="save-alert"></div>
+                <button type="button" class="btn btn-dark" onclick="postData()">Post!</button>
+            </div>
+        </form>
+    </div>
+    <script>
+        function displayAlert(alertType, alertMessage) {
+            alertContainer = document.getElementById("save-alert");
+            alertContainer.innerHTML = "";
+            saveAlert = document.createElement("div");
+            saveAlert.classList.add("alert", alertType);
+            saveAlert.innerText = alertMessage;
+            alertContainer.appendChild(saveAlert);
+        }
+        async function toBase64() {
+        return new Promise((resolve, reject) => {
+            const input = document.getElementById("ImagePost");
+            const file = input.files[0];
+
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+
+            reader.onload = function () {
+                const base64String = reader.result.split(',')[1];
+                resolve(base64String);
+            }
+
+            reader.onerror = function (error) {
+                reject(error);
+            }
+        });
+    }
+        async function postData() {
+        // https://dmitripavlutin.com/parse-url-javascript/
+        const post_url = new URL("{{post.id}}")
+        const url = "/api" + post_url.pathname +"/";
+        console.log(url);
+        let postContent, contentType;
+        if (document.getElementById("ImagePost")) { // if post is an image
+            const base64String = await toBase64();
+            postContent = base64String;
+            contentType = `image/${document.getElementById("ImagePost").value.split('.').pop()};base64`; // get file extension
+        }
+        else {
+            contentType = document.getElementById("ContentType").value;
+            postContent = document.getElementById("Content").value; // if post is text
+        }
+
+        const data = {
+            title: document.getElementById("Title").value,
+            description: document.getElementById("Description").value,
+            contentType: contentType,
+            categories: document.getElementById("Categories").value,
+            content: postContent,
+            unlisted: document.getElementById("Unlisted").value,
+        };
+        console.log(data);
+        if (data.title == "" || data.description == "" || data.categories == "" || data.visibility == "" || data.content == "") {
+            displayAlert("alert-danger", "Please fill out required (*) fields!");
+            return;
+        }
+        const response = await fetch(url, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": "{{ csrf_token }}",
+                "Authorization": "Token 516e5c3d636f46228edb8f09b9613d5b4b166816"
+            },
+            body: JSON.stringify(data),
+        });
+        if (response.status == 201) {
+            displayAlert("alert-success", "Post edited successfully!");
+            window.location.href = "/";
+        } else {
+            displayAlert("alert-danger", "Editing post failed!");
+        }
+    }
+    </script>
+</main>
+{% endblock content %}
