@@ -8,6 +8,9 @@ HOST="socialcmput404.herokuapp.com"
 # verify that connecting node is allowed to connect 
 class RemotePermission(permissions.BasePermission):
     def has_permission(self, request, view):
+        # local test purposes only
+        # TODO REMOVE THIS 
+        return True
         try:
             authorization = request.headers['Authorization']
             authorizationArr = authorization.split()
