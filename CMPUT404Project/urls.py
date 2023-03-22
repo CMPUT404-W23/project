@@ -41,7 +41,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import include, path
 from django.views.generic.base import TemplateView, RedirectView
-from .views import settings, home, postPage, authorPage, create_post
+from .views import settings, home, postPage, authorPage, create_post, editPost
 
 urlpatterns = [
     # path('', include('socialDist.urls')),
@@ -54,6 +54,7 @@ urlpatterns = [
     path("api/", include("socialDist.urls")),
     path("authors/<str:author_id>/posts/<str:post_id>/", view=postPage, name="page_post"),
     path("authors/<str:author_id>/", view=authorPage, name="page_author"),
+        path("authors/<str:author_id>/posts/<str:post_id>/edit", view=editPost, name="edit_post"),
     
     # redirect urls without slash to links with slash
     # TODO Automate this (jayden)

@@ -41,7 +41,6 @@ def settings(request):
     context = {'author': author}
     return render(request, 'settings.html', context)
 
-@login_required
 def home(request):
     return render(request, 'home.html')
 
@@ -74,6 +73,25 @@ def authorPage(request, author_id):
                'isOwner': request.user.is_authenticated and (request.user.is_staff or request.user.author == author)}
     #TODO: create a page for the author, if the requester is the author, add inbox here!
     return render(request, 'profile.html', context)
+
+def editPost(request, author_id, post_id):
+    try:
+        author =  Author.objects.get(id=HOST+"authors/"+author_id)
+    except Author.DoesNotExist:
+        return HttpResponse(status=404, content="Post does not exist")
+    if (not (request.user.is_authenticated and (request.user.is_staff or request.user.author == author))):
+        return HttpResponse(status=401)
+    try:
+        post = Post.objects.filter(visibility="VISIBLE").get(id=HOST+"authors/"+author_id+"/posts/"+post_id)
+        context = {'post': post,
+                    'isImage': post.contentType == "image/png;base64" 
+                       or post.contentType == "image/jpeg;base64" 
+                       or post.contentType == "image/jpg;base64"}
+        return render(request, 'edit_post.html', context)
+
+    except Post.DoesNotExist:
+        return HttpResponse(status=404, content="Post does not exist")
+    
 
 @login_required
 def create_post(request):
