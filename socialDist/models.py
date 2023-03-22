@@ -1,6 +1,6 @@
 # MIT License
 
-# Copyright (c) 2023 Warren Lim
+# Copyright (c) 2023 Warren Lim, Junhyeon Cho, Alex Mak, Jason Kim, Filippo Ciandy
 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -35,7 +35,6 @@ from django.contrib.postgres.fields import ArrayField
 # https://medium.com/analytics-vidhya/add-friends-with-689a2fa4e41d
 # https://stackoverflow.com/questions/58794639/how-to-make-follower-following-system-with-django-model
 # https://stackoverflow.com/questions/2201598/how-to-define-two-fields-unique-as-coupl
-
 
 
 # Changes towards Author (02/28)
@@ -80,8 +79,6 @@ class Author(models.Model):
     """
 
 # List of servers authenciated to commuicate with us!
-# Source: https://stackoverflow.com/questions/72371106/how-to-auto-generate-a-field-value-with-the-input-field-value-in-django-model
-# https://docs.python.org/3/library/hashlib.html
 class Server(models.Model):
     # server Address, provided to us by connecting node
     serverAddress=models.URLField(primary_key=True)

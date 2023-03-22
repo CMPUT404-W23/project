@@ -20,7 +20,7 @@
                         document.getElementById('posts').innerHTML = `<div class="d-flex justify-content-center py-4"><h3>No posts to show.</h3></div>`
                         return
                     }
-                    posts = data.items[0];
+                    posts = data.items;
                     document.getElementById('posts').innerHTML = posts.map((post) => {
                         let content;
                         if (post.contentType.startsWith("image")) {
@@ -35,10 +35,9 @@
                         return (`
                         <div class="card my-3">
                             <div class="card-body">
-                                <h4 class="card-title">${post.title}</h4>
-                                <h5 class="card-subtitle mb-2 text-muted">${post.description}</h5>
-                                <h6 class="card-subtitle mb-2 text-muted">${post.author.displayName}</h6>
-                                <span class="badge bg-secondary">${post.categories}</span>
+                                <h5 class="card-title"><a href="${post.id}">${post.title}</a></h5>
+                                <h6 class="card-subtitle mb-2 text-muted"><a href="${post.author.id}">${post.author.displayName}</a></h6>
+                                <h6 class="card-subtitle mb-2 text-muted">${post.description} <span class="badge bg-secondary">${post.categories}</span></h6>
                                 ${content}
                                 <button type="button" class="btn btn-secondary btn-sm">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-heart" viewBox="0 0 16 16">
