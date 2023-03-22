@@ -20,7 +20,13 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+<<<<<<<< HEAD:CMPUT404Project/socialDist/api/urls.py
+# File contains URL patterns for the API endpoints
+
+from django.urls import path
+========
 from django.urls import path, re_path
+>>>>>>>> f38c25dcda8af63362c75cf6a31b109ba42fcda7:socialDist/urls.py
 from . import views
 from rest_framework import permissions
 from drf_yasg.views import get_schema_view
@@ -53,23 +59,26 @@ urlpatterns = [
      path('authors/<str:author_id>/followers/<path:foreign_author_id>/',
           views.APIFollower.as_view()),
      path('authors/<str:author_id>/posts/<str:post_id>/', 
-          views.APIPost.as_view(), name='post'),
+          views.APIPost.as_view()),
      path('authors/<str:author_id>/posts/<str:post_id>/image/', 
-          views.APIImage.as_view(), name='image'),
+          views.APIImage.as_view()),
      path('authors/<str:author_id>/posts/',
-          views.APIListPosts.as_view(), name='posts'),
+          views.APIListPosts.as_view()),
      path('authors/<str:author_id>/posts/<str:post_id>/comments/', 
-          views.APIListComments.as_view(), name='comments'),
+          views.APIListComments.as_view()),
      path('authors/<str:author_id>/posts/<str:post_id>/comments/<str:comment_id>/', 
-          views.APIComment.as_view(), name='comment'),
+          views.APIComment.as_view()),
      path('authors/<str:author_id>/posts/<str:post_id>/likes/', 
           views.APIListLikesPost.as_view()),
      path('authors/<str:author_id>/posts/<str:post_id>/comments/<str:comment_id>/likes', 
           views.APIListLikesComments.as_view()),
      path('posts/',
           views.APIPosts.as_view()),
+<<<<<<<< HEAD:CMPUT404Project/socialDist/api/urls.py
+]
+========
      re_path(r'^swagger(?P<format>\.json|\.yaml)$', schema_view.without_ui(cache_timeout=0), name='schema-json'),
      re_path(r'^swagger/$', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
      re_path(r'^redoc/$', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
 ]
-
+>>>>>>>> f38c25dcda8af63362c75cf6a31b109ba42fcda7:socialDist/urls.py
