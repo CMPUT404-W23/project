@@ -45,8 +45,9 @@ from django.http import QueryDict
 from rest_framework import status
 from django.utils.crypto import get_random_string
 from django.contrib.auth.models import User
-from .serializers import AuthorSerializer, PostSerializer, CommentSerializer, LikeSerializer, ServerSerializer, InboxSerializer
+from .serializers import AuthorSerializer, PostSerializer, CommentSerializer, LikeSerializer, ServerSerializer, InboxSerializer, FollowRequestSerializer
 import urllib.parse
+from itertools import chain
 
 # TODO: we need to support the following operations to connect with other nodes!
 # What is said below appiles to local node elements too!
@@ -691,61 +692,118 @@ class APIInbox(APIView):
                     serializer.data[i]["comments"]=serializer.data[i]["id"]+"/comments"
                     itemList.append(serializer.data[i])
 
-            # Get Comment from Posts
+            # return Response(status=200, data=itemList)
+
+            # Get Comment from Posts: DONE
             # Filter all the posts first
 
-            posts = Post.objects.filter(author=followersList[0]).filter(visibility="VISIBLE")
-            pSerializer = PostSerializer(posts, many=True)
-            return Response(status=200, data=pSerializer.data[0]["id"]+"/comments/")
-            # comment=Comment.objects.all()
-            # comments = Comment.objects.filter(parentPost=pSerializer.data[0]["id"]+"/comments/")
-            return Response(status=200, data=comments.values())
-
-            
-            # Get the list of comments of those posts
-            # for i in range(len(pSerializer.data)):
-            #     comments = Comment.objects.filter(parentPost=pSerializer.data[i]["id"]+"/comments/")
-            #     serializer = CommentSerializer(comments, many=True)
-            #     itemList.append(serializer.data[i])
-
-            return Response(status=200, data=itemList)
-
-
-            # return Response(status=200, data=pSerializer.data[0]["id"])
-            # for i in range(len(pSerializer.data)):
-            #         # Get the comments now
-            #         comment = Comment.objects.filter(parentPost=serializer.data[i]["id"])
-            #         itemList.append(serializer.data[i])
-
-            
-
-
-
-
-            return Response(status=200, data=itemList)
-
-
-            
-
-            # return Response(status=200, data=posts.values())
-
-            # serialzer = PostSerializer(post)
-            # return Response(status=200, data=api_helper.construct_post_object(serialzer.data, author))
-
-
+            for each in followersList:
+                posts = Post.objects.filter(author=each).filter(visibility="VISIBLE")
+                pSerializer = PostSerializer(posts, many=True)
+                # return Response(status=200, data=pSerializer.data)
+                # time to get comments
+                for i in range(len(pSerializer.data)):
+                    comments = Comment.objects.filter(parentPost=pSerializer.data[i]["id"])
+                    serializer = CommentSerializer(comments, many=True)
+                    for j in range(len(serializer.data)):
+                    # adding type comments:
+                        serializer.data[j]["type"]="comments"
+                        itemList.append(serializer.data[j])
 
             # return Response(status=200, data=itemList)
 
-            post = Post.objects.filter(author=followersList[0]).filter(visibility="VISIBLE").get(pk=HOST+"authors/"+author_id+"/posts/"+post_id)
-            serialzer = PostSerializer(post)
+            """
+            temp=[]
+            likes = Like.objects.filter(parentComment="https://socialdistcmput404.herokuapp.com/authors/2/posts/1/comments/1")
+            serializer = LikeSerializer(likes, many=True)
+            serializer.data["type"]="Like"
+            return Response(status=200, data=serializer.data)
+            """
+
+            
+            # Multi-case
+            # Like objects (FOR Comments)
+            for each in followersList:
+                posts = Post.objects.filter(author=each).filter(visibility="VISIBLE")
+                pSerializer = PostSerializer(posts, many=True)
+                # return Response(status=200, data=pSerializer.data)
+                # time to get comments
+                for i in range(len(pSerializer.data)):
+                    comments = Comment.objects.filter(parentPost=pSerializer.data[i]["id"])
+                    serializer = CommentSerializer(comments, many=True)
+                    for j in range(len(serializer.data)):
+                    # adding type comments:
+                        # serializer.data[j]["type"]="comments"
+                        # temp.append(serializer.data[j])
+                        likes = Like.objects.filter(parentComment=serializer.data[j]["id"])
+                        serializer = LikeSerializer(likes, many=True)
+
+                        # likes = Like.objects.filter(parentComment="https://socialdistcmput404.herokuapp.com/authors/2/posts/1/comments/1")
+                        # serializer = LikeSerializer(likes, many=True)
+                        for k in range(len(serializer.data)):
+                            # adding other fields
+                            serializer.data[k]["type"]="Like"
+                            itemList.append(serializer.data[k])
+            # return Response(status=200, data=itemList)
+            
+            # Adding likes from posts
+
+            postLikeList=[]
+            for each in followersList:
+                posts = Post.objects.filter(author=each).filter(visibility="VISIBLE")
+                pSerializer = PostSerializer(posts, many=True)
+
+                # return Response(status=200, data=pSerializer.data[0]["id"])
+                # time to get comments
+                for i in range(len(pSerializer.data)):
+                    # return Response(status=200, data=pSerializer.data[i]["id"])
+
+                    likes = Like.objects.filter(parentPost=pSerializer.data[i]["id"])
+                    serializer = LikeSerializer(likes, many=True)
+                    for j in range(len(serializer.data)):
+                         serializer.data[j]["type"]="Like"
+                    # return Response(status=200, data=serializer.data)
+                    postLikeList.append(serializer.data)
+                    
+            # return Response(status=200, data=postLikeList)
+            
+            for i in range(len(postLikeList)):
+                itemList.append(postLikeList[0][i])
+            
+
+            # return Response(status=200, data=itemList)
+            
+            fRList=[]
+            # Add FollowerRequests
+            for each in followersList:
+                # return Response(status=200, data=each.id)
+                fR=FollowRequest.objects.filter(target_id=each.id)
+                serializer=FollowRequestSerializer(fR, many=True)
+                serializer.data[0]["type"]="follow"
+                fRList.append(serializer.data)
+                return Response(status=200, data=serializer.data)
+
+                """
+                sampleDict=fR.values()
+                # test1Dict=sampleDict[0]
+                # wanted to add this field
+                # test2Dict={'type':"follow"}
+                # test2Dict.update(test1Dict)
+                # return Response(status=200, data=test2Dict)
+                # newDict=test1Dict
+                # return Response(status=200, data=test1Dict)
+                fRList.append(sampleDict)
+                # return Response(status=200, data=fR.values())
+                """
+            return Response(status=200, data=fRList)
 
 
+            for i in range(len(fRList[0])):
+                itemList.append(fRList[0][i])
 
-            # FROM API Followers, WORK
-            # serializer = AuthorSerializer(followersList, many=True)
-            # return Response(status=200, data=api_helper.construct_list_of_followers(serializer.data))
-
-            # return Response(status=200, data=len(followersList))
+            return Response(status=200, data=itemList)
+            # TODO: duplicate likes
+            # TODO: add additional fields
 
 
 

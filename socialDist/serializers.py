@@ -21,7 +21,7 @@
 # SOFTWARE.
 
 from rest_framework import serializers
-from .models import Author, Post, Comment, Like, Server, Inbox, Connection
+from .models import Author, Post, Comment, Like, Server, Inbox, Connection, FollowRequest
 
 class AuthorSerializer(serializers.ModelSerializer):
     class Meta:
@@ -96,3 +96,8 @@ class InboxSerializer(serializers.ModelSerializer):
         # fields=('inboxID','owner','post','like','comment','content','contentType')
         fields=('inboxID', 'author', 'posts')
 
+class FollowRequestSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=FollowRequest
+        # fields=('inboxID','owner','post','like','comment','content','contentType')
+        fields=('sender', 'target', 'date')
