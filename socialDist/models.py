@@ -110,8 +110,8 @@ class UserFollowing(models.Model):
 # Source:
 # https://medium.com/analytics-vidhya/add-friends-with-689a2fa4e41d
 class FollowRequest(models.Model):
-    sender = models.ForeignKey(User, related_name="send_requests", on_delete=models.CASCADE)
-    target = models.ForeignKey(User, related_name="recievced_requests", on_delete=models.CASCADE)
+    sender = models.ForeignKey(Author, related_name="send_requests", on_delete=models.CASCADE)
+    target = models.ForeignKey(Author, related_name="recievced_requests", on_delete=models.CASCADE)
     date = models.DateTimeField(auto_created=True)
 
 # Model demonstrating a Post stored on this server

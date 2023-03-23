@@ -479,7 +479,7 @@ class APIListComments(APIView):
                         return Response(status=404)
                     # save new remote author into DB
                     commentAuthorSerializer = AuthorSerializer(data=newCommentDict["author"])
-                    if not commentAuthorSerializer.is_vaild():
+                    if not commentAuthorSerializer.is_valid():
                         return Response(status=400, data=commentAuthorSerializer.errors)
                     commentAuthorSerializer.save()
                 newCommentDict["author"] = newCommentDict["author"]["id"]
@@ -789,13 +789,13 @@ class APIInbox(APIView):
             return Response(status=200)
         
         # if the type is “follow” then add that follow is added to AUTHOR_ID’s inbox to approve later
-        elif request.data["type"]=="follow":
+        elif request.data["type"]=="Follow":
             try:
-                targetAuthor = Author.objects.get(pk=request["object"]["id"])
+                targetAuthor = Author.objects.get(pk=request.data["object"]["id"])
             except Author.DoesNotExist:
                 return Response(status=404)
             try:
-                sendingAuthor = Author.objects.get(pk=request["actor"]["id"])
+                sendingAuthor = Author.objects.get(pk=request.data["actor"]["id"])
             except Author.DoesNotExist:
                 if request.data["author"]["host"] == HOST:
                         return Response(status=404)
@@ -803,16 +803,18 @@ class APIInbox(APIView):
                 if not new_author_serial.is_valid():
                     return Response(status=400, data=new_author_serial.errors)
                 new_author_serial.save()
-                sendingAuthor = Author.objects.get(pk=request["actor"]["id"])
+                sendingAuthor = Author.objects.get(pk=request.data["actor"]["id"])
             try:
-                followRequest = FollowRequest.objects.filter(target=targetAuthor).filter(sender=sendingAuthor)
+                followRequest = FollowRequest.objects.get(target=targetAuthor, sender=sendingAuthor)
             except FollowRequest.DoesNotExist:
-                followRequest = FollowRequest(sender=sendingAuthor, target=targetAuthor)
+                followRequest = FollowRequest.objects.create(sender=sendingAuthor, 
+                                                             target=targetAuthor,
+                                                             date=datetime.datetime.now().isoformat())
             inbox.requests.add(followRequest)
             return Response(status=200)
             
         # if the type is “like” then add that like to AUTHOR_ID’s inbox
-        elif request.data["type"]=="like":
+        elif request.data["type"]=="Like":
             isPost = False
             try:
                 post = Post.objects.get(pk=request.data["object"])
@@ -841,6 +843,7 @@ class APIInbox(APIView):
             like_dict = dict(request.data)
             like_dict["id"] = request.data["object"]+"/likes/"+like_id
             like_dict["author"] = request.data["author"]["id"]
+            like_dict["published"] = datetime.datetime.now().isoformat()
             if (isPost):
                 like_dict["parentPost"] = request.data["object"]
             else:
@@ -856,7 +859,7 @@ class APIInbox(APIView):
         # if the type is “comment” then add that comment to AUTHOR_ID’s inbox    
         elif request.data["type"]=="comment":
             try:
-                post = Post.objects.get(pk=request.data["post"])
+                post = Post.objects.get(pk=request.data["id"].split("/comments")[0])
             except Post.DoesNotExist:
                 return Response(status=404)
             try:
