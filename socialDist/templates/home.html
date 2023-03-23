@@ -12,6 +12,39 @@
         </div>
         <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
         <script>
+            async function postData() {
+                const url = "/api/authors/{{user.id}}/posts/"
+                let postContent, contentType;
+                
+                const data = {
+                    title: document.getElementById("Title").value,
+                    description: document.getElementById("Description").value,
+                    contentType: contentType,
+                    categories: document.getElementById("Categories").value,
+                    visibility: document.getElementById("Visibility").value,
+                    content: postContent,
+                    unlisted: document.getElementById("Unlisted").value,
+                };
+                if (data.title == "" || data.description == "" || data.categories == "" || data.visibility == "" || data.content == "") {
+                    displayAlert("alert-danger", "Please fill out required (*) fields!");
+                    return;
+                }
+                const response = await fetch(url, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRFToken": "{{ csrf_token }}",
+                        "Authorization": "Token 516e5c3d636f46228edb8f09b9613d5b4b166816"
+                    },
+                    body: JSON.stringify(data),
+                });
+                if (response.status == 201) {
+                    displayAlert("alert-success", "Post created successfully!");
+                    window.location.href = "/";
+                } else {
+                    displayAlert("alert-danger", "Post creation failed!");
+                }
+            }
             function deletePost(id){
                 id = id.slice(-26)
                 fetch_url = "/api/" + id +"/"
@@ -19,12 +52,12 @@
                 .then((response) => response.status())
                 .then(window.location.reload())
             }
-            function openForm() {
-                document.getElementById("myForm").style.display = "block";
+            function openForm(id) {
+                document.getElementById("form-"+id).style.display = "block";
             }
 
-            function closeForm() {
-                document.getElementById("myForm").style.display = "none";
+            function closeForm(id) {
+                document.getElementById("form-"+id).style.display = "none";
             }
             let posts;
             fetch("/api/posts", {headers: new Headers({"Authorization": "Token 516e5c3d636f46228edb8f09b9613d5b4b166816"})})
@@ -38,8 +71,8 @@
 
                     document.getElementById('posts').innerHTML = posts.map((post) => {
                         form =  `
-                                <button class="open-button" onclick="openForm()">Edit </button>
-                                    <div class="form-popup" id="myForm">
+                                <button class="open-button" onclick="openForm('${post.id}')">Edit </button>
+                                    <div class="form-popup" id="form-${post.id}">
                                     <form>
                                         <!--Title-->
                                         <div class="mb-3">
@@ -96,7 +129,7 @@
                                 ` 
                         }
                         display_posts = `
-                            <div class="card my-3">
+                            <div class="card my-3" id="post-${post.id}">
                                 <div class="card-body">p 
                                     <h5 class="card-title"><a href="${post.id}">${post.title}</a></h5>
                                     <h6 class="card-subtitle mb-2 text-muted"><a href="${post.author.id}">${post.author.displayName}</a></h6>
@@ -109,7 +142,7 @@
                                     </button>
                         `
                         form += `<button type="submit" class="btn">Submit</button>
-                                        <button type="button" class="btn cancel" onclick="closeForm()">Close</button>
+                                        <button type="button" class="btn cancel" onclick="closeForm('${post.id}')">Close</button>
                                     </form></div>
                                     </div>`
                         if (post.author.id.slice(-1) == "{{user.id}}") {
