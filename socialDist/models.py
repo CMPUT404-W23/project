@@ -206,5 +206,8 @@ class Inbox(models.Model):
     # owner=models.ForeignKey(Author, on_delete=models.CASCADE)
 
     # Posts
-    posts=models.ManyToManyField(Post)
+    posts=models.ManyToManyField(Post, blank=True)
+    requests = models.ManyToManyField(FollowRequest, blank=True)
+    comments= models.ManyToManyField(Comment, blank=True)
+    likes=models.ManyToManyField(Like, blank=True)
     
