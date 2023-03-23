@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="../static/socialDist/styles.css">
 {% block content %}
 <main>
     <div class="container-md mt-2">
@@ -12,6 +12,20 @@
         </div>
         <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
         <script>
+            function deletePost(id){
+                id = id.slice(-26)
+                fetch_url = "/api/" + id +"/"
+                fetch(fetch_url, {headers: new Headers({"X-CSRFToken": "{{ csrf_token }}","Authorization": "Token 516e5c3d636f46228edb8f09b9613d5b4b166816"}), method: 'DELETE'})
+                .then((response) => response.status())
+                .then(window.location.reload())
+            }
+            function openForm() {
+                document.getElementById("myForm").style.display = "block";
+            }
+
+            function closeForm() {
+                document.getElementById("myForm").style.display = "none";
+            }
             let posts;
             fetch("/api/posts", {headers: new Headers({"Authorization": "Token 516e5c3d636f46228edb8f09b9613d5b4b166816"})})
                 .then((response) => response.json())
@@ -21,7 +35,49 @@
                         return
                     }
                     posts = data.items;
+
                     document.getElementById('posts').innerHTML = posts.map((post) => {
+                        form =  `
+                                <button class="open-button" onclick="openForm()">Edit </button>
+                                    <div class="form-popup" id="myForm">
+                                    <form>
+                                        <!--Title-->
+                                        <div class="mb-3">
+                                            <label for="Title" class="form-label">Title*:</label>
+                                            <input class="form-control" id="Title" style="width:80%" type="text"
+                                                placeholder="Edit title" value="${post.title}"></input>
+                                        </div>
+                                        <!--Description-->
+                                        <div class="mb-3">
+                                            <label for="Description" class="form-label">Description*:</label>
+                                            <textarea class="form-control" id="Description" style="width:80%" type="text"
+                                                placeholder="Edit description">${post.description}</textarea>
+                                        </div>
+                                        <!--Categories-->
+                                        <div class="mb-3">
+                                            <label for="Categories" class="form-label">Categories*:</label>
+                                            <textarea class="form-control" id="Categories" style="width:80%" type="text"
+                                                placeholder="Edit categories">${post.categories}</textarea>
+                                        </div>
+                                        <!--Visibility-->
+                                        <div class="mb-3">
+                                            <label for="Visibility" class="form-label">Visibility*:</label>
+                                            <select class="form-select" style="width:80%" id="Visibility">
+                                                <option disabled selected>Choose visibility type</option>
+                                                <option value="VISIBLE"> Visible</option>
+                                                <option value="PRIVATE">Private</option>
+                                            </select>
+                                        </div>
+                                        <!--Unlisted-->
+                                        <div class="mb-3">
+                                            <label for="Unlisted" class="form-label">Unlisted:</label>
+                                            <select class="form-select" id="Unlisted" style="width:80%">
+                                                <option disabled selected>Choose listing type</option>
+                                                <option value="yes">Yes</option>
+                                                <option value="no">No</option>
+                                            </select>
+                                        </div>
+                                    `
                         let content;
                         if (post.contentType.startsWith("image")) {
                             content = `<img class="img-fluid mx-auto d-block" style="max-width: 50%" src="data:${post.contentType}, ${post.content}"/><br>`;
@@ -31,22 +87,42 @@
                             content = `<p class="card-text">${marked.parse(post.content)}</p>`;
                         } else {
                             content = `<p class="card-text">${post.content}</p>`;
+                            form +=    `<!--Content-->
+                                <div class="mb-3" id="post-content">
+                                    <label for="Content" class="form-label">Content*:</label>
+                                    <textarea class="form-control" id="Content" style="width:80%" type="text"
+                                        placeholder="Please enter content of post" > ${post.content}</textarea>
+                                </div>
+                                ` 
                         }
-                        return (`
-                        <div class="card my-3">
-                            <div class="card-body">
-                                <h5 class="card-title"><a href="${post.id}">${post.title}</a></h5>
-                                <h6 class="card-subtitle mb-2 text-muted"><a href="${post.author.id}">${post.author.displayName}</a></h6>
-                                <h6 class="card-subtitle mb-2 text-muted">${post.description} <span class="badge bg-secondary">${post.categories}</span></h6>
-                                ${content}
-                                <button type="button" class="btn btn-secondary btn-sm">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-heart" viewBox="0 0 16 16">
-                                        <path d="m8 2.748-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385.92 1.815 2.834 3.989 6.286 6.357 3.452-2.368 5.365-4.542 6.286-6.357.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01L8 2.748zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143c.06.055.119.112.176.171a3.12 3.12 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15z"/>
-                                    </svg>   
-                                </button>
-                            </div>
-                        </div>
-                        `)
+                        display_posts = `
+                            <div class="card my-3">
+                                <div class="card-body">p 
+                                    <h5 class="card-title"><a href="${post.id}">${post.title}</a></h5>
+                                    <h6 class="card-subtitle mb-2 text-muted"><a href="${post.author.id}">${post.author.displayName}</a></h6>
+                                    <h6 class="card-subtitle mb-2 text-muted">${post.description} <span class="badge bg-secondary">${post.categories}</span></h6>
+                                    ${content}
+                                    <button type="button" class="btn btn-secondary btn-sm">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-heart" viewBox="0 0 16 16">
+                                            <path d="m8 2.748-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385.92 1.815 2.834 3.989 6.286 6.357 3.452-2.368 5.365-4.542 6.286-6.357.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01L8 2.748zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143c.06.055.119.112.176.171a3.12 3.12 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15z"/>
+                                        </svg>   
+                                    </button>
+                        `
+                        form += `<button type="submit" class="btn">Submit</button>
+                                        <button type="button" class="btn cancel" onclick="closeForm()">Close</button>
+                                    </form></div>
+                                    </div>`
+                        if (post.author.id.slice(-1) == "{{user.id}}") {
+                            display_posts += `
+                                    <button onclick="deletePost('${post.id}')">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash-fill" viewBox="0 0 16 16">
+                                            <path d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1H2.5zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5zM8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5zm3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0z"/>
+                                        </svg>
+                                    </button>`
+                                    + form
+                                }
+
+                        return (display_posts)
                     }).join('')
                 })
                 .catch((error) => {

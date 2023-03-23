@@ -93,7 +93,7 @@ from .models import Author, Post, Comment, Like, Server, Inbox, UserFollowing
 from . import api_helper
 import base64 
 
-HOST = "https://socialdistcmput404.herokuapp.com/"
+HOST = "http://127.0.0.1:8000/"
 
 # API View for single author API queries (endpoint /api/authors/<author_id>/)
 class APIAuthor(APIView):
@@ -281,12 +281,14 @@ class APIPost(APIView):
         try:
             author = Author.objects.get(pk=HOST+"authors/"+author_id)
         except Author.DoesNotExist:
+            print("author")
             return Response(status=404)
         if not request.user.is_authenticated and request.user.id != author_id:
             return Response(status=401)
         try:
             post = Post.objects.filter(visibility="VISIBLE").get(pk=HOST+"authors/"+author_id+"/posts/"+post_id)
         except Post.DoesNotExist:
+            print("post")
             return Response(status=404)
         post.delete()
         return Response(status=200)
@@ -328,6 +330,7 @@ class APIListPosts(APIView):
         try:
             author = Author.objects.get(pk=HOST+"authors/"+author_id)
         except Author.DoesNotExist:
+            print("Author does not exist")
             return Response(status=404)
         if not request.user.is_authenticated and request.user.id != author_id:
             return Response(status=401)
