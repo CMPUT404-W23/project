@@ -386,19 +386,22 @@ class APIComment(APIView):
         # for a private post, only the author can access the comments!
         if post.visibility == "PRIVATE" and (not request.user.is_authenticated or request.user.author != author):
             return Response(status=401)
-        comment = Comment.objects.filter(parentPost=HOST+
-                                                    "authors/"+
-                                                    author_id+
-                                                    "/posts/"+
-                                                    post_id).get(pk=HOST+
-                                                    "authors/"+
-                                                    author_id+
-                                                    "/posts/"+
-                                                    post_id+
-                                                    "/comments/"+
-                                                    comment_id)
-        serialzer = CommentSerializer(comment)
-        return Response(api_helper.construct_comment_object(serialzer.data, author))
+        try:
+            comment = Comment.objects.filter(parentPost=HOST+
+                                                        "authors/"+
+                                                        author_id+
+                                                        "/posts/"+
+                                                        post_id).get(pk=HOST+
+                                                        "authors/"+
+                                                        author_id+
+                                                        "/posts/"+
+                                                        post_id+
+                                                        "/comments/"+
+                                                        comment_id)
+            serialzer = CommentSerializer(comment)
+            return Response(api_helper.construct_comment_object(serialzer.data, author))
+        except Comment.DoesNotExist:
+            return Response(status=404)
     
 #API View for list of comments queries (endpoint /api/authors/<author_id>/posts/<post_id>/comments/)
 class APIListComments(APIView):
@@ -419,8 +422,7 @@ class APIListComments(APIView):
         comments = Comment.objects.filter(parentPost=HOST+"authors/"+author_id+"/posts/"+post_id)
         serializer = CommentSerializer(comments, many=True)
         if (request.META["QUERY_STRING"] == ""):
-            return Response(status=200, data=api_helper.construct_list_of_comments(serializer.data, 
-                                                                               author, 
+            return Response(status=200, data=api_helper.construct_list_of_comments(serializer.data,
                                                                                post))
         queryDict = QueryDict(request.META["QUERY_STRING"])
         pageNum = 0
@@ -882,5 +884,5 @@ class APIPosts(APIView):
             posts = PostSerializer(Post.objects.filter(author=each_author).filter(visibility="VISIBLE").filter(unlisted=False), many=True)
             author_posts_pair.append([each_author, posts.data])
             print("num_post for "+dict(AuthorSerializer(each_author).data)["id"]+": "+str(len(posts.data)))
-            
+
         return Response(status=200, data=api_helper.construct_list_of_all_posts(author_posts_pair))
