@@ -183,6 +183,10 @@ class APIListAuthors(APIView):
                 github="",
                 profileImage="",
             )
+            inbox = Inbox.objects.create(
+                inboxID=user.pk,
+                author=author
+            )
             return Response(status=201)
         except (IntegrityError, ValueError) as e:
             if IntegrityError:
