@@ -154,6 +154,7 @@ def construct_comment_object(comment_data, author):
     author_serialzer = AuthorSerializer(author)
     commentDict["type"] = "comment"
     commentDict["author"] = construct_author_object(author_serialzer.data)
+    del commentDict["parentPost"]
     return commentDict
 
 # Constructs a list of comments on a post in 
