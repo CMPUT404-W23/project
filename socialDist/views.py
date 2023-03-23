@@ -779,23 +779,16 @@ class APIInbox(APIView):
                 # return Response(status=200, data=each.id)
                 fR=FollowRequest.objects.filter(target_id=each.id)
                 serializer=FollowRequestSerializer(fR, many=True)
-                serializer.data[0]["type"]="follow"
-                fRList.append(serializer.data)
-                return Response(status=200, data=serializer.data)
+                for i in range(len(serializer.data)):
+                    serializer.data[i]["type"]="follow"
+                    fRList.append(serializer.data[i])
 
-                
-            return Response(status=200, data=fRList)
+            for i in range(len(fRList)):
+                itemList.append(fRList[i])
 
-
-            for i in range(len(fRList[0])):
-                itemList.append(fRList[0][i])
-
-            return Response(status=200, data=itemList)
-            # TODO: duplicate likes
-            # TODO: add additional fields
-
-
-
+            # return Response(status=200, data=itemList)
+            # TODO: duplicate likes to be removed
+            # TODO: add additional fields for some models
 
             """
             # Call API View for followers, get their IDs
