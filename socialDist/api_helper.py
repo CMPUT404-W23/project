@@ -140,11 +140,10 @@ def construct_list_of_paginated_posts(post_list_data, pageNum, sizeNum, author):
 # Source:
 # https://www.tutorialsteacher.com/articles/how-to-flatten-list-in-python
 def construct_list_of_all_posts(author_post_list_data_pair):
-    return {
+     return {
         "type": "posts",
         "items": reduce(lambda a, b:a+b, [[construct_post_object(post_serial, author) for post_serial in post_list_data] for author, post_list_data in author_post_list_data_pair]),
-    }
-
+     }
 # Constructs a comment JSON object to be returned by the API
 # Parameters:
 #   comment_data - serialized form of Comment object
@@ -155,6 +154,7 @@ def construct_comment_object(comment_data, author):
     author_serialzer = AuthorSerializer(author)
     commentDict["type"] = "comment"
     commentDict["author"] = construct_author_object(author_serialzer.data)
+    del commentDict["parentPost"]
     return commentDict
 
 # Constructs a list of comments on a post in 

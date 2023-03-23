@@ -21,7 +21,7 @@
 # SOFTWARE.
 
 from rest_framework import serializers
-from .models import Author, Post, Comment, Like, Server, Inbox
+from .models import Author, Post, Comment, Like, Server, Inbox, Connection
 
 class AuthorSerializer(serializers.ModelSerializer):
     class Meta:
@@ -74,6 +74,15 @@ class LikeSerializer(serializers.ModelSerializer):
         fields = ('id', 
                   'author',
                   'published')
+
+class ConnectionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Connection
+        fields = (
+            'apiAddress',
+            'apiCreds'
+        )
+
 
 # Added new serlaizers for Server and Inbox
 class ServerSerializer(serializers.ModelSerializer):

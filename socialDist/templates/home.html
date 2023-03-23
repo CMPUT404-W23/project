@@ -13,7 +13,7 @@
         <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
         <script>
             let posts;
-            fetch("/api/posts", {headers: new Headers({"Authorization": "Token 516e5c3d636f46228edb8f09b9613d5b4b166816"})})
+            fetch("/api/posts/", {headers: new Headers({"Authorization": "Token 516e5c3d636f46228edb8f09b9613d5b4b166816"})})
                 .then((response) => response.json())
                 .then((data) => {
                     if (data.items.length === 0) {
@@ -32,11 +32,15 @@
                         } else {
                             content = `<p class="card-text">${post.content}</p>`;
                         }
+                        let likedFunc = function() {
+                            let authorURI = new URI(post.author.id);
+                            console.log("/api"+authorURI.pathname+"/liked");
+                        };
                         return (`
                         <div class="card my-3">
                             <div class="card-body">
                                 <h5 class="card-title"><a href="${post.id}">${post.title}</a></h5>
-                                <h6 class="card-subtitle mb-2 text-muted"><a href="${post.author.id}">${post.author.displayName}</a></h6>
+                                <h6 class="card-subtitle mb-2 text-muted"><a href="${post.author.url}">${post.author.displayName}</a></h6>
                                 <h6 class="card-subtitle mb-2 text-muted">${post.description} <span class="badge bg-secondary">${post.categories}</span></h6>
                                 ${content}
                                 <button type="button" class="btn btn-secondary btn-sm">
@@ -53,7 +57,65 @@
                     console.error("Fetch error:", error);
                     document.getElementById('posts').innerHTML = `<div class="d-flex justify-content-center py-4"><h3>Error fetching posts</h3></div>`
                 });
-
+           
+            //Source: https://stackoverflow.com/questions/494143/creating-a-new-dom-element-from-an-html-string-using-built-in-dom-methods-or-pro/35385518#35385518
+            function htmlToElement(html) {
+                var template = document.createElement('template');
+                template.innerHTML = html;
+                return template.content;
+            }
+            fetchExternalPosts();
+            async function fetchExternalPosts() {
+                //Source: https://stackoverflow.com/questions/43305020/how-to-use-the-context-variables-passed-from-django-in-javascript
+            var listOfConnections = JSON.parse('{{connections|escapejs}}');
+            console.log(listOfConnections);
+            for (connection of listOfConnections) {
+                let returnedData = await fetch(connection.apiAddress + "/authors/", 
+                                                {headers: new Headers({"Authorization": connection.apiCreds })});
+                let returnedDatatext = await returnedData.text();
+                let returnedDataList = JSON.parse(returnedDatatext);
+                for (data of returnedDataList.items) {
+                     // https://dmitripavlutin.com/parse-url-javascript/
+                    let data_url = new URL(data.id);
+                    let data_path = data_url.pathname;
+                    let posts_response = await fetch(connection.apiAddress + data_path + "/posts/",
+                                                    {headers: new Headers({"Authorization": connection.apiCreds })});
+                    let posts_list_json = await posts_response.text();
+                    let post_list_obj = JSON.parse(posts_list_json);
+                    let posts = post_list_obj.items;
+                    for (post of posts) {
+                        let content;
+                        if (post.contentType.startsWith("image")) {
+                            content = `<img class="img-fluid mx-auto d-block" style="max-width: 50%" src="data:${post.contentType}, ${post.content}"/><br>`;
+                        } else if (post.contentType === "text/markdown") {
+                            post.title = marked.parse(post.title);
+                            post.description = marked.parse(post.description);
+                            content = `<p class="card-text">${marked.parse(post.content)}</p>`;
+                        } else {
+                            content = `<p class="card-text">${post.content}</p>`;
+                        }
+                        var htmlElement = htmlToElement(`
+                        <div class="card my-3">
+                            <div class="card-body">
+                                <h5 class="card-title"><a href="${post.id}">${post.title}</a></h5>
+                                <h6 class="card-subtitle mb-2 text-muted"><a href="${post.author.url}">${post.author.displayName}</a></h6>
+                                <h6 class="card-subtitle mb-2 text-muted">${post.description} <span class="badge bg-secondary">${post.categories}</span></h6>
+                                ${content}
+                                <button type="button" class="btn btn-secondary btn-sm" id="likeButton">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-heart" viewBox="0 0 16 16">
+                                        <path d="m8 2.748-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385.92 1.815 2.834 3.989 6.286 6.357 3.452-2.368 5.365-4.542 6.286-6.357.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01L8 2.748zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143c.06.055.119.112.176.171a3.12 3.12 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15z"/>
+                                    </svg>   
+                                </button>
+                            </div>
+                        </div>
+                        `)
+                        console.log(htmlElement);
+                        document.getElementById("posts").appendChild(htmlElement);
+                    }
+                }
+            }
+            }
+            
         </script>
 </main>
 
