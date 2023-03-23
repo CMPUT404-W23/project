@@ -10,26 +10,6 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RemoveField(
-            model_name="server",
-            name="owner",
-        ),
-        migrations.RemoveField(
-            model_name="server",
-            name="serverID",
-        ),
-        migrations.RemoveField(
-            model_name="server",
-            name="serverName",
-        ),
-        migrations.AddField(
-            model_name="server",
-            name="serverAddress",
-            field=models.URLField(
-                default="localhost", primary_key=True, serialize=False
-            ),
-            preserve_default=False,
-        ),
         migrations.AlterField(
             model_name="comment",
             name="contentType",
