@@ -419,9 +419,7 @@ class APIListComments(APIView):
         comments = Comment.objects.filter(parentPost=HOST+"authors/"+author_id+"/posts/"+post_id)
         serializer = CommentSerializer(comments, many=True)
         if (request.META["QUERY_STRING"] == ""):
-            return Response(status=200, data=api_helper.construct_list_of_comments(serializer.data, 
-                                                                               author, 
-                                                                               post))
+            return Response(status=200, data=api_helper.construct_list_of_comments(serializer.data, post))
         queryDict = QueryDict(request.META["QUERY_STRING"])
         pageNum = 0
         sizeNum = 0
@@ -635,39 +633,206 @@ class APIFollower(APIView):
             return Response(status=404)
 
 # TODO Fix required
-"""
 class APIInbox(APIView):
+    permission_classes = [auth.RemotePermission]
     def get(self, request, author_id):
         # get the owner first in order to get the inbox
         try:
             author = Author.objects.get(pk=HOST+"authors/"+author_id)
         except Author.DoesNotExist:
-            return Response(status=404)
+            return Response(status=404, data="a1")
         try:
             inbox=Inbox.objects.filter(author=author).get(pk=HOST+"authors/"+author_id+"/inbox")
             serializer=InboxSerializer(inbox)
-            # 1. getting the type
+            # 1. getting the type: DONE
+            # return Response(status=404, data=serializer.data)
             inboxDict=dict(serializer.data)
             inboxDict["type"]="inbox"
-            # 2. getting the author (which is the getter him/herself)
-            serializer= AuthorSerializer(author)
-            inboxDict["author"]=serializer["id"]
+            # 2. getting the author (which is the getter him/herself): DONE
+            # serializer= AuthorSerializer(author)
+            inboxDict["author"]=HOST+"authors/"+author_id
 
+
+            # PASSED
+            # return Response(status=404, data=inboxDict)
+            # return Response(status=404, data="temp pass")
+            
+            # TODO: sort out itemList
             # 3. getting all of the items (post, comment, likes, followrequsts)
             itemList=[]
-            # 3a. getting post objects
-            # 3a filter the posts to ensure they are all followers
-            # 3a.1 Get id for every follower (learned from APIFollowers)
+
+            # GET all of the followers
             user_followers = author.followers.all()
+            # return Response(status=404, data=user_followers)
             followersList = []
             for user_follower in user_followers:
                 followersList.append(user_follower.user_id)
-            # 3a.2 use those id's to get their posts (learned from APIListPosts)
-            postList = []
-            # 3a.3 For each follower (each id), get all posts
+            
+            # get follower 1 by 1: DONE
             for each in followersList:
+                serializer = AuthorSerializer(each)
+                follower1Dict=dict(serializer.data)
+                follower1Dict['type']="follower"
+                follower1Dict['url']=follower1Dict["id"]
+
+                itemList.append(follower1Dict)
+
+            # Get each post by post
+            # post = Post.objects.filter(author=followersList[0]).filter(visibility="VISIBLE").get(pk=HOST+"authors/"+author_id+"/posts/"+post_id)
+            # gets all the follower's post
+            for each in followersList:
+                posts = Post.objects.filter(author=each).filter(visibility="VISIBLE")
+                serializer = PostSerializer(posts, many=True)
+                for i in range(len(serializer.data)):
+                    serializer.data[i]["type"]="post"
+                    serializer.data[i]["comments"]=serializer.data[i]["id"]+"/comments"
+                    itemList.append(serializer.data[i])
+
+            # Get Comment from Posts
+            # Filter all the posts first
+
+            posts = Post.objects.filter(author=followersList[0]).filter(visibility="VISIBLE")
+            pSerializer = PostSerializer(posts, many=True)
+            return Response(status=200, data=pSerializer.data[0]["id"]+"/comments/")
+            # comment=Comment.objects.all()
+            # comments = Comment.objects.filter(parentPost=pSerializer.data[0]["id"]+"/comments/")
+            return Response(status=200, data=comments.values())
+
+            
+            # Get the list of comments of those posts
+            # for i in range(len(pSerializer.data)):
+            #     comments = Comment.objects.filter(parentPost=pSerializer.data[i]["id"]+"/comments/")
+            #     serializer = CommentSerializer(comments, many=True)
+            #     itemList.append(serializer.data[i])
+
+            return Response(status=200, data=itemList)
+
+
+            # return Response(status=200, data=pSerializer.data[0]["id"])
+            # for i in range(len(pSerializer.data)):
+            #         # Get the comments now
+            #         comment = Comment.objects.filter(parentPost=serializer.data[i]["id"])
+            #         itemList.append(serializer.data[i])
+
+            
+
+
+
+
+            return Response(status=200, data=itemList)
+
+
+            
+
+            # return Response(status=200, data=posts.values())
+
+            # serialzer = PostSerializer(post)
+            # return Response(status=200, data=api_helper.construct_post_object(serialzer.data, author))
+
+
+
+            # return Response(status=200, data=itemList)
+
+            post = Post.objects.filter(author=followersList[0]).filter(visibility="VISIBLE").get(pk=HOST+"authors/"+author_id+"/posts/"+post_id)
+            serialzer = PostSerializer(post)
+
+
+
+            # FROM API Followers, WORK
+            # serializer = AuthorSerializer(followersList, many=True)
+            # return Response(status=200, data=api_helper.construct_list_of_followers(serializer.data))
+
+            # return Response(status=200, data=len(followersList))
+
+
+
+
+            """
+            # Call API View for followers, get their IDs
+
+            # 3a. getting post objects
+            # 3a filter the posts to ensure they are all followers
+            # 3a.1 Get id for every follower (learned from APIFollowers)
+            # user_followers = author.followers.all()
+            # # return Response(status=404, data=user_followers)
+            # followersList = []
+            # for user_follower in user_followers:
+            #     followersList.append(user_follower.user_id)
+
+            # Add each follower 
+            temp=[]
+            # For each follower in the list, add each of them
+            # for each in followersList:
+            serializer = AuthorSerializer(followersList[0])
+            return Response(status=404, data=construct_author_object(serializer.data))
+
+            tempDict={}
+            tempDict["items"]=temp
+
+            return Response(status=200, data=tempDict)
+
+
+            # return Response(status=404, data=followersList[0].data)
+
+            # 3a.2 use those id's to get their posts (learned from APIListPosts)
+            # postList = []
+            # 3a.3 For each follower (each id), get all posts
+
+            # Try to get an author from followersList
+
+            eachAuthor= Author.objects.get(id=followersList[0])
+            serializer=AuthorSerializer(eachAuthor)
+            return Response(status=200, 
+                            data=api_helper.construct_author_object(serialzer.data))
+
+
+            # Testing for 1 follower:
+            # Can get multiple posts
+            for each in followersList:
+                # For each author, use PostSerializer to get all the posts
                 posts = Post.objects.filter(author=each)
                 serializer = PostSerializer(posts, many=True)
+
+                eachAuthor= Author.objects.get
+                # postList = []
+                # for post_serial in post_list_data:
+                #     postList.append(construct_post_object(post_serial, author))
+                # postListDict = {}
+                # postListDict["type"] = "posts"
+                # postListDict["items"] = postList                
+
+
+
+                return Response(status=404, data=api_helper.construct_list_of_posts(serializer.data, followersList[0]))
+
+            # Can get multiple comment objects
+            # for post in posts:
+            #     comment = Comment.objects.filter(parentPost=HOST+
+            #                                         "authors/"+
+            #                                         author_id+
+            #                                         "/posts/"+
+            #                                         post_id).get(pk=HOST+
+            #                                         "authors/"+
+            #                                         author_id+
+            #                                         "/posts/"+
+            #                                         post_id+
+            #                                         "/comments/"+
+            #                                         comment_id)
+
+
+
+
+
+            
+            for each in followersList:
+                # Get the author based on the id
+                # serializer = AuthorSerializer(followersList[1])
+                # return Response(status=200, data=serializer.data)
+                eachAuthor=AuthorSerializer(each)
+
+                # posts = Post.objects.filter(author=eachAuthor)
+                # serializer = PostSerializer(posts, many=True)
+                # return Response(status=404, data=serializer.data)
                 # Post list to gather info from all posts
                 for post_serial in serializer.data:
                     postDict = dict(post_serial)
@@ -741,12 +906,14 @@ class APIInbox(APIView):
 
             # 3e. setting the items to be the postlist
             itemList=postList+commentList+likeList+followRequestList
+            """
 
             # Finalizing up
             inboxDict["items"]=itemList
             return Response(status=200, data=inboxDict)
         except:
-            return Response(status=404)
+            return Response(status=404, data="a2")
+            # return Response(status=404)
     
     # send respective object in body
     def post(request, author_id):
@@ -754,7 +921,7 @@ class APIInbox(APIView):
         try:
             author = Author.objects.get(pk=HOST+"authors/"+author_id)
         except Author.DoesNotExist:
-            return Response(status=404)
+            return Response(status=404, data="b")
         # if type is post, add that post (referred from post from APIPost)
         # getting the post_id through the 
         if request.data["type"]=="post":
@@ -867,7 +1034,7 @@ class APIInbox(APIView):
             return Response(status=404)
         # making inbox empty by setting all the fields as blank except author, every other field the same
         inbox["items"]={}
-        return Response(status=200)"""
+        return Response(status=200)
 
         
 

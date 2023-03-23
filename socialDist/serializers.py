@@ -84,4 +84,6 @@ class ServerSerializer(serializers.ModelSerializer):
 class InboxSerializer(serializers.ModelSerializer):
     class Meta:
         model=Inbox
-        fields=('inboxID','owner','post','like','comment','content','contentType')
+        # fields=('inboxID','owner','post','like','comment','content','contentType')
+        fields=('inboxID', 'author', 'posts')
+
