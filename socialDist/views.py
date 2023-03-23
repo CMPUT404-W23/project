@@ -783,18 +783,7 @@ class APIInbox(APIView):
                 fRList.append(serializer.data)
                 return Response(status=200, data=serializer.data)
 
-                """
-                sampleDict=fR.values()
-                # test1Dict=sampleDict[0]
-                # wanted to add this field
-                # test2Dict={'type':"follow"}
-                # test2Dict.update(test1Dict)
-                # return Response(status=200, data=test2Dict)
-                # newDict=test1Dict
-                # return Response(status=200, data=test1Dict)
-                fRList.append(sampleDict)
-                # return Response(status=200, data=fR.values())
-                """
+                
             return Response(status=200, data=fRList)
 
 
