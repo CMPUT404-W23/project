@@ -51,22 +51,22 @@
                             </div>
                         </div>
                         `)
-                    }).join('')
+                    }).join('');
+                    fetchExternalPosts();
                 })
                 .catch((error) => {
                     console.error("Fetch error:", error);
                     document.getElementById('posts').innerHTML = `<div class="d-flex justify-content-center py-4"><h3>Error fetching posts</h3></div>`
                 });
-           
             //Source: https://stackoverflow.com/questions/494143/creating-a-new-dom-element-from-an-html-string-using-built-in-dom-methods-or-pro/35385518#35385518
             function htmlToElement(html) {
                 var template = document.createElement('template');
                 template.innerHTML = html;
                 return template.content;
             }
-            fetchExternalPosts();
+            
             async function fetchExternalPosts() {
-                //Source: https://stackoverflow.com/questions/43305020/how-to-use-the-context-variables-passed-from-django-in-javascript
+            //Source: https://stackoverflow.com/questions/43305020/how-to-use-the-context-variables-passed-from-django-in-javascript
             var listOfConnections = JSON.parse('{{connections|escapejs}}');
             console.log(listOfConnections);
             for (connection of listOfConnections) {
