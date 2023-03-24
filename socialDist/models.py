@@ -94,7 +94,7 @@ class Connection(models.Model):
     apiAddress=models.URLField(primary_key=True)
     # Creditentals used to connect to API of node, add this to Authorization header
     # when sending HTTP requests to fetch external data
-    apiCreds=models.TextField()
+    apiCreds=models.TextField(blank=True)
 
 # Model to store relationships between followers
 # Source:
@@ -110,8 +110,8 @@ class UserFollowing(models.Model):
 # Source:
 # https://medium.com/analytics-vidhya/add-friends-with-689a2fa4e41d
 class FollowRequest(models.Model):
-    sender = models.ForeignKey(User, related_name="send_requests", on_delete=models.CASCADE)
-    target = models.ForeignKey(User, related_name="recievced_requests", on_delete=models.CASCADE)
+    sender = models.ForeignKey(Author, related_name="send_requests", on_delete=models.CASCADE)
+    target = models.ForeignKey(Author, related_name="recievced_requests", on_delete=models.CASCADE)
     date = models.DateTimeField(auto_created=True)
 
 # Model demonstrating a Post stored on this server
@@ -184,7 +184,6 @@ class Comment(models.Model):
 # Current foreignkey fields: isLiked
 class Like(models.Model):
     id = models.CharField(primary_key=True, max_length=200)
-    summary=models.TextField()
     likeType = models.CharField(max_length=20)
     author = models.ForeignKey(Author, on_delete=models.CASCADE, related_name="liked")
     parentPost = models.ForeignKey(Post, on_delete=models.CASCADE, related_name="likes",null=True, blank=True)
@@ -200,11 +199,14 @@ class Like(models.Model):
 # Current foreignkey fields: isLiked
 class Inbox(models.Model):
     # EDIT: 
-    inboxID=models.CharField(primary_key=True, max_length=40, default="")
+    inboxID=models.CharField(primary_key=True, max_length=200, default="")
 
     author=models.ForeignKey(Author, on_delete=models.CASCADE)
     # owner=models.ForeignKey(Author, on_delete=models.CASCADE)
 
     # Posts
-    posts=models.ManyToManyField(Post)
+    posts=models.ManyToManyField(Post, blank=True)
+    requests = models.ManyToManyField(FollowRequest, blank=True)
+    comments= models.ManyToManyField(Comment, blank=True)
+    likes=models.ManyToManyField(Like, blank=True)
     

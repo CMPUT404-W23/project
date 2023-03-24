@@ -43,9 +43,8 @@ urlpatterns = [
           views.APIListAuthors.as_view(),name='authors'),
      path('authors/<str:id>/', 
           views.APIAuthor.as_view(), name='author'),
-     # TODO Fix required on APIInbox
-     # path('authors/<str:author_id>/inbox/',
-     #      views.APIInbox.as_view()),
+     path('authors/<str:author_id>/inbox/',
+          views.APIInbox.as_view()),
      path('authors/<str:author_id>/liked/',
           views.APILiked.as_view()),
      path('authors/<str:author_id>/followers/',

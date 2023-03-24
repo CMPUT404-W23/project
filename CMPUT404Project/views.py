@@ -33,7 +33,7 @@ import marko
 
 HOST = "https://socialdistcmput404.herokuapp.com/"
 
-
+@login_required
 def home(request):
     connections = Connection.objects.all()
     connections_serial = ConnectionSerializer(connections, many=True) 
