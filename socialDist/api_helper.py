@@ -288,3 +288,19 @@ def construct_follow_request_object(follow_request_data, author, actor):
     followRequestDict["actor"]=construct_author_object(actor_serializer.data)
     followRequestDict["object"]=construct_author_object(author_serialzer.data)
     return followRequestDict
+
+# Function that detrimines if the actor is a follower of the target or not
+# Parameters:
+#   actor - Author object of actor
+#   target - Author object of target
+# Returns: True if actor is a follower of target
+def is_follower(actor, target):
+    if actor.is_authenticated:
+        return False
+    if actor.is_staff:
+        return True
+    try:
+        target.followers.all().get(user_id=actor.author)
+        return True
+    except:
+        return False
