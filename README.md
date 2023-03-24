@@ -6,8 +6,8 @@ https://socialdistcmput404.herokuapp.com/
 ## Resources
 
 - OPEN API Specification generated with: https://github.com/axnsan12/drf-yasg
-- Deploying to Heroku: https://sweetcode.io/deploying-your-django-web-app-to-heroku/ and https://www.codejava.net/heroku/enable-secure-connection-for-
-- Enabling CORS: https://www.stackhawk.com/blog/django-cors-guide/
+- Deploying to Heroku: https://sweetcode.io/deploying-your-django-web-app-to-heroku/ and https://www.codejava.net/heroku/enable-secure-connection-for-apps
+- Enabling CORS: https://www.stackhawk.com/blog/django-cors-guide/ and https://github.com/adamchainz/django-cors-headers
 - Abhik, [Step by Step guide to add friends with Django](https://medium.com/analytics-vidhya/add-friends-with-689a2fa4e41d)
 - Steve Pousty, [Composite Primary Keys, PostgreSQL and Django](https://www.crunchydata.com/blog/composite-primary-keys-postgresql-and-django)
 - Enthusiast Martin, [How to make follower-following system with django model](https://stackoverflow.com/questions/58794639/how-to-make-follower-following-system-with-django-model)
