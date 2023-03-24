@@ -34,3 +34,6 @@ To gain authorization to access API:
 - Provide the following header in the HTTP request to API: `Authorization: Token <provided Token>`
 
 Groups connected with:
+- Team 5:
+    - API endpoint: https://social-t30.herokuapp.com/api/
+   
