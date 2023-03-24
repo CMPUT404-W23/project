@@ -184,6 +184,10 @@ class APIListAuthors(APIView):
                 github="",
                 profileImage="",
             )
+            inbox = Inbox.objects.create(
+                inboxID=user.pk,
+                author=author
+            )
             return Response(status=201)
         except (IntegrityError, ValueError) as e:
             if IntegrityError:
@@ -360,8 +364,7 @@ class APIImage(APIView):
         # Check if resource already exists, if it does, acts like a GET request
         try:
             post = Post.objects.get(pk=HOST+"authors/"+author_id+"/posts/"+post_id)
-            # TODO: create a function to check if requesting user is allowed
-            if post.visibility == "PRIVATE":
+            if post.visibility == "PRIVATE" or not api_helper.is_follower(request.user, author):
                 return Response(status=401)
             if post.contentType != "image/png;base64" and post.contentType != "image/jpeg;base64" and post.contentType != "image/jpg;base64":
                 return Response(status=404)
@@ -407,7 +410,7 @@ class APIComment(APIView):
 #API View for list of comments queries (endpoint /api/authors/<author_id>/posts/<post_id>/comments/)
 class APIListComments(APIView):
     # Get list of comments
-    permission_classes = [auth.RemotePermission]
+    permission_classes = [auth.CommentsPermissions]
     def get(self, request, author_id, post_id):
         try:
             author = Author.objects.get(pk=HOST+"authors/"+author_id)
@@ -639,6 +642,7 @@ class APIFollower(APIView):
 
 # TODO Fix required
 class APIInbox(APIView):
+    permission_classes = [auth.InboxPermission]
     def get(self, request, author_id):
         # get the owner first in order to get the inbox
         try:
