@@ -40,4 +40,6 @@ To gain authorization to access API:
 Groups connected with:
 - Team 5:
     - API endpoint: https://social-t30.herokuapp.com/api/
+- Team 7:
+    - API endpoint: https://sd7-api.herokuapp.com/api/
    
