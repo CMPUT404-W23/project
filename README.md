@@ -16,6 +16,12 @@ https://socialdistcmput404.herokuapp.com/
 - RajuKumar19, [Encoding and Decoding Base64 Strings in Python](https://www.geeksforgeeks.org/encoding-and-decoding-base64-strings-in-python/)
 - Špela Giacomelli, [Django REST Framework Views - APIViews](https://testdriven.io/blog/drf-views-part-1/)
 - SonuGeorge, [Adding Permission in API – Django REST Framework](https://www.geeksforgeeks.org/adding-permission-in-api-django-rest-framework/)
+- Constructing HTML node from HTML string: https://stackoverflow.com/questions/494143/creating-a-new-dom-element-from-an-html-string-using-built-in-dom-methods-or-pro/35385518#35385518
+- Extracting Django variables from context in Javascript: https://stackoverflow.com/questions/43305020/how-to-use-the-context-variables-passed-from-django-in-javascript
+- Parsing URLs in JS: https://dmitripavlutin.com/parse-url-javascript/
+- Displaying intital value in textarea: https://stackoverflow.com/questions/10545158/textfield-is-not-displaying-initial-value
+- Flattening lists in Python: https://www.tutorialsteacher.com/articles/how-to-flatten-list-in-python
+- Custom permissions in Django: https://www.django-rest-framework.org/api-guide/permissions/#custom-permissions
 
 
 ## API Access
