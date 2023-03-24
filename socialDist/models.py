@@ -184,7 +184,6 @@ class Comment(models.Model):
 # Current foreignkey fields: isLiked
 class Like(models.Model):
     id = models.CharField(primary_key=True, max_length=200)
-    summary=models.TextField()
     likeType = models.CharField(max_length=20)
     author = models.ForeignKey(Author, on_delete=models.CASCADE, related_name="liked")
     parentPost = models.ForeignKey(Post, on_delete=models.CASCADE, related_name="likes",null=True, blank=True)

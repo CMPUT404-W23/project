@@ -94,7 +94,7 @@ class InboxSerializer(serializers.ModelSerializer):
     class Meta:
         model=Inbox
         # fields=('inboxID','owner','post','like','comment','content','contentType')
-        fields=('inboxID', 'author', 'posts')
+        fields=('inboxID', 'author', 'posts', 'requests', 'comments', 'likes')
 
 class FollowRequestSerializer(serializers.ModelSerializer):
     class Meta:
