@@ -200,7 +200,7 @@ class Like(models.Model):
 # Current foreignkey fields: isLiked
 class Inbox(models.Model):
     # EDIT: 
-    inboxID=models.CharField(primary_key=True, max_length=40, default="")
+    inboxID=models.CharField(primary_key=True, max_length=200, default="")
 
     author=models.ForeignKey(Author, on_delete=models.CASCADE)
     # owner=models.ForeignKey(Author, on_delete=models.CASCADE)

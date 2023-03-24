@@ -260,8 +260,6 @@ class Migration(migrations.Migration):
                     ),
                 ),
             ],
-            options={
-                "unique_together": {("user_id", "following_user_id")},
-            },
+            options={"unique_together": {("user_id", "following_user_id")},},
         ),
     ]
