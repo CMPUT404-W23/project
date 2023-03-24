@@ -650,7 +650,9 @@ class APIInbox(APIView):
             serializer=InboxSerializer(inbox)
             # 1. getting the type: DONE
             # return Response(status=404, data=serializer.data)
-            inboxDict=dict(serializer.data)
+            # inboxDict=dict(serializer.data)
+
+            inboxDict={}
             inboxDict["type"]="inbox"
             # 2. getting the author (which is the getter him/herself): DONE
             # serializer= AuthorSerializer(author)
@@ -661,7 +663,7 @@ class APIInbox(APIView):
             # return Response(status=404, data=inboxDict)
             # return Response(status=404, data="temp pass")
             
-            # TODO: sort out itemList
+            # 
             # 3. getting all of the items (post, comment, likes, followrequsts)
             itemList=[]
 
@@ -672,31 +674,59 @@ class APIInbox(APIView):
             for user_follower in user_followers:
                 followersList.append(user_follower.user_id)
             
-            # get follower 1 by 1: DONE
+            # get follower 1 by 1: FULLY DONE
+            # Follower object: type=follower, id, url, host, displayName, github, profileImage
             for each in followersList:
                 serializer = AuthorSerializer(each)
                 follower1Dict=dict(serializer.data)
-                follower1Dict['type']="follower"
-                follower1Dict['url']=follower1Dict["id"]
+                # follower1Dict['type']="follower"
+                follower2Dict={'type':"follower"}
+                follower2Dict['url']=follower1Dict["id"]
+                follower2Dict.update(follower1Dict)
 
-                itemList.append(follower1Dict)
+                itemList.append(follower2Dict)
+            
+            # return Response(status=200, data=itemList)
 
-            # Get each post by post
+            # Get each post by post: FULLY DONE
             # post = Post.objects.filter(author=followersList[0]).filter(visibility="VISIBLE").get(pk=HOST+"authors/"+author_id+"/posts/"+post_id)
             # gets all the follower's post
+            # Post object: type=post, title, id, source, origin, descritpion, contentType, content, author, categories, count, comments, published, visibility, unlisted
             for each in followersList:
                 posts = Post.objects.filter(author=each).filter(visibility="VISIBLE")
                 serializer = PostSerializer(posts, many=True)
+                
                 for i in range(len(serializer.data)):
-                    serializer.data[i]["type"]="post"
-                    serializer.data[i]["comments"]=serializer.data[i]["id"]+"/comments"
-                    itemList.append(serializer.data[i])
+                    postDict=dict(serializer.data[i])
+                    postDict={}
+                    postDict["type"]="post"
+                    postDict["title"]=serializer.data[i]["title"]
+                    postDict["source"]=serializer.data[i]["source"]
+                    postDict["origin"]=serializer.data[i]["origin"]
+                    postDict["description"]=serializer.data[i]["description"]
+                    postDict["contentType"]=serializer.data[i]["contentType"]
 
+                    innerAuthor=Author.objects.filter(id=each.id)
+                    aSerializer=AuthorSerializer(innerAuthor, many=True)
+                    postDict["author"]=api_helper.construct_author_object(aSerializer.data[0])
+
+                    postDict["categories"]=serializer.data[i]["categories"]
+
+                    innerCommentCount=Comment.objects.filter(parentPost=serializer.data[i]["id"]).count()
+                    postDict["count"]=innerCommentCount
+
+                    postDict["comments"]=serializer.data[i]["id"]+"/comments"
+                    postDict["published"]=serializer.data[i]["published"]
+                    postDict["visibility"]=serializer.data[i]["visibility"]
+                    postDict["unlisted"]=serializer.data[i]["unlisted"]
+
+                    itemList.append(postDict)
+                    
             # return Response(status=200, data=itemList)
 
-            # Get Comment from Posts: DONE
+            # Get Comment from Posts: FULLY DONE
             # Filter all the posts first
-
+            # Required fields: type=comment, author, comment, commentType, published, id
             for each in followersList:
                 posts = Post.objects.filter(author=each).filter(visibility="VISIBLE")
                 pSerializer = PostSerializer(posts, many=True)
@@ -706,23 +736,25 @@ class APIInbox(APIView):
                     comments = Comment.objects.filter(parentPost=pSerializer.data[i]["id"])
                     serializer = CommentSerializer(comments, many=True)
                     for j in range(len(serializer.data)):
-                    # adding type comments:
-                        serializer.data[j]["type"]="comments"
-                        itemList.append(serializer.data[j])
+                    # adding required fields for return
+                        innerAuthor=Author.objects.filter(id=each.id)
+                        aSerializer=AuthorSerializer(innerAuthor, many=True)
+
+                        commentDict={}
+                        commentDict["type"]="comment"
+                        commentDict["author"]=api_helper.construct_author_object(aSerializer.data[0])
+                        commentDict["comment"]=serializer.data[j]["content"]
+                        commentDict["contentType"]=serializer.data[j]["contentType"]
+                        commentDict["published"]=serializer.data[j]["published"]
+                        commentDict["id"]=serializer.data[j]["id"]
+                        # return Response(status=200, data=commentDict)
+
+                        itemList.append(commentDict)
 
             # return Response(status=200, data=itemList)
 
-            """
-            temp=[]
-            likes = Like.objects.filter(parentComment="https://socialdistcmput404.herokuapp.com/authors/2/posts/1/comments/1")
-            serializer = LikeSerializer(likes, many=True)
-            serializer.data["type"]="Like"
-            return Response(status=200, data=serializer.data)
-            """
-
-            
-            # Multi-case
-            # Like objects (FOR Comments)
+            # Like objects (FOR Comments): FULLY DONE
+            # Required fields: @context, summary, type, author, object
             for each in followersList:
                 posts = Post.objects.filter(author=each).filter(visibility="VISIBLE")
                 pSerializer = PostSerializer(posts, many=True)
@@ -730,66 +762,117 @@ class APIInbox(APIView):
                 # time to get comments
                 for i in range(len(pSerializer.data)):
                     comments = Comment.objects.filter(parentPost=pSerializer.data[i]["id"])
-                    serializer = CommentSerializer(comments, many=True)
-                    for j in range(len(serializer.data)):
+                    cSerializer = CommentSerializer(comments, many=True)
+                    for j in range(len(cSerializer.data)):
                     # adding type comments:
                         # serializer.data[j]["type"]="comments"
                         # temp.append(serializer.data[j])
-                        likes = Like.objects.filter(parentComment=serializer.data[j]["id"])
+                        likes = Like.objects.filter(parentComment=cSerializer.data[j]["id"])
                         serializer = LikeSerializer(likes, many=True)
 
                         # likes = Like.objects.filter(parentComment="https://socialdistcmput404.herokuapp.com/authors/2/posts/1/comments/1")
                         # serializer = LikeSerializer(likes, many=True)
                         for k in range(len(serializer.data)):
                             # adding other fields
-                            serializer.data[k]["type"]="Like"
-                            itemList.append(serializer.data[k])
-            # return Response(status=200, data=itemList)
-            
-            # Adding likes from posts
+                            commentLikeDict=dict(serializer.data[k])
 
+                            commentLikeDict["@context"]=cSerializer.data[j]["id"]
+                            # Add summary
+                            commentLikeDict["summary"]=aSerializer.data[0]["displayName"]+" Likes your comment"
+                            commentLikeDict["type"]="Like"
+                            del commentLikeDict["author"]
+
+                            innerAuthor=Author.objects.filter(id=each.id)
+                            aSerializer=AuthorSerializer(innerAuthor, many=True)
+                            
+                            commentLikeDict["author"]=api_helper.construct_author_object(aSerializer.data[0])
+                            
+                            # assign both context and object
+                            commentLikeDict["object"]=cSerializer.data[j]["id"]
+                    
+                            # take out id, published
+                            del commentLikeDict["id"]
+                            del commentLikeDict["published"]
+
+                            # return Response (status=200, data=commentLikeDict)
+
+                            # itemList.append(serializer.data[k])
+                            itemList.append(commentLikeDict)
+
+            # return Response(status=200, data=itemList)       
+            
+            # Adding likes from posts: FULLY DONE
+            # Required fields: @context, summary, type, author, object
             postLikeList=[]
+            postLikeDict={}
+            tempDict={}
+            # For each follower, find their posts first
             for each in followersList:
                 posts = Post.objects.filter(author=each).filter(visibility="VISIBLE")
                 pSerializer = PostSerializer(posts, many=True)
-
+                
                 # return Response(status=200, data=pSerializer.data[0]["id"])
                 # time to get comments
                 for i in range(len(pSerializer.data)):
                     # return Response(status=200, data=pSerializer.data[i]["id"])
 
                     likes = Like.objects.filter(parentPost=pSerializer.data[i]["id"])
-                    serializer = LikeSerializer(likes, many=True)
-                    for j in range(len(serializer.data)):
-                         serializer.data[j]["type"]="Like"
-                    # return Response(status=200, data=serializer.data)
-                    postLikeList.append(serializer.data)
+                    lSerializer = LikeSerializer(likes, many=True)
                     
-            # return Response(status=200, data=postLikeList)
-            
-            for i in range(len(postLikeList)):
-                itemList.append(postLikeList[0][i])
-            
+                    innerAuthor=Author.objects.filter(id=each.id)
+                    aSerializer=AuthorSerializer(innerAuthor, many=True)
 
+                    postLikeDict["@context"]=pSerializer.data[i]["id"]
+                    postLikeDict["summary"]=aSerializer.data[0]["displayName"]+" Likes your post"
+                    postLikeDict["type"]="Like"
+                    postLikeDict["author"]=api_helper.construct_author_object(aSerializer.data[0])
+                    postLikeDict["object"]=postLikeDict["@context"]
+
+                    # Remove duplicate dictionaries, only append when current Dict != previousDict
+                    if postLikeDict!=tempDict:
+                        itemList.append(postLikeDict)
+                    tempDict=postLikeDict
+          
             # return Response(status=200, data=itemList)
             
-            fRList=[]
+
+            # followRequest/ Friends: FULLY DONE
+            # Required field: type=follow, summary, actor, object
+            # missing: add actor(sender) and object(target), add a summary
+            
             # Add FollowerRequests
             for each in followersList:
-                # return Response(status=200, data=each.id)
                 fR=FollowRequest.objects.filter(target_id=each.id)
                 serializer=FollowRequestSerializer(fR, many=True)
                 for i in range(len(serializer.data)):
-                    serializer.data[i]["type"]="follow"
-                    fRList.append(serializer.data[i])
+                    fRDict=dict(serializer.data[i])
+                    fRDict["type"]="Follow"
 
-            for i in range(len(fRList)):
-                itemList.append(fRList[i])
+                    sender=Author.objects.filter(id=fRDict["sender"])
+                    senderSerializer=AuthorSerializer(sender, many=True)
+                    target=Author.objects.filter(id=fRDict["target"])
+                    targetSerializer=AuthorSerializer(target, many=True)
+
+                    fRDict["summary"]=senderSerializer.data[0]["displayName"]+" wants to follow "+targetSerializer.data[0]["displayName"]
+                    fRDict["actor"]=api_helper.construct_author_object(senderSerializer.data[0])
+                    fRDict["object"]=api_helper.construct_author_object(targetSerializer.data[0])
+
+                    # Del sender, target, date
+                    del fRDict["sender"]
+                    del fRDict["target"]
+                    del fRDict["date"]
+
+                    # append dictionary to the list of items
+                    itemList.append(fRDict)
 
             # return Response(status=200, data=itemList)
-            # TODO: duplicate likes to be removed
-            # TODO: add additional fields for some models
 
+            # Finalizing up
+            inboxDict["items"]=itemList
+            return Response(status=200, data=inboxDict)
+
+
+            # TODO: subject to delete once the current post method is working
             """
             # Call API View for followers, get their IDs
 
@@ -950,13 +1033,9 @@ class APIInbox(APIView):
             # 3e. setting the items to be the postlist
             itemList=postList+commentList+likeList+followRequestList
             """
-
-            # Finalizing up
-            inboxDict["items"]=itemList
-            return Response(status=200, data=inboxDict)
         except:
-            return Response(status=404, data="a2")
-            # return Response(status=404)
+            # return Response(status=404, data="a2")
+            return Response(status=404)
     
     # send respective object in body
     def post(self, request, author_id):
@@ -1088,7 +1167,7 @@ class APIInbox(APIView):
             return Response(status=200)
             
 
-        # TBA
+    # TBA
     def delete (request, author_id):
         try:
             author = Author.objects.get(pk=HOST+"authors/"+author_id)
@@ -1099,7 +1178,10 @@ class APIInbox(APIView):
         except Inbox.DoesNotExist:
             return Response(status=404)
         # making inbox empty by setting all the fields as blank except author, every other field the same
-        inbox["items"]={}
+        # Delete inbox and recreating it
+        inbox.delete()
+        inbox.create(inbox_id=HOST+"authors/"+author_id+"/inbox", author=HOST+"authors/"+author_id, post=[])
+
         return Response(status=200)
 
         
