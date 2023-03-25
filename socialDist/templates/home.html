@@ -108,6 +108,7 @@
                     }
                     for (post of posts) {
                         let content;
+                        // ensure we dont render unlisted posts of our connected nodes
                         if (post.unlisted) {
                             continue
                         }
