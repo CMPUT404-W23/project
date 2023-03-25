@@ -108,6 +108,9 @@
                     }
                     for (post of posts) {
                         let content;
+                        if (post.unlisted) {
+                            continue
+                        }
                         if (post.contentType.startsWith("image")) {
                             content = `<img class="img-fluid mx-auto d-block" style="max-width: 50%" src="data:${post.contentType}, ${post.content}"/><br>`;
                         } else if (post.contentType === "text/markdown") {
