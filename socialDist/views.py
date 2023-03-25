@@ -849,7 +849,7 @@ class APIPosts(APIView):
     permission_classes = [auth.RemotePermission]
     def get(self, request):
         author_posts_pair = []
-        for each_author in Author.objects.all():
+        for each_author in Author.objects.filter(host=HOST):
             if not Post.objects.filter(author=each_author).count():
                 continue
             posts = PostSerializer(Post.objects.filter(author=each_author).filter(visibility="VISIBLE").filter(unlisted=False), many=True)
