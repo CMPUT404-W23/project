@@ -28,9 +28,9 @@ from drf_yasg import openapi
 
 schema_view = get_schema_view(
    openapi.Info(
-      title="Social Dist API",
+      title="Social Distribution API",
       default_version='v1',
-      description="API for Social Dist",
+      description="API for Social Distribution Project",
       license=openapi.License(name="MIT License"),
    ),
    public=True,
