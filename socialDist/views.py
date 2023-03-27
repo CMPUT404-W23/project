@@ -100,19 +100,19 @@ HOST = "https://socialdistcmput404.herokuapp.com/"
 
 # TODO: A few left :((
 # APIAuthor: GOOD
-# APIListAuthors: PUT(add sample request_body and sample response)
+# APIListAuthors: PUT(request_body and response): ASK warren
 # APIPost: GOOD
 # APIListPosts: GOOD
 # APIImage: GOOD
 # APIComment: GOOD
-# APIListcomments: POST(add sample request_body)
+# APIListcomments: POST(ADD request_body)(Can't do now)
 # APIListLikesPost: GOOD
 # APIListLikesComments: GOOD
-# APILiked: (Response double check)
+# APILiked: GOOD
 # APIFollowers: GOOD
-# APIFollower: response and request body for all
+# APIFollower: all (request_body and response)
 # APIInbox: POSTing to inbox (which object?)
-# APIPosts:  GOOD
+# APIPosts: GOOD
 
 
 # Dicts for sample responses
@@ -672,6 +672,22 @@ sampleListEveryPostDict={
     ),
 }
 
+testDict={
+  "content": "swagger test string",
+  "contentType": "text/plain",
+  "parentPost": "https://socialdistcmput404.herokuapp.com/authors/2/posts/1/",
+  "published": "2023-03-27T18:18:57.059Z",
+   "author": {
+                "id": "https://socialdistcmput404.herokuapp.com/authors/2",
+                "host": "https://socialdistcmput404.herokuapp.com/",
+                "displayName": "jasonk",
+                "github": "",
+                "profileImage": "",
+                "type": "author",
+                "url": "https://socialdistcmput404.herokuapp.com/authors/2"
+            },
+}
+
 
 
 # API View for single author API queries (endpoint /api/authors/<author_id>/)
@@ -1045,7 +1061,7 @@ class APIListComments(APIView):
     # Post a comment under that post
     # Include comment object in body in JSON form
     # id and parentPost field will be ignored!
-    @swagger_auto_schema(operation_summary="Create a comment in a post", operation_description="Create a comment in a post based on:\n\n* The id of the comment's author\n* The id of the comment's commented post", tags=["Comments"], request_body=CommentSerializer, responses=sampleCommentDict)
+    @swagger_auto_schema(operation_summary="Create a comment in a post", operation_description="Create a comment in a post based on:\n\n* The id of the comment's author\n* The id of the comment's commented post", tags=["Comments"],responses=sampleCommentDict)
     def post(self, request, author_id, post_id):
         try:
             author = Author.objects.get(pk=HOST+"authors/"+author_id)
@@ -1171,7 +1187,7 @@ class APIFollower(APIView):
     # Check if the specified foreign author is a follower of the author
     # Returns the author object if it exists
     permission_classes = [auth.RemotePermission]
-    @swagger_auto_schema(operation_summary="Check whether an author is a followr for another author", operation_description="Check whether an author is a followr for another author based on:\n\n* The author's own id\n* The id of the foreign author", tags=["Followers"])
+    @swagger_auto_schema(operation_summary="Check whether an author is a followr for another author", operation_description="Check whether an author is a followr for another author based on:\n\n* The author's own id\n* The id of the foreign author", tags=["Followers"], response=sampleAuthorDict, parameters=[{"allowReserved": True}])
     def get(self, request, author_id, foreign_author_id):
         try:
             targetAuthor = Author.objects.get(pk=HOST+"authors/"+author_id)
