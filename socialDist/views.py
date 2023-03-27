@@ -641,12 +641,14 @@ class APIPost(APIView):
         try:
             author = Author.objects.get(pk=HOST+"authors/"+author_id)
         except Author.DoesNotExist:
+            print("author")
             return Response(status=404)
         if not request.user.is_authenticated and request.user.id != author_id:
             return Response(status=401)
         try:
             post = Post.objects.filter(visibility="VISIBLE").get(pk=HOST+"authors/"+author_id+"/posts/"+post_id)
         except Post.DoesNotExist:
+            print("post")
             return Response(status=404)
         post.delete()
         return Response(status=200)
@@ -690,6 +692,7 @@ class APIListPosts(APIView):
         try:
             author = Author.objects.get(pk=HOST+"authors/"+author_id)
         except Author.DoesNotExist:
+            print("Author does not exist")
             return Response(status=404)
         if not request.user.is_authenticated and request.user.id != author_id:
             return Response(status=401)

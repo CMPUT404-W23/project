@@ -157,7 +157,7 @@ USE_TZ = True
 
 # Attach domains of external domains
 CORS_ALLOWED_ORIGINS = [
-"https://socialdictcmput404.herokuapp.com",
+"https://socialdistcmput404.herokuapp.com",
 "http://localhost:8000",
 "http://127.0.0.1:8000",
 "https://social-t30.herokuapp.com",
