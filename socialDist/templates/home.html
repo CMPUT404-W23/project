@@ -273,11 +273,13 @@
             }
             
             async function fetchExternalPosts() {
+        
             //Source: https://stackoverflow.com/questions/43305020/how-to-use-the-context-variables-passed-from-django-in-javascript
             var listOfConnections = JSON.parse('{{connections|escapejs}}');
             console.log("yo",listOfConnections);
             for (connection of listOfConnections) {
-                let returnedData;
+                try {
+                    let returnedData;
                 if (connection.apiCreds === "") {
                     returnedData = await fetch(connection.apiAddress + "/authors/");
                 }
@@ -292,7 +294,8 @@
                 }
                 for (data of returnedDataList.items) {
                      // https://dmitripavlutin.com/parse-url-javascript/
-                    let data_url = new URL(data.id);
+                    try {
+                        let data_url = new URL(data.id);
                     let data_path = data_url.pathname;
                     let index = data_path.search("/api")
                     if (index != -1) {
@@ -314,7 +317,8 @@
                         continue;
                     }
                     for (post of posts) {
-                        let content;
+                        try {
+                            let content;
                         // ensure we dont render unlisted posts of our connected nodes
                         if (post.unlisted) {
                             continue
@@ -345,11 +349,22 @@
                         `)
                         console.log(htmlElement);
                         document.getElementById("posts").appendChild(htmlElement);
+                        }
+                        catch {
+                            continue;
+                        } 
                     }
+                    }
+                    catch {
+                        continue;
+                    }
+                }
+                }
+                catch {
+                    continue;
                 }
             }
             }
-            
         </script>
 </main>
 
