@@ -93,13 +93,13 @@ from drf_yasg import openapi
 #   - Note: need to see if we use AJAX or node to node commuication
 
 from .models import Author, Post, Comment, Like, Server, Inbox, UserFollowing, FollowRequest
-from . import api_helper
+from . import api_helper, sample_dicts
 import base64 
 
 HOST = "https://socialdistcmput404.herokuapp.com/"
 
 # TODO: A few left :((
-# APIAuthor: POST(add sample response)
+# APIAuthor: GOOD
 # APIListAuthors: PUT(add sample request_body and sample response)
 # APIPost: GOOD
 # APIListPosts: GOOD
@@ -107,12 +107,12 @@ HOST = "https://socialdistcmput404.herokuapp.com/"
 # APIComment: GOOD
 # APIListcomments: POST(add sample request_body)
 # APIListLikesPost: GOOD
-# APIListLikesComments: 
-# APILiked: 
-# APIFollowers: 
-# APIFollower: 
-# APIInbox:
-# APIPosts 
+# APIListLikesComments: GOOD
+# APILiked: (Response double check)
+# APIFollowers: GOOD
+# APIFollower: response and request body for all
+# APIInbox: POSTing to inbox (which object?)
+# APIPosts:  GOOD
 
 
 # Dicts for sample responses
@@ -206,9 +206,12 @@ samplePostDict={
     ),
 }
 
-samplePostDELETEDict={
+sampleDELETEDict={
     "200":openapi.Response(
         description="OK",
+    ),
+    "404": openapi.Response(
+        description="Error: Not Found",
     ),
 }
 
@@ -391,7 +394,7 @@ sampleListCommentsDict={
     ),
 }
 
-sampleListLikesDict={
+sampleListLikesPostDict={
     "200":openapi.Response(
         description="OK",
         examples={
@@ -439,6 +442,235 @@ sampleListLikesDict={
     ),
 }
 
+sampleListLikesPostDict={
+    "200":openapi.Response(
+        description="OK",
+        examples={
+            "application/json": {
+            "type": "likes",
+            "items": [
+                {
+                    "id": "https://socialdistcmput404.herokuapp.com/authors/2/posts/1/comments/1/likes",
+                    "author": {
+                        "id": "https://socialdistcmput404.herokuapp.com/authors/2",
+                        "host": "https://socialdistcmput404.herokuapp.com/",
+                        "displayName": "2",
+                        "github": "https://sampleUser.github.com",
+                        "profileImage": "sampleUserImage.jpg",
+                        "type": "author",
+                        "url": "https://socialdistcmput404.herokuapp.com/authors/2"
+                    },
+                    "published": "2023-03-23T04:43:20Z",
+                    "object": "https://socialdistcmput404.herokuapp.com/authors/2/posts/1/comments/1",
+                    "summary": "2 likes this",
+                    "type": "Like"
+                }
+            ]
+        }
+        }
+    ),
+    "404": openapi.Response(
+        description="Error: Not Found",
+    ),
+}
+
+sampleListLikedDict={
+    "200":openapi.Response(
+        description="OK",
+        examples={
+            "application/json": {
+            "type":"liked",
+            "items":[
+                {
+                    "@context": "https://www.w3.org/ns/activitystreams",
+                    "summary": "Lara Croft Likes your post",         
+                    "type": "Like",
+                    "author":{
+                        "type":"author",
+                        "id":"http://127.0.0.1:5454/authors/9de17f29c12e8f97bcbbd34cc908f1baba40658e",
+                        "host":"http://127.0.0.1:5454/",
+                        "displayName":"Lara Croft",
+                        "url":"http://127.0.0.1:5454/authors/9de17f29c12e8f97bcbbd34cc908f1baba40658e",
+                        "github":"http://github.com/laracroft",
+                        "profileImage": "https://i.imgur.com/k7XVwpB.jpeg"
+                    },
+                    "object":"http://127.0.0.1:5454/authors/9de17f29c12e8f97bcbbd34cc908f1baba40658e/posts/764efa883dda1e11db47671c4a3bbd9e"
+                }
+            ]
+        }
+        }
+    ),
+    "404": openapi.Response(
+        description="Error: Not Found",
+    ),
+}
+
+sampleFollowersDict={
+    "200":openapi.Response(
+        description="OK",
+        examples={
+            "application/json": {
+            "type": "followers",
+            "items": [
+                {
+                    "id": "https://socialdistcmput404.herokuapp.com/authors/2",
+                    "host": "https://socialdistcmput404.herokuapp.com/",
+                    "displayName": "2",
+                    "github":"http://github.com/laracroft",
+                    "profileImage": "https://i.imgur.com/k7XVwpB.jpeg",
+                    "type": "author",
+                    "url": "https://socialdistcmput404.herokuapp.com/authors/2"
+                },
+                {
+                    "id": "https://socialdistcmput404.herokuapp.com/authors/3",
+                    "host": "https://socialdistcmput404.herokuapp.com",
+                    "displayName": "3",
+                    "github":"http://github.com/laracroft",
+                    "profileImage": "https://i.imgur.com/k7XVwpB.jpeg",
+                    "type": "author",
+                    "url": "https://socialdistcmput404.herokuapp.com/authors/3"
+                }
+            ]
+        }
+        }
+    ),
+    "404": openapi.Response(
+        description="Error: Not Found",
+    ),
+}
+
+sampleInboxDict={
+    "200":openapi.Response(
+        description="OK",
+        examples={
+            "application/json": {
+    "type": "inbox",
+    "author": "https://socialdistcmput404.herokuapp.com/authors/1",
+    "items": [
+        {
+            "id": "https://socialdistcmput404.herokuapp.com/authors/1/posts/1",
+            "title": "testTitle",
+            "source": "testSource",
+            "origin": "testOrigian",
+            "description": "testDescr",
+            "content": "testPost",
+            "contentType": "text/plain",
+            "author": {
+                "id": "https://socialdistcmput404.herokuapp.com/authors/1",
+                "host": "https://socialdistcmput404.herokuapp.com/",
+                "displayName": "1",
+                "github":"http://github.com/laracroft",
+                "profileImage": "https://i.imgur.com/k7XVwpB.jpeg",
+                "type": "author",
+                "url": "https://socialdistcmput404.herokuapp.com/authors/1"
+            },
+            "published": "2023-03-22T19:15:07Z",
+            "visibility": "VISIBLE",
+            "categories": "test",
+            "unlisted": False,
+            "type": "post",
+            "count": 2,
+            "comments": "https://socialdistcmput404.herokuapp.com/authors/1/posts/1/comments/"
+        }
+    ]
+}
+        }
+    ),
+    "404": openapi.Response(
+        description="Error: Not Found",
+    ),
+}
+
+sampleListEveryPostDict={
+    "200":openapi.Response(
+        description="OK",
+        examples={
+            "application/json": {
+            "type": "posts",
+            "items": [
+                {
+                    "id": "https://socialdistcmput404.herokuapp.com/authors/2/posts/1",
+                    "title": "Title",
+                    "source": "source",
+                    "origin": "testOrigian",
+                    "description": "...",
+                    "content": "...",
+                    "contentType": "text/plain",
+                    "author": {
+                        "id": "https://socialdistcmput404.herokuapp.com/authors/2",
+                        "host": "https://socialdistcmput404.herokuapp.com/",
+                        "displayName": "2",
+                        "github":"http://github.com/laracroft",
+                        "profileImage": "https://i.imgur.com/k7XVwpB.jpeg",
+                        "type": "author",
+                        "url": "https://socialdistcmput404.herokuapp.com/authors/2"
+                    },
+                    "published": "2023-03-22T21:31:25Z",
+                    "visibility": "VISIBLE",
+                    "categories": "test",
+                    "unlisted": False,
+                    "type": "post",
+                    "count": 2,
+                    "comments": "https://socialdistcmput404.herokuapp.com/authors/2/posts/1/comments/"
+                },
+                {
+                    "id": "https://socialdistcmput404.herokuapp.com/authors/2/posts/2",
+                    "title": "title 2",
+                    "source": "test 2",
+                    "origin": "2",
+                    "description": "2",
+                    "content": "2222",
+                    "contentType": "text/plain",
+                    "author": {
+                        "id": "https://socialdistcmput404.herokuapp.com/authors/2",
+                        "host": "https://socialdistcmput404.herokuapp.com/",
+                        "displayName": "2",
+                        "github":"http://github.com/laracroft",
+                        "profileImage": "https://i.imgur.com/k7XVwpB.jpeg",
+                        "type": "author",
+                        "url": "https://socialdistcmput404.herokuapp.com/authors/2"
+                    },
+                    "published": "2023-03-22T21:38:54Z",
+                    "visibility": "VISIBLE",
+                    "categories": "test",
+                    "unlisted": False,
+                    "type": "post",
+                    "count": 1,
+                    "comments": "https://socialdistcmput404.herokuapp.com/authors/2/posts/2/comments/"
+                },
+                {
+                    "id": "https://socialdistcmput404.herokuapp.com/authors/1/posts/1",
+                    "title": "testTitle",
+                    "source": "testSource",
+                    "origin": "testOrigian",
+                    "description": "testDescr",
+                    "content": "testPost",
+                    "contentType": "text/plain",
+                    "author": {
+                        "id": "https://socialdistcmput404.herokuapp.com/authors/1",
+                        "host": "https://socialdistcmput404.herokuapp.com/",
+                        "displayName": "1",
+                        "github":"http://github.com/laracroft",
+                        "profileImage": "https://i.imgur.com/k7XVwpB.jpeg",
+                        "type": "author",
+                        "url": "https://socialdistcmput404.herokuapp.com/authors/1"
+                    },
+                    "published": "2023-03-22T19:15:07Z",
+                    "visibility": "VISIBLE",
+                    "categories": "test",
+                    "unlisted": False,
+                    "type": "post",
+                    "count": 2,
+                    "comments": "https://socialdistcmput404.herokuapp.com/authors/1/posts/1/comments/"
+                }
+            ]
+        }
+        }
+    ),
+    "404": openapi.Response(
+        description="Error: Not Found",
+    ),
+}
 
 
 
@@ -461,7 +693,7 @@ class APIAuthor(APIView):
 
     # Edit the author object  
     # When posting, send an author object in body in JSON with modified fields
-    @swagger_auto_schema(operation_summary="Edit/create an author's profile", operation_description="Edit/create an author's profile based on:\n\n* The author's id", tags=["Author's Profile"], responses=sampleAuthorDict)
+    @swagger_auto_schema(operation_summary="Edit/create an author's profile", operation_description="Edit/create an author's profile based on:\n\n* The author's id", tags=["Author's Profile"], request_body=AuthorSerializer,responses=sampleAuthorDict)
     def post(self, request, id):
         # Check if author exists, 404 if not
         try:
@@ -520,7 +752,7 @@ class APIListAuthors(APIView):
             return Response(status=200, data=api_helper.construct_list_of_authors(serializer.data))
     
     # Update an author's profile
-    @swagger_auto_schema(operation_summary="Create a new author's profile", operation_description="Create an author's profile without any fields", tags=["Author's Profile"], request_body=AuthorSerializer)
+    @swagger_auto_schema(operation_summary="Create a new author's profile", operation_description="Create an author's profile without any fields", tags=["Author's Profile"], responses=sampleAuthorDict)
     def put(self, request):
         username = request.data["username"]
         email = request.data.get("email", "") # if email is not provided, set it to empty string
@@ -636,7 +868,7 @@ class APIPost(APIView):
         
     # Delete the single post
     # Cannot delete private posts!
-    @swagger_auto_schema(operation_summary="Delete a public post", operation_description="Delete a public post's information based on:\n\n* The id of the post's author\n* The id of the post itself", tags=["Posts"], responses=samplePostDELETEDict)
+    @swagger_auto_schema(operation_summary="Delete a public post", operation_description="Delete a public post's information based on:\n\n* The id of the post's author\n* The id of the post itself", tags=["Posts"], responses=sampleDELETEDict)
     def delete(self, request, author_id, post_id):
         try:
             author = Author.objects.get(pk=HOST+"authors/"+author_id)
@@ -862,7 +1094,7 @@ class APIListComments(APIView):
 # API view for likes on a post (endpoint /api/authors/<author_id>/posts/<post_id>/likes/)
 class APIListLikesPost(APIView):
     permission_classes = [auth.RemotePermission]
-    @swagger_auto_schema(operation_summary="Retrieve all of the likes for a post", operation_description="Retrieve all of the likes for a post based on:\n\n* The id of the comment's author\n* The id of the comment's commented post", tags=["Likes"], responses=sampleListLikesDict)
+    @swagger_auto_schema(operation_summary="Retrieve all of the likes for a post", operation_description="Retrieve all of the likes for a post based on:\n\n* The id of the comment's author\n* The id of the comment's commented post", tags=["Likes"], responses=sampleListLikesPostDict)
     def get(self, request, author_id, post_id):
         try:
             author = Author.objects.get(pk=HOST+"authors/"+author_id)
@@ -906,7 +1138,7 @@ class APILiked(APIView):
     # Get list of likes on public objects (comments on public posts, public posts)
     # originating from this author
     permission_classes = [auth.RemotePermission]
-    @swagger_auto_schema(operation_summary="Retrieve a list of likes from public posts and their comments", operation_description="Retrieve a list of likes from public posts and their comments based on:\n\n* The author's own id", tags=["Likes"])
+    @swagger_auto_schema(operation_summary="Retrieve a list of likes from public posts and their comments", operation_description="Retrieve a list of likes from public posts and their comments based on:\n\n* The author's own id", tags=["Likes"], responses=sampleListLikedDict)
     def get(self, request, author_id):
         try:
             author = Author.objects.get(pk=HOST+"authors/"+author_id)
@@ -920,7 +1152,7 @@ class APILiked(APIView):
 class APIFollowers(APIView):
     # Get list of followers
     permission_classes = [auth.RemotePermission]
-    @swagger_auto_schema(operation_summary="Retrieve a list of followers for an author", operation_description="Retrieve a list of followers for an author based on:\n\n* The author's own id", tags=["Followers"])
+    @swagger_auto_schema(operation_summary="Retrieve a list of followers for an author", operation_description="Retrieve a list of followers for an author based on:\n\n* The author's own id", tags=["Followers"], responses=sampleFollowersDict)
     def get(self, request, author_id):
         try:
             author = Author.objects.get(pk=HOST+"authors/"+author_id)
@@ -991,7 +1223,7 @@ class APIFollower(APIView):
     # Make the foreign author not follow the author
     # foreign_author_id should be an abs URL, encoded as a parameter or path element
     # same notes as before!
-    @swagger_auto_schema(operation_summary="Allow one author to not follow another author", operation_description="Allow one author to not follow another author based on:\n\n* The author's own id\n* The id of the foreign author", tags=["Followers"])
+    @swagger_auto_schema(operation_summary="Allow one author to not follow another author", operation_description="Allow one author to not follow another author based on:\n\n* The author's own id\n* The id of the foreign author", tags=["Followers"], responses=sampleDELETEDict)
     def delete(self, request, author_id, foreign_author_id):
         try:
             targetAuthor = Author.objects.get(pk=HOST+"authors/"+author_id)
@@ -1014,7 +1246,7 @@ class APIFollower(APIView):
 # TODO Fix required
 class APIInbox(APIView):
     permission_classes = [auth.InboxPermission]
-    @swagger_auto_schema(operation_summary="Retrieve a list of objects(posts, follow requests, post likes, comment likes, comments) within an author's inbox", operation_description="Retrieve an inbox object based on:\n\n* The author's own id", tags=["Inbox"])
+    @swagger_auto_schema(operation_summary="Retrieve a list of objects(posts, follow requests, post likes, comment likes, comments) within an author's inbox", operation_description="Retrieve an inbox object based on:\n\n* The author's own id", tags=["Inbox"], responses=sampleInboxDict)
     def get(self, request, author_id):
         # get the owner first in order to get the inbox
         try:
@@ -1065,7 +1297,7 @@ class APIInbox(APIView):
            
     
     # send respective object in body
-    @swagger_auto_schema(operation_summary="Send an object(posts, follow requests, post likes, comment likes, comments) to an author's inbox", operation_description="Send an object(posts, follow requests, post likes, comment likes, comments) to an author's inbox based on:\n\n* The author's own id", tags=["Inbox"])
+    @swagger_auto_schema(operation_summary="Send an object(posts, follow requests, post likes, comment likes, comments) to an author's inbox", operation_description="Send an object(posts, follow requests, post likes, comment likes, comments) to an author's inbox based on:\n\n* The author's own id", tags=["Inbox"], responses=sampleInboxDict)
     def post(self, request, author_id):
         # get the author object first
         try:
@@ -1197,7 +1429,7 @@ class APIInbox(APIView):
             return Response(status=200)
             
     # TBA
-    @swagger_auto_schema(operation_summary="Clear an author's inbox",operation_description="Clear an author's inbox based on:\n\n* The author's own id", tags=["Inbox"])
+    @swagger_auto_schema(operation_summary="Clear an author's inbox",operation_description="Clear an author's inbox based on:\n\n* The author's own id", tags=["Inbox"], responses=sampleDELETEDict)
     def delete (request, author_id):
         try:
             author = Author.objects.get(pk=HOST+"authors/"+author_id)
