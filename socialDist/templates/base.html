@@ -28,12 +28,16 @@
           {% if user.is_authenticated %}
           <li class="nav-item">
             <a class="nav-link {% if request.resolver_match.url_name == 'post' %}active{% endif %}" aria-current="page" href="/post">Create Post</a>
-
           </li>
           {% endif %}
           {% if user.is_authenticated and not user.is_staff %}
           <li class="nav-item">
             <a class="nav-link" aria-current="page" href="/authors/{{user.id}}/">Profile</a>
+          </li>
+          {% endif %}
+          {% if user.is_authenticated %}
+          <li class="nav-item">
+            <a class="nav-link {% if request.resolver_match.url_name == 'search' %}active{% endif %}" aria-current="page" href="/search">Search</a>
           </li>
           {% endif %}
         </ul>

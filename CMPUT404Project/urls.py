@@ -44,20 +44,28 @@ from django.views.generic.base import TemplateView, RedirectView
 from .views import settings, home, postPage, authorPage, create_post, editPost
 
 urlpatterns = [
-    # path('', include('socialDist.urls')),
-    path("admin/", admin.site.urls),
+    
+    ######################################################### 
+    # Do not add any path above this
+    # else redirection functionality won't work as intended
+    path("search/", TemplateView.as_view(template_name="search.html"), name="search"),
     path("accounts/", include("django.contrib.auth.urls")),
-    path("accounts/settings", settings, name="settings"),
-    path("accounts/signup", TemplateView.as_view(template_name="registration/signup.html"), name="signup"),
-    path("", home, name="home"),
     path("post/", create_post, name="post"),
     path("api/", include("socialDist.urls")),
-    path("authors/<str:author_id>/posts/<str:post_id>/", view=postPage, name="page_post"),
+    #########################################################  
+    path("", home, name="home"),  
+    path("admin/", admin.site.urls),
+    path("accounts/settings", settings, name="settings"),
+    path("accounts/signup", TemplateView.as_view(template_name="registration/signup.html"), name="signup"),
     path("authors/<str:author_id>/", view=authorPage, name="page_author"),
-        path("authors/<str:author_id>/posts/<str:post_id>/edit/", view=editPost, name="edit_post"),
-    
-    # redirect urls without slash to links with slash
-    # TODO Automate this (jayden)
-    path("api", RedirectView.as_view(url="api/")),
-    path("post", RedirectView.as_view(url="post/")),
+    path("authors/<str:author_id>/posts/<str:post_id>/", view=postPage, name="page_post"),
+    path("authors/<str:author_id>/posts/<str:post_id>/edit", view=editPost, name="edit_post"),
+]
+# Automatically add redirections
+# set number of items to add to itself from the beginning
+final_index = 4
+urlpatterns += [path(each[:-1], RedirectView.as_view(url=each)) 
+    for each in [each_path.pattern._route
+        for each_path in urlpatterns[:final_index]
+    ]
 ]
