@@ -36,6 +36,7 @@ class RemotePermission(permissions.BasePermission):
         # Special permission for admin users, can use API without auth token
         if request.user.is_authenticated and request.user.is_staff:
             return True
+
         try:
             authorization = request.headers['Authorization']
             authorizationArr = authorization.split()
