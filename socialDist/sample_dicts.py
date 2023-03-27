@@ -2,7 +2,7 @@ from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 
 # Dicts for sample responses (used in swagger/ Open API)
-sampleAuthorDict={
+sampleGETAuthorDict={
     "200":openapi.Response(
         description="OK",
         examples={
@@ -20,6 +20,33 @@ sampleAuthorDict={
     "404": openapi.Response(
         description="Error: Not Found",
     ),
+}
+
+samplePOSTAuthorDict={
+    "201":openapi.Response(
+        description="Created",
+        examples={
+            "application/json": {
+            "id": "https://socialdistcmput404.herokuapp.com/authors/1",
+            "host": "https://socialdistcmput404.herokuapp.com/",
+            "displayName": "1",
+            "github": "https://sampleUser.github.com",
+            "profileImage": "http://sampleUserImage.com/1.jpg",
+            "type": "author",
+            "url": "https://socialdistcmput404.herokuapp.com/authors/1"
+        }
+        }
+    ),
+    "400": openapi.Response(
+        description="Bad Request",
+    ),
+    "401": openapi.Response(
+        description="Unauthorized",
+    ),
+    "404": openapi.Response(
+        description="Error: Not Found",
+    ),
+
 }
 
 sampleListAuthorDict={
@@ -56,7 +83,7 @@ sampleListAuthorDict={
     ),
 }
 
-samplePostDict={
+sampleGETPostDict={
     "200":openapi.Response(
         description="OK",
         examples={
@@ -64,7 +91,7 @@ samplePostDict={
             "id": "https://socialdistcmput404.herokuapp.com/authors/1/posts/1",
             "title": "testTitle",
             "source": "testSource",
-            "origin": "testOrigian",
+            "origin": "testOrigin",
             "description": "testDescr",
             "content": "testPost",
             "contentType": "text/plain",
@@ -73,7 +100,7 @@ samplePostDict={
                 "host": "https://socialdistcmput404.herokuapp.com/",
                 "displayName": "1",
                 "github": "https://sampleUser.github.com",
-                "profileImage": "sampleUserImage.jpg",
+                "profileImage": "http://sampleUserImage.com/2.jpg",
                 "type": "author",
                 "url": "https://socialdistcmput404.herokuapp.com/authors/1"
             },
@@ -82,7 +109,7 @@ samplePostDict={
             "categories": "test",
             "unlisted": False,
             "type": "post",
-            "count": 2,
+            "count": 0,
             "comments": "https://socialdistcmput404.herokuapp.com/authors/1/posts/1/comments/"
             }
         }
@@ -92,9 +119,57 @@ samplePostDict={
     ),
 }
 
+samplePOSTPostDict={
+    "201":openapi.Response(
+        description="Created",
+        examples={
+            "application/json": {
+            "id": "https://socialdistcmput404.herokuapp.com/authors/1/posts/1",
+            "title": "testTitle",
+            "source": "testSource",
+            "origin": "testOrigin",
+            "description": "testDescr",
+            "content": "testPost",
+            "contentType": "text/plain",
+            "author": {
+                "id": "https://socialdistcmput404.herokuapp.com/authors/1",
+                "host": "https://socialdistcmput404.herokuapp.com/",
+                "displayName": "1",
+                "github": "https://sampleUser.github.com",
+                "profileImage": "http://sampleUserImage.com/2.jpg",
+                "type": "author",
+                "url": "https://socialdistcmput404.herokuapp.com/authors/1"
+            },
+            "published": "2023-03-22T19:15:07Z",
+            "visibility": "VISIBLE",
+            "categories": "test",
+            "unlisted": False,
+            "type": "post",
+            "count": 0,
+            "comments": "https://socialdistcmput404.herokuapp.com/authors/1/posts/1/comments/"
+            }
+        }
+    ),
+    "400": openapi.Response(
+        description="Bad Request",
+    ),
+    "401": openapi.Response(
+        description="Unauthorized",
+    ),
+    "404": openapi.Response(
+        description="Error: Not Found",
+    ),
+}
+
 sampleDELETEDict={
     "200":openapi.Response(
         description="OK",
+    ),
+    "400": openapi.Response(
+        description="Bad Request",
+    ),
+    "401": openapi.Response(
+        description="Unauthorized",
     ),
     "404": openapi.Response(
         description="Error: Not Found",
@@ -203,7 +278,7 @@ sampleImagePostGETDict={
     ),
 }
 
-sampleCommentDict={
+sampleGETCommentDict={
     "200":openapi.Response(
         description="OK",
         examples={
@@ -224,6 +299,39 @@ sampleCommentDict={
             "type": "comment"
 }
         }
+    ),
+    "404": openapi.Response(
+        description="Error: Not Found",
+    ),
+}
+
+samplePOSTCommentDict={
+    "201":openapi.Response(
+        description="Created",
+        examples={
+            "application/json": {
+            "id": "https://socialdistcmput404.herokuapp.com/authors/1/posts/1/comments/1",
+            "content": "test comment",
+            "contentType": "text/plain",
+            "published": "2023-03-22T19:15:51Z",
+            "author": {
+                "id": "https://socialdistcmput404.herokuapp.com/authors/1",
+                "host": "https://socialdistcmput404.herokuapp.com/",
+                "displayName": "1",
+                "github": "https://sampleUser.github.com",
+                "profileImage": "sampleUserImage.jpg",
+                "type": "author",
+                "url": "https://socialdistcmput404.herokuapp.com/authors/1"
+            },
+            "type": "comment"
+}
+        }
+    ),
+    "400": openapi.Response(
+        description="Bad Request",
+    ),
+    "401": openapi.Response(
+        description="Unauthorized",
     ),
     "404": openapi.Response(
         description="Error: Not Found",
