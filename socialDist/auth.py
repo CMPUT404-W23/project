@@ -33,11 +33,6 @@ HOST="socialcmput404.herokuapp.com"
 # Permission class used for most endpoints to restrict remote node access
 class RemotePermission(permissions.BasePermission):
     def has_permission(self, request, view):
-
-        # # local test purposes only
-        # # TODO REMOVE THIS 
-        # return True
-
         # Special permission for admin users, can use API without auth token
         if request.user.is_authenticated and request.user.is_staff:
             return True
