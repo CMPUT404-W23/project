@@ -42,7 +42,7 @@
             async function putData(id) {
                 element_id = id.slice(-10)
                 api = id.slice(-27)
-                const url = "/api/" + api + "/"
+                const url = "/api" + api + "/"
                 let postContent, contentType;
                 if (document.getElementById("ImagePost-"+element_id)) { // if post is an image
                     const base64String = await toBase64(element_id);
