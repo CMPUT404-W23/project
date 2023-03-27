@@ -28,9 +28,9 @@ from drf_yasg import openapi
 
 schema_view = get_schema_view(
    openapi.Info(
-      title="Social Dist API",
+      title="Social Distribution API",
       default_version='v1',
-      description="API for Social Dist",
+      description="API for Social Distribution Project",
       license=openapi.License(name="MIT License"),
    ),
    public=True,
@@ -43,9 +43,8 @@ urlpatterns = [
           views.APIListAuthors.as_view(),name='authors'),
      path('authors/<str:id>/', 
           views.APIAuthor.as_view(), name='author'),
-     # TODO Fix required on APIInbox
-     # path('authors/<str:author_id>/inbox/',
-     #      views.APIInbox.as_view()),
+     path('authors/<str:author_id>/inbox/',
+          views.APIInbox.as_view()),
      path('authors/<str:author_id>/liked/',
           views.APILiked.as_view()),
      path('authors/<str:author_id>/followers/',

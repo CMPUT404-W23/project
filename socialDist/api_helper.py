@@ -154,6 +154,7 @@ def construct_comment_object(comment_data, author):
     author_serialzer = AuthorSerializer(author)
     commentDict["type"] = "comment"
     commentDict["author"] = construct_author_object(author_serialzer.data)
+    del commentDict["parentPost"]
     return commentDict
 
 # Constructs a list of comments on a post in 
@@ -214,6 +215,8 @@ def construct_like_object(like_data, parentObject, author):
     author_serialzer = AuthorSerializer(author)
     likeDict["author"] = construct_author_object(author_serialzer.data)
     likeDict["object"] = parentObject
+    likeDict["summary"] = author.displayName + " likes this"
+    likeDict["type"] = "Like"
     return likeDict
 
 # Constructs a list of likes for a specfic post or comment
@@ -286,4 +289,24 @@ def construct_follow_request_object(follow_request_data, author, actor):
     # get the object from follower_request
     followRequestDict["actor"]=construct_author_object(actor_serializer.data)
     followRequestDict["object"]=construct_author_object(author_serialzer.data)
+    followRequestDict["summary"]= actor.displayName + " wants to follow " + author.displayName
+    del followRequestDict["sender"]
+    del followRequestDict["target"]
+    del followRequestDict["date"]
     return followRequestDict
+
+# Function that detrimines if the actor is a follower of the target or not
+# Parameters:
+#   actor - Author object of actor
+#   target - Author object of target
+# Returns: True if actor is a follower of target
+def is_follower(actor, target):
+    if actor.is_authenticated:
+        return False
+    if actor.is_staff:
+        return True
+    try:
+        target.followers.all().get(user_id=actor.author)
+        return True
+    except:
+        return False
