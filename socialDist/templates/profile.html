@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+{% block content %}
+<h5>{{author.displayName}} Profile Page</h5>
+{% if isOwner %}
+<div class="grid">
+    <h4>Posts</h4>
+    <div class="grid" id="posts">
+    </div>
+    <h4>Likes</h4>
+    <div class="grid" id="likes">
+    </div>
+    <h4>Comments</h4>
+    <div class="grid" id="comments">
+    </div>
+    <h4>Follow Requests</h4>
+    <div class="grid" id="requests">
+    </div>
+</div>
+<script>
+    //Source: https://stackoverflow.com/questions/494143/creating-a-new-dom-element-from-an-html-string-using-built-in-dom-methods-or-pro/35385518#35385518
+    function htmlToElement(html) {
+                var template = document.createElement('template');
+                template.innerHTML = html;
+                return template.content;
+    }
+
+    fetch("/api/authors/"+"{{user.id}}"+"/inbox/", {headers: new Headers({"Authorization": "Token 516e5c3d636f46228edb8f09b9613d5b4b166816",
+    "X-CSRFToken": "{{ csrf_token }}"})})
+    .then((response) => response.json())
+    .then((data) => {
+        for (let item of data.items) {
+            if (item.type === "post") {
+                let content;
+                if (item.contentType.startsWith("image")) {
+                    content = `<img class="img-fluid mx-auto d-block" style="max-width: 50%" src="data:${item.contentType}, ${item.content}"/><br>`;
+                } else if (item.contentType === "text/markdown") {
+                    item.title = marked.parse(item.title);
+                    item.description = marked.parse(item.description);
+                    content = `<p class="card-text">${marked.parse(item.content)}</p>`;
+                } else {
+                    content = `<p class="card-text">${item.content}</p>`;
+                }
+                var htmlElement = htmlToElement(`
+                <div class="card my-3">
+                    <div class="card-body">
+                        <h5 class="card-title"><a href="${item.id}">${item.title}</a></h5>
+                        <h6 class="card-subtitle mb-2 text-muted"><a href="${item.author.url}">${item.author.displayName}</a></h6>
+                        <h6 class="card-subtitle mb-2 text-muted">${item.description} <span class="badge bg-secondary">${item.categories}</span></h6>
+                        ${content}
+                        <button type="button" class="btn btn-secondary btn-sm" id="likeButton">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-heart" viewBox="0 0 16 16">
+                                <path d="m8 2.748-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385.92 1.815 2.834 3.989 6.286 6.357 3.452-2.368 5.365-4.542 6.286-6.357.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01L8 2.748zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143c.06.055.119.112.176.171a3.12 3.12 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15z"/>
+                            </svg>   
+                        </button>
+                    </div>
+                </div>
+                `);
+                console.log(htmlElement);
+                document.getElementById("posts").appendChild(htmlElement);
+            }
+            else if (item.type === "comment") {
+                let content;
+                if (item.contentType === "text/markdown") {
+                    content = `<p class="card-text">${marked.parse(item.comment)}</p>`;
+                } else {
+                    content = `<p class="card-text">${item.comment}</p>`;
+                }
+                var htmlElement = htmlToElement(`
+                <div class="card my-3">
+                    <div class="card-body">
+                        <h6 class="card-subtitle mb-2 text-muted"><a href="${item.author.url}">${item.author.displayName}</a></h6>
+                        ${content}
+                        <button type="button" class="btn btn-secondary btn-sm" id="likeButton">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-heart" viewBox="0 0 16 16">
+                                <path d="m8 2.748-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385.92 1.815 2.834 3.989 6.286 6.357 3.452-2.368 5.365-4.542 6.286-6.357.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01L8 2.748zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143c.06.055.119.112.176.171a3.12 3.12 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15z"/>
+                            </svg>   
+                        </button>
+                    </div>
+                </div>
+                `);
+                console.log(htmlElement);
+                document.getElementById("comments").appendChild(htmlElement);
+            }
+            else if (item.type === "Like") {
+                var htmlElement = htmlToElement(`
+                <div class="card my-3">
+                    <div class="card-body">
+                        <a href="${item.author.url}">${item.author.displayName}</a> liked
+                        <a href="${item.object}">this</a>
+                    </div>
+                </div>
+                `);
+                console.log(htmlElement);
+                document.getElementById("likes").appendChild(htmlElement);
+            }
+            else if (item.type === "Follow") {
+                var htmlElement = htmlToElement(`
+                <div class="card my-3">
+                    <div class="card-body">
+                        <a href="${item.actor.url}">${item.actor.displayName}</a> wants to follow you!
+                    </div>
+                </div>
+                `);
+                console.log(htmlElement);
+                document.getElementById("requests").appendChild(htmlElement);
+            }
+        }
+    });
+</script>
+{% endif %}
+{% endblock content %}

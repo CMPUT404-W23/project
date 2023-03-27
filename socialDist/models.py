@@ -1,6 +1,6 @@
 # MIT License
 
-# Copyright (c) 2023 Warren Lim
+# Copyright (c) 2023 Warren Lim, Junhyeon Cho, Alex Mak, Jason Kim, Filippo Ciandy
 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -35,7 +35,6 @@ from django.contrib.postgres.fields import ArrayField
 # https://medium.com/analytics-vidhya/add-friends-with-689a2fa4e41d
 # https://stackoverflow.com/questions/58794639/how-to-make-follower-following-system-with-django-model
 # https://stackoverflow.com/questions/2201598/how-to-define-two-fields-unique-as-coupl
-
 
 
 # Changes towards Author (02/28)
@@ -80,8 +79,6 @@ class Author(models.Model):
     """
 
 # List of servers authenciated to commuicate with us!
-# Source: https://stackoverflow.com/questions/72371106/how-to-auto-generate-a-field-value-with-the-input-field-value-in-django-model
-# https://docs.python.org/3/library/hashlib.html
 class Server(models.Model):
     # server Address, provided to us by connecting node
     serverAddress=models.URLField(primary_key=True)
@@ -97,7 +94,7 @@ class Connection(models.Model):
     apiAddress=models.URLField(primary_key=True)
     # Creditentals used to connect to API of node, add this to Authorization header
     # when sending HTTP requests to fetch external data
-    apiCreds=models.TextField()
+    apiCreds=models.TextField(blank=True)
 
 # Model to store relationships between followers
 # Source:
@@ -113,8 +110,8 @@ class UserFollowing(models.Model):
 # Source:
 # https://medium.com/analytics-vidhya/add-friends-with-689a2fa4e41d
 class FollowRequest(models.Model):
-    sender = models.ForeignKey(User, related_name="send_requests", on_delete=models.CASCADE)
-    target = models.ForeignKey(User, related_name="recievced_requests", on_delete=models.CASCADE)
+    sender = models.ForeignKey(Author, related_name="send_requests", on_delete=models.CASCADE)
+    target = models.ForeignKey(Author, related_name="recievced_requests", on_delete=models.CASCADE)
     date = models.DateTimeField(auto_created=True)
 
 # Model demonstrating a Post stored on this server
@@ -187,7 +184,6 @@ class Comment(models.Model):
 # Current foreignkey fields: isLiked
 class Like(models.Model):
     id = models.CharField(primary_key=True, max_length=200)
-    summary=models.TextField()
     likeType = models.CharField(max_length=20)
     author = models.ForeignKey(Author, on_delete=models.CASCADE, related_name="liked")
     parentPost = models.ForeignKey(Post, on_delete=models.CASCADE, related_name="likes",null=True, blank=True)
@@ -203,11 +199,14 @@ class Like(models.Model):
 # Current foreignkey fields: isLiked
 class Inbox(models.Model):
     # EDIT: 
-    inboxID=models.CharField(primary_key=True, max_length=40, default="")
+    inboxID=models.CharField(primary_key=True, max_length=200, default="")
 
     author=models.ForeignKey(Author, on_delete=models.CASCADE)
     # owner=models.ForeignKey(Author, on_delete=models.CASCADE)
 
     # Posts
-    posts=models.ManyToManyField(Post)
+    posts=models.ManyToManyField(Post, blank=True)
+    requests = models.ManyToManyField(FollowRequest, blank=True)
+    comments= models.ManyToManyField(Comment, blank=True)
+    likes=models.ManyToManyField(Like, blank=True)
     

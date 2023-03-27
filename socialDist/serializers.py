@@ -1,6 +1,6 @@
 # MIT License
 
-# Copyright (c) 2023 Warren Lim 
+# Copyright (c) 2023 Warren Lim, Junhyeon Cho, Alex Mak, Jason Kim, Filippo Ciandy
 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -21,7 +21,7 @@
 # SOFTWARE.
 
 from rest_framework import serializers
-from .models import Author, Post, Comment, Like, Server, Inbox
+from .models import Author, Post, Comment, Like, Server, Inbox, Connection, FollowRequest
 
 class AuthorSerializer(serializers.ModelSerializer):
     class Meta:
@@ -75,6 +75,15 @@ class LikeSerializer(serializers.ModelSerializer):
                   'author',
                   'published')
 
+class ConnectionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Connection
+        fields = (
+            'apiAddress',
+            'apiCreds'
+        )
+
+
 # Added new serlaizers for Server and Inbox
 class ServerSerializer(serializers.ModelSerializer):
     class Meta:
@@ -84,4 +93,11 @@ class ServerSerializer(serializers.ModelSerializer):
 class InboxSerializer(serializers.ModelSerializer):
     class Meta:
         model=Inbox
-        fields=('inboxID','owner','post','like','comment','content','contentType')
+        # fields=('inboxID','owner','post','like','comment','content','contentType')
+        fields=('inboxID', 'author', 'posts', 'requests', 'comments', 'likes')
+
+class FollowRequestSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=FollowRequest
+        # fields=('inboxID','owner','post','like','comment','content','contentType')
+        fields=('sender', 'target', 'date')
