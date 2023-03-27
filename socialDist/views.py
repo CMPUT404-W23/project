@@ -95,7 +95,7 @@ from .models import Author, Post, Comment, Like, Server, Inbox, UserFollowing, F
 from . import api_helper
 import base64 
 
-HOST = "https://socialdistcmput404.herokuapp.com/"
+HOST = "http://127.0.0.1:8000/"
 
 # API View for single author API queries (endpoint /api/authors/<author_id>/)
 class APIAuthor(APIView):

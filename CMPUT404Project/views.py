@@ -31,7 +31,7 @@ import marko
 
 # Markdown parser: https://marko-py.readthedocs.io/en/latest/
 
-HOST = "https://socialdistcmput404.herokuapp.com/"
+HOST = "http://127.0.0.1:8000/"
 
 @login_required
 def home(request):
