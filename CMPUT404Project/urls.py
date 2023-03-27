@@ -59,7 +59,7 @@ urlpatterns = [
     path("accounts/signup", TemplateView.as_view(template_name="registration/signup.html"), name="signup"),
     path("authors/<str:author_id>/", view=authorPage, name="page_author"),
     path("authors/<str:author_id>/posts/<str:post_id>/", view=postPage, name="page_post"),
-    path("authors/<str:author_id>/posts/<str:post_id>/edit", view=editPost, name="edit_post"),
+    path("authors/<str:author_id>/posts/<str:post_id>/edit/", view=editPost, name="edit_post"),
 ]
 # Automatically add redirections
 # set number of items to add to itself from the beginning

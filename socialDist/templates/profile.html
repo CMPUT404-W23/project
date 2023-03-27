@@ -16,6 +16,7 @@
     <div class="grid" id="requests">
     </div>
 </div>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 <script>
     //Source: https://stackoverflow.com/questions/494143/creating-a-new-dom-element-from-an-html-string-using-built-in-dom-methods-or-pro/35385518#35385518
     function htmlToElement(html) {
@@ -28,6 +29,7 @@
     "X-CSRFToken": "{{ csrf_token }}"})})
     .then((response) => response.json())
     .then((data) => {
+        console.log(data);
         for (let item of data.items) {
             if (item.type === "post") {
                 let content;
@@ -61,9 +63,9 @@
             else if (item.type === "comment") {
                 let content;
                 if (item.contentType === "text/markdown") {
-                    content = `<p class="card-text">${marked.parse(item.comment)}</p>`;
+                    content = `<p class="card-text">${marked.parse(item.content)}</p>`;
                 } else {
-                    content = `<p class="card-text">${item.comment}</p>`;
+                    content = `<p class="card-text">${item.content}</p>`;
                 }
                 var htmlElement = htmlToElement(`
                 <div class="card my-3">
