@@ -62,6 +62,12 @@
                         <option value="PRIVATE">Private</option>
                     </select>
                 </div>
+                <div class id="target-author" class="mb-3" hidden>
+                    <label for="target" class="form-label">Target Author:</label>
+                    <select class="form-select" style="width:80%" id="target">
+                        <option selected value="ALL"> All followers</option>
+                    </select>
+                </div>
                 <!--Unlisted-->
                 <div class="mb-3">
                     <label for="Unlisted" class="form-label">Unlisted:</label>
@@ -79,6 +85,26 @@
 </main>
 
 <script>
+    fetch("/api/authors/{{user.id}}/followers/", {
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": "{{ csrf_token }}",
+                "Authorization": "Token 516e5c3d636f46228edb8f09b9613d5b4b166816"
+            }})
+    .then((response) => response.json())
+    .then((data) => {
+        let followers = data.items;
+        let targetSelect = document.getElementById("target");
+        for (let follower in followers) {
+            let option = document.createElement("option")
+            option.value = follower.id;
+            option.innerHTML = follower.displayName;
+            targetSelect.appendChild(option);
+        }
+    })
+    .catch((error) => {
+        console.error("Fetch error:", error);
+    });
     document.getElementById("PostType").addEventListener("change", () => {
         const postType = document.getElementById("PostType").value;
         let toggle = false;
@@ -91,6 +117,14 @@
         document.getElementById("post-content").hidden = toggle;
         document.getElementById("post-image").hidden = !toggle;
     });
+    document.getElementById("Visibility").addEventListener("change", () => {
+        const visType = document.getElementById("Visibility").value;
+        if (visType == "VISIBLE") {
+            document.getElementById("target-author").hidden = true;
+        } else if (visType == "PRIVATE") {
+            document.getElementById("target-author").hidden = false;
+        }
+    });
 
     function displayAlert(alertType, alertMessage) {
         alertContainer = document.getElementById("save-alert");
@@ -102,6 +136,7 @@
     }
 
     async function toBase64() {
+        console.log("base64")
         return new Promise((resolve, reject) => {
             const input = document.getElementById("ImagePost");
             const file = input.files[0];

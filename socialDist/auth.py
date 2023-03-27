@@ -66,7 +66,7 @@ class CommentsPermissions(permissions.BasePermission):
             authorizationArr = authorization.split()
             if authorizationArr[0] != "Token":
                 return False
-            server = models.Server.objects.filter(serverKey=authorizationArr[1])
+            server = models.Server.objects.get(serverKey=authorizationArr[1])
             # We must allow remote modes to POST to /comments to allow them to post comments!
             if (request.method not in permissions.SAFE_METHODS and request.method != "POST") and not server.isLocalServer:
                 return False
@@ -81,11 +81,13 @@ class InboxPermission(permissions.BasePermission):
         if request.user.is_authenticated and request.user.is_staff:
             return True
         try:
+            print(request.headers)
             authorization = request.headers['Authorization']
             authorizationArr = authorization.split()
+            print(authorizationArr)
             if authorizationArr[0] != "Token":
                 return False
-            server = models.Server.objects.filter(serverKey=authorizationArr[1])
+            server = models.Server.objects.get(serverKey=authorizationArr[1])
             # Inbox, remote nodes can only POST!
             if (request.method == "GET" or request.method == "DELETE") and not server.isLocalServer:
                 return False
