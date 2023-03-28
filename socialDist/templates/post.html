@@ -202,6 +202,7 @@
         }
         else {
             for (follower of followers) {
+                // Send post to all followers of the user
                 await sendToInbox(follower.id, JSON.parse(response_txt));
             }
         }
@@ -213,6 +214,7 @@
         }
     }
     async function sendToInbox(id, data) {
+        // Send post to a user's inbox
         let url = new URL(id);
         let author_relative_path = url.pathname + "/"
         for (connection of connections) {
