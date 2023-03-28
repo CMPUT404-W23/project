@@ -1,111 +1,169 @@
 {% extends 'base.html' %}
 <link rel="stylesheet" href="../static/socialDist/styles.css">
 {% block content %}
+
+<head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css"
+        integrity="sha512-KfkfwYDsLkIlwQp6LFnl8zNdLGxu9YAA1QvwINks4PhcElQSvqcyVLLD9aMhXd13uQjoXtEKNosOWaZqXgel0g=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+</head>
 <main>
     <div class="container-md mt-2">
         <div class="grid" id="posts">
             <div class="d-flex justify-content-center">
                 <div class="spinner-border">
-                  <span class="visually-hidden">Loading Posts...</span>
+                    <span class="visually-hidden">Loading Posts...</span>
                 </div>
-              </div>
+            </div>
         </div>
-        <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-        <script>
-            function deletePost(id){
-                url = new URL(id)
-                fetch_url = "/api" + url.pathname +"/"
-                fetch(fetch_url, {headers: new Headers({"X-CSRFToken": "{{ csrf_token }}","Authorization": "Token 516e5c3d636f46228edb8f09b9613d5b4b166816"}), method: 'DELETE'})
-                .then((response) => response.status())
-                .then(window.location.reload())
+</main>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script>
+    function deletePost(id) {
+        url = new URL(id)
+        fetch_url = "/api" + url.pathname + "/"
+        fetch(fetch_url, { headers: new Headers({ "X-CSRFToken": "{{ csrf_token }}", "Authorization": "Token 516e5c3d636f46228edb8f09b9613d5b4b166816" }), method: 'DELETE' })
+            .then((response) => response.status())
+            .then(window.location.reload())
+    }
+    //https://www.w3docs.com/snippets/html/how-to-create-an-html-button-that-acts-like-a-link.html
+    function editPost(id) {
+        url = new URL(id)
+        window.location.href = url.pathname + "/edit/"
+    }
+    let posts;
+    fetch("/api/posts/", { headers: new Headers({ "Authorization": "Token 516e5c3d636f46228edb8f09b9613d5b4b166816" }) })
+        .then((response) => response.json())
+        .then((data) => {
+            if (data.items.length === 0) {
+                document.getElementById('posts').innerHTML = `<div class="d-flex justify-content-center py-4"><h3>No posts to show.</h3></div>`
+                return
             }
-            //https://www.w3docs.com/snippets/html/how-to-create-an-html-button-that-acts-like-a-link.html
-            function editPost(id) {
-                url = new URL(id)
-                window.location.href= url.pathname + "/edit/"
-            }
-            let posts;
-            fetch("/api/posts/", {headers: new Headers({"Authorization": "Token 516e5c3d636f46228edb8f09b9613d5b4b166816"})})
-                .then((response) => response.json())
-                .then((data) => {
-                    if (data.items.length === 0) {
-                        document.getElementById('posts').innerHTML = `<div class="d-flex justify-content-center py-4"><h3>No posts to show.</h3></div>`
-                        return
+            posts = data.items;
+            document.getElementById('posts').innerHTML = posts.map((post, index) => {
+                let content;
+                if (post.contentType.startsWith("image")) {
+                    content = `<img class="img-fluid mx-auto d-block" style="max-width: 50%" src="data:${post.contentType}, ${post.content}"/><br>`;
+                }
+                else {
+                    if (post.contentType === "text/markdown") {
+                        post.title = marked.parse(post.title);
+                        post.description = marked.parse(post.description);
+                        content = `<p class="card-text">${marked.parse(post.content)}</p>`;
+                    } else {
+                        content = `<p class="card-text">${post.content}</p>`;
                     }
-                    posts = data.items;
-                    document.getElementById('posts').innerHTML = posts.map((post) => {
-                        let content;
-                        if (post.contentType.startsWith("image")) {
-                            content = `<img class="img-fluid mx-auto d-block" style="max-width: 50%" src="data:${post.contentType}, ${post.content}"/><br>`;
-                        } 
-                        else {
-                            if (post.contentType === "text/markdown") {
-                            post.title = marked.parse(post.title);
-                            post.description = marked.parse(post.description);
-                            content = `<p class="card-text">${marked.parse(post.content)}</p>`;
-                            } else {
-                                content = `<p class="card-text">${post.content}</p>`;
-                            }
-                        }
-                        post_url = new URL(post.id);
-                        author_url = new URL(post.author.url);
-                        post_relative_path = post_url.pathname + "/";
-                        author_relative_path = author_url.pathname + "/";
-                        author_arr = author_url.pathname.split("/");
-                        post_arr = post_url.pathname.split("/");
-                        post_id = post_arr[post_arr.length-1];
-                        author_id = author_arr[author_arr.length-1];
-                        display_posts = `
+                }
+                post_url = new URL(post.id);
+                author_url = new URL(post.author.url);
+                post_relative_path = post_url.pathname + "/";
+                author_relative_path = author_url.pathname + "/";
+                author_arr = author_url.pathname.split("/");
+                post_arr = post_url.pathname.split("/");
+                post_id = post_arr[post_arr.length - 1];
+                author_id = author_arr[author_arr.length - 1];
+                display_posts = `
                             <div class="card my-3" id="post-${post_id}">
                                 <div class="card-body">
                                     <h5 class="card-title"><a href="${post_relative_path}">${post.title}</a></h5>
                                     <h6 class="card-subtitle mb-2 text-muted"><a href="${author_relative_path}">${post.author.displayName}</a></h6>
-                                    <h6 class="card-subtitle mb-2 text-muted">${post.description} <span class="badge bg-secondary">${post.categories}</span></h6>
-                                    ${content}
-                                    <button type="button" class="btn btn-secondary btn-sm">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-heart" viewBox="0 0 16 16">
-                                            <path d="m8 2.748-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385.92 1.815 2.834 3.989 6.286 6.357 3.452-2.368 5.365-4.542 6.286-6.357.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01L8 2.748zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143c.06.055.119.112.176.171a3.12 3.12 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15z"/>
-                                        </svg>   
-                                    </button>                                   `
-                        if (author_id == "{{user.id}}") {
-                            display_posts += `
-                                    <button onclick="deletePost('${post.id}')">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash-fill" viewBox="0 0 16 16">
-                                            <path d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1H2.5zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5zM8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5zm3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0z"/>
-                                        </svg>
-                                    </button>
-                                    <button onclick="editPost('${post.id}')" style="padding:2px;">
-                                       Edit
+                                    <h6 class="card-subtitle mb-2 text-muted">${post.description}</h6>
+                                    <span class="badge bg-secondary">${post.categories}</span>
+                                    ${content}`
+                if (isLiked(index)) {
+                    // if post is liked, display a filled heart and no onclick function
+                    display_posts += `<button type="button" class="btn btn-secondary btn-sm" id="like-btn-${index}">
+                                        <i class="fa-solid fa-heart"></i>
                                     </button>`
-                        }
-                        return (display_posts + '</div></div>')
-                    }).join('');
-                })
-                .catch((error) => {
-                    console.error("Fetch error:", error);
-                    document.getElementById('posts').innerHTML = `<div class="d-flex justify-content-center py-4"><h3>Error fetching posts</h3></div>`
-                });
-            fetchExternalPosts();
-            //Source: https://stackoverflow.com/questions/494143/creating-a-new-dom-element-from-an-html-string-using-built-in-dom-methods-or-pro/35385518#35385518
-            function htmlToElement(html) {
-                var template = document.createElement('template');
-                template.innerHTML = html;
-                return template.content;
-            }
-            
-            async function fetchExternalPosts() {
-        
-            //Source: https://stackoverflow.com/questions/43305020/how-to-use-the-context-variables-passed-from-django-in-javascript
-            var listOfConnections = JSON.parse('{{connections|escapejs}}');
-            for (connection of listOfConnections) {
-                try {
-                    let returnedData;
+                } else {
+                    // if post is not liked, display an empty heart and bind onclick function so user can like it
+                    display_posts += `<button type="button" class="btn btn-secondary btn-sm" onclick="likePost('${index}')" id="like-btn-${index}">
+                                        <i class="fa-regular fa-heart"></i> 
+                                    </button>`
+                }
+                if (author_id == "{{user.id}}") {
+                    display_posts += `
+                                    <button type="button" class="btn btn-secondary btn-sm" onclick="editPost('${post.id}')">
+                                    Edit
+                                    </button>
+                                    <button type="button" class="btn btn-danger btn-sm" onclick="deletePost('${post.id}')">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </button>`
+                }
+                return (display_posts + '</div></div>')
+            }).join('');
+        })
+        .catch((error) => {
+            console.error("Fetch error:", error);
+            document.getElementById('posts').innerHTML = `<div class="d-flex justify-content-center py-4"><h3>Error fetching posts</h3></div>`
+        });
+
+    async function likePost(i) {
+        const post = posts[i]; // we got a list of all posts from fetch; like button passes the index of which post to like
+        const author = post.author;
+        const authorID = author.id.split("/").pop();
+        const url = `/api/authors/${authorID}/inbox/`
+        const data = {
+            "@context": "Post Like",
+            "summary": "{{ user.username }} Likes your post",
+            "type": "Like",
+            "author": author,
+            "object": post.id
+        }
+        const response = await fetch(url, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": "{{ csrf_token }}",
+                "Authorization": "Token 516e5c3d636f46228edb8f09b9613d5b4b166816"
+            },
+            body: JSON.stringify(data),
+        });
+        if (response.status == 200) {
+            document.getElementById(`like-btn-${i}`).innerHTML = `<i class="fa-solid fa-heart"></i>`;
+        } else {
+            console.log(response.status, response.statusText)
+        }
+    }
+
+    function isLiked(i) {
+        const post = posts[i];
+        const author = post.author;
+        const authorID = author.id.split("/").pop();
+        const url = `/api/authors/${authorID}/posts/${post.id.split('/').pop()}/likes/`
+        const response = fetch(url, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": "{{ csrf_token }}",
+                "Authorization": "Token 516e5c3d636f46228edb8f09b9613d5b4b166816"
+            },
+        });
+        console.log(response)
+        return false
+    }
+
+    fetchExternalPosts();
+    //Source: https://stackoverflow.com/questions/494143/creating-a-new-dom-element-from-an-html-string-using-built-in-dom-methods-or-pro/35385518#35385518
+    function htmlToElement(html) {
+        var template = document.createElement('template');
+        template.innerHTML = html;
+        return template.content;
+    }
+
+    async function fetchExternalPosts() {
+        // fetch foreign posts and render
+        //Source: https://stackoverflow.com/questions/43305020/how-to-use-the-context-variables-passed-from-django-in-javascript
+        var listOfConnections = JSON.parse('{{connections|escapejs}}');
+        for (connection of listOfConnections) {
+            try {
+                let returnedData;
                 if (connection.apiCreds === "") {
                     returnedData = await fetch(connection.apiAddress + "/authors/");
                 }
                 else {
-                    returnedData = await fetch(connection.apiAddress + "/authors/", 
-                                                {headers: new Headers({"Authorization": connection.apiCreds })});
+                    returnedData = await fetch(connection.apiAddress + "/authors/",
+                        { headers: new Headers({ "Authorization": connection.apiCreds }) });
                 }
                 let returnedDatatext = await returnedData.text();
                 let returnedDataList = JSON.parse(returnedDatatext);
@@ -113,79 +171,77 @@
                     continue
                 }
                 for (data of returnedDataList.items) {
-                     // https://dmitripavlutin.com/parse-url-javascript/
+                    // https://dmitripavlutin.com/parse-url-javascript/
                     try {
                         let data_url = new URL(data.id);
-                    let data_path = data_url.pathname;
-                    let index = data_path.search("/api")
-                    if (index != -1) {
-                        console.log(data_path)
-                        data_path = data_path.substring(index+4)
-                    }
-                    let posts_response = await fetch(connection.apiAddress + data_path + "/posts/",
-                                                    {headers: new Headers({"Authorization": connection.apiCreds })});
-                    let posts_list_json = await posts_response.text();
-                    let post_list_obj = JSON.parse(posts_list_json);
-                    let posts;
-                    if (post_list_obj.items == undefined) {
-                        posts = post_list_obj;
-                    }
-                    else {
-                        posts = post_list_obj.items;
-                    }
-                    if (posts.length == 0) {
-                        continue;
-                    }
-                    for (post of posts) {
-                        try {
-                            let content;
-                        // ensure we dont render unlisted posts of our connected nodes
-                        if (post.unlisted) {
-                            continue
+                        let data_path = data_url.pathname;
+                        let index = data_path.search("/api")
+                        if (index != -1) {
+                            console.log(data_path)
+                            data_path = data_path.substring(index + 4)
                         }
-                        if (post.contentType.startsWith("image")) {
-                            content = `<img class="img-fluid mx-auto d-block" style="max-width: 50%" src="data:${post.contentType}, ${post.content}"/><br>`;
-                        } else if (post.contentType === "text/markdown") {
-                            post.title = marked.parse(post.title);
-                            post.description = marked.parse(post.description);
-                            content = `<p class="card-text">${marked.parse(post.content)}</p>`;
-                        } else {
-                            content = `<p class="card-text">${post.content}</p>`;
+                        let posts_response = await fetch(connection.apiAddress + data_path + "/posts/",
+                            { headers: new Headers({ "Authorization": connection.apiCreds }) });
+                        let posts_list_json = await posts_response.text();
+                        let post_list_obj = JSON.parse(posts_list_json);
+                        let posts;
+                        if (post_list_obj.items == undefined) {
+                            posts = post_list_obj;
                         }
-                        var htmlElement = htmlToElement(`
-                        <div class="card my-3">
-                            <div class="card-body">
-                                <h5 class="card-title"><a href="${post.id}">${post.title}</a></h5>
-                                <h6 class="card-subtitle mb-2 text-muted"><a href="${post.author.url}">${post.author.displayName}</a></h6>
-                                <h6 class="card-subtitle mb-2 text-muted">${post.description} <span class="badge bg-secondary">${post.categories}</span></h6>
-                                ${content}
-                                <button type="button" class="btn btn-secondary btn-sm" id="likeButton">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-heart" viewBox="0 0 16 16">
-                                        <path d="m8 2.748-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385.92 1.815 2.834 3.989 6.286 6.357 3.452-2.368 5.365-4.542 6.286-6.357.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01L8 2.748zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143c.06.055.119.112.176.171a3.12 3.12 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15z"/>
-                                    </svg>   
-                                </button>
-                            </div>
-                        </div>
-                        `)
-                        console.log(htmlElement);
-                        document.getElementById("posts").appendChild(htmlElement);
+                        else {
+                            posts = post_list_obj.items;
                         }
-                        catch {
+                        if (posts.length == 0) {
                             continue;
-                        } 
-                    }
+                        }
+                        for (post of posts) {
+                            try {
+                                let content;
+                                // ensure we dont render unlisted posts of our connected nodes
+                                if (post.unlisted) {
+                                    continue
+                                }
+                                if (post.contentType.startsWith("image")) {
+                                    content = `<img class="img-fluid mx-auto d-block" style="max-width: 50%" src="data:${post.contentType}, ${post.content}"/><br>`;
+                                } else if (post.contentType === "text/markdown") {
+                                    post.title = marked.parse(post.title);
+                                    post.description = marked.parse(post.description);
+                                    content = `<p class="card-text">${marked.parse(post.content)}</p>`;
+                                } else {
+                                    content = `<p class="card-text">${post.content}</p>`;
+                                }
+                                var htmlElement = htmlToElement(`
+                                            <div class="card my-3">
+                                                <div class="card-body">
+                                                    <h5 class="card-title"><a href="${post.id}">${post.title}</a></h5>
+                                                    <h6 class="card-subtitle mb-2 text-muted"><a href="${post.author.url}">${post.author.displayName}</a></h6>
+                                                    <h6 class="card-subtitle mb-2 text-muted">${post.description}</h6>
+                                                    <span class="badge bg-secondary">${post.categories}</span>
+                                                    ${content}
+                                                    <button type="button" class="btn btn-secondary btn-sm">
+                                                        <i class="fa-regular fa-heart"></i> 
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        `);
+                                console.log(htmlElement);
+                                document.getElementById("posts").appendChild(htmlElement);
+                            }
+                            catch {
+                                continue;
+                            }
+                        }
                     }
                     catch {
                         continue;
                     }
                 }
-                }
-                catch {
-                    continue;
-                }
             }
+            catch {
+                continue;
             }
-        </script>
-</main>
+        }
+    }
+</script>
 
 {% endblock content %}
