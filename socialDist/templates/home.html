@@ -20,6 +20,7 @@
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 <script>
     function deletePost(id) {
+        // DELETE a post
         url = new URL(id)
         fetch_url = "/api" + url.pathname + "/"
         fetch(fetch_url, { headers: new Headers({ "X-CSRFToken": "{{ csrf_token }}", "Authorization": "Token 516e5c3d636f46228edb8f09b9613d5b4b166816" }), method: 'DELETE' })
@@ -33,6 +34,7 @@
     }
     var current_author = JSON.parse('{{current_author|escapejs}}');
     let posts;
+    // GET all public posts and display them
     fetch("/api/posts/", { headers: new Headers({ "Authorization": "Token 516e5c3d636f46228edb8f09b9613d5b4b166816" }) })
         .then((response) => response.json())
         .then((data) => {
@@ -106,6 +108,7 @@
             "author": current_author,
             "object": post.id
         }
+        // POST a like object to the author's inbox
         const response = await fetch(url, {
             method: "POST",
             headers: {
@@ -129,6 +132,7 @@
         const author = post.author;
         const authorID = author.id.split("/").pop();
         const url = `/api/authors/${authorID}/posts/${post.id.split('/').pop()}/likes/`
+        // GET list of likes for the post
         const response = await fetch(url, {
             method: "GET",
             headers: {
