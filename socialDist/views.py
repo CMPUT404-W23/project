@@ -45,6 +45,7 @@ from django.http import QueryDict
 from rest_framework import status
 from django.utils.crypto import get_random_string
 from django.contrib.auth.models import User
+from django.forms.models import model_to_dict
 from .serializers import AuthorSerializer, PostSerializer, CommentSerializer, LikeSerializer, ServerSerializer, InboxSerializer, FollowRequestSerializer
 import urllib.parse
 # from itertools import chain
@@ -314,14 +315,12 @@ class APIPost(APIView):
         try:
             author = Author.objects.get(pk=HOST+"authors/"+author_id)
         except Author.DoesNotExist:
-            print("author")
             return Response(status=404)
         if not request.user.is_authenticated and request.user.id != author_id:
             return Response(status=401)
         try:
             post = Post.objects.filter(visibility="VISIBLE").get(pk=HOST+"authors/"+author_id+"/posts/"+post_id)
         except Post.DoesNotExist:
-            print("post")
             return Response(status=404)
         post.delete()
         return Response(status=200)
@@ -511,6 +510,7 @@ class APIListComments(APIView):
                 newCommentDict = dict(request.data)
                 newCommentDict["id"] = HOST+"authors/"+author_id+"/posts/"+post_id+"/comments/"+comment_id
                 newCommentDict["parentPost"] = HOST+"authors/"+author_id+"/posts/"+post_id
+
                 # check if author is saved in our DB (remote or local)
                 try:
                     commentAuthor = Author.objects.get(pk=newCommentDict["author"]["id"])
@@ -524,6 +524,7 @@ class APIListComments(APIView):
                         return Response(status=400, data=commentAuthorSerializer.errors)
                     commentAuthorSerializer.save()
                 newCommentDict["author"] = newCommentDict["author"]["id"]
+                newCommentDict["published"] = datetime.datetime.now().isoformat()
                 serializer = CommentSerializer(data=newCommentDict, partial=True)
                 if serializer.is_valid():
                         serializer.save()
