@@ -1,8 +1,8 @@
 {% extends 'base.html' %}
 <link rel="stylesheet" href="../static/socialDist/styles.css">
 {% block content %}
-
 <head>
+    <!-- FontAwesome Icons link -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css"
         integrity="sha512-KfkfwYDsLkIlwQp6LFnl8zNdLGxu9YAA1QvwINks4PhcElQSvqcyVLLD9aMhXd13uQjoXtEKNosOWaZqXgel0g=="
         crossorigin="anonymous" referrerpolicy="no-referrer" />
@@ -115,6 +115,7 @@
         });
         if (response.status == 200) {
             document.getElementById(`like-btn-${i}`).innerHTML = `<i class="fa-solid fa-heart"></i>`;
+            document.getElementById(`like-btn-${i}`).disabled = true;
         } else {
             console.log(response.status, response.statusText)
         }
