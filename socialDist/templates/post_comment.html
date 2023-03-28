@@ -28,6 +28,12 @@
         </form>
     </div>
     <script>
+        const commonHeaders = {
+            "Content-Type": "application/json",
+            "X-CSRFToken": "{{ csrf_token }}",
+            "Authorization": "Token 516e5c3d636f46228edb8f09b9613d5b4b166816"
+        };
+        
         function displayAlert(alertType, alertMessage) {
             alertContainer = document.getElementById("save-alert");
             alertContainer.innerHTML = "";
@@ -49,18 +55,41 @@
 
             const response = await fetch(comment_url, {
                 method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "X-CSRFToken": "{{ csrf_token }}",
-                    "Authorization": "Token 516e5c3d636f46228edb8f09b9613d5b4b166816"
-                },
+                headers: commonHeaders,
                 body: JSON.stringify(data),
             });
             console.log(response);
             if (response.status == 201) {
-                displayAlert("alert-success", "Post edited successfully!");
+                displayAlert("alert-success", "Comment posted successfully!");
             } else {
-                displayAlert("alert-danger", "Editing post failed!");
+                displayAlert("alert-danger", "Posting comment failed!");
+            }
+        }
+
+        async function sendToInbox(id, data) {
+            let url = new URL(id);
+            let author_relative_path = url.pathname + "/"
+            for (connection of connections) {
+                if ("https://" + url.hostname == connection.hostName) {
+                    fetch(connection.apiAddress + author_relative_path + "inbox/", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "X-CSRFToken": "{{ csrf_token }}",
+                            "Authorization": connections.apiCreds
+                        },
+                        body: JSON.stringify(data),
+                    });
+                    break;
+                }
+                else if ("https://" + url.hostname == "https://socialdistcmput404.herokuapp.com") {
+                    fetch("/api" + author_relative_path + "inbox/", {
+                        method: "POST",
+                        headers: commonHeaders,
+                        body: JSON.stringify(data),
+                    });
+                    break;
+                }
             }
         }
     </script>

@@ -513,9 +513,7 @@ class APIListComments(APIView):
 
                 # check if author is saved in our DB (remote or local)
                 try:
-                    print(newCommentDict["author"]["id"])
                     commentAuthor = Author.objects.get(pk=newCommentDict["author"]["id"])
-                    print(commentAuthor)
                 except Author.DoesNotExist:
                     # check if author is a remote author not yet saved
                     if newCommentDict["author"]["host"] == HOST:
@@ -533,7 +531,6 @@ class APIListComments(APIView):
                         return Response(status=201, 
                                         data=api_helper.construct_comment_object(serializer.data,
                                                                                  Author.objects.get(id=newCommentDict["author"])))
-                print(serializer.errors)
                 return Response(status=400, data=serializer.errors)
 
 # API view for likes on a post (endpoint /api/authors/<author_id>/posts/<post_id>/likes/)
