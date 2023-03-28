@@ -10,7 +10,7 @@
                 </h1>
                 <div class="mb-3">
                     <label for="Comment" class="form-label"> Comment: </label>
-                    <textarea class="form-control" id="Comment" style="width:80%" type="text"
+                    <textarea class="form-control" id="bro" style="width:80%" type="text"
                         placeholder="Please enter comment"></textarea>               
                 </div>
                 <div id="save-alert"></div>
@@ -23,11 +23,19 @@
             let post_url = new URL("{{post.id}}")
             comment_url = "/api" + post_url.pathname + "/comments/"
             console.log("{{post}}")
-            console.log("{{author}}")
+            author = {
+                user : "{{author.user}}",
+                id : "{{author.id}}",
+                host : "{{author.host}}",
+                displayName : "{{author.displayName}}",
+                github : "{{author.github}}",
+                profileImage : "{{author.profileImage}}"
+            }
+            console.log(author)
             const data = {
-                content : document.getElementById("Comment"),
+                content : "ddd",
                 contentType : "plaintext",
-                // author : 
+                author : author
             }
 
             const response = await fetch(comment_url, {
