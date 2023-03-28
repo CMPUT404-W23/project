@@ -38,6 +38,23 @@
         url = new URL(id)
         window.location.href = url.pathname + "/comments/"
     }
+    async function getComment(author_id, post_id) {
+        const url = `/api/authors/${author_id}/posts/${post_id}/comments/`
+        const response = await fetch(url, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": "{{ csrf_token }}",
+                "Authorization": "Token 516e5c3d636f46228edb8f09b9613d5b4b166816"
+            },
+        }).then(response => response.json())
+            .then(data => {
+                for (const x of data.items){
+                    comment_html = `<div>${x.content}</div>`
+                    document.getElementById("comment").innerHTML += comment_html 
+                }
+            });
+    }
     const current_author = JSON.parse('{{current_author|escapejs}}');
     fetch("/api" + data_path + "/",
         { headers: new Headers({ "Authorization": "Token 516e5c3d636f46228edb8f09b9613d5b4b166816" }) })
@@ -85,7 +102,15 @@
                             </button>
                                     `
             }
-            document.getElementById("post").innerHTML = display_post + '</div></div>'
+            getComment(author_id,post_id)
+            comments_section = 
+            `
+            <div class="card my-3">
+                <h3> Comment section: </h3>
+                <div id="comment"></div>
+            </div>
+            `
+            document.getElementById("post").innerHTML = display_post + '</div></div>' + comments_section
             isLiked(post);
         });
     async function likePost(post) {
