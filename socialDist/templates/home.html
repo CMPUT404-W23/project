@@ -31,10 +31,7 @@
         url = new URL(id)
         window.location.href = url.pathname + "/edit/"
     }
-    function postComment(id){
-        url = new URL(id)
-        window.location.href = url.pathname + "/comments/"
-    }
+
     let posts;
     fetch("/api/posts/", { headers: new Headers({ "Authorization": "Token 516e5c3d636f46228edb8f09b9613d5b4b166816" }) })
         .then((response) => response.json())

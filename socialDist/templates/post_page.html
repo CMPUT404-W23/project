@@ -25,6 +25,10 @@
         url = new URL(id)
         window.location.href= url.pathname + "/edit/"
     }
+    function postComment(id){
+        url = new URL(id)
+        window.location.href = url.pathname + "/comments/"
+    }
     fetch("/api" + data_path + "/",  
           {headers: new Headers({"Authorization": "Token 516e5c3d636f46228edb8f09b9613d5b4b166816"})})
     .then((response) => response.json())
@@ -69,7 +73,11 @@
                     </button>
                     <button onclick="editPost('${post.id}')">
                         Edit
-                    </button>`
+                    </button>
+                    <button type="button" class="btn btn-secondary btn-sm" onclick="postComment('${post.id}')">
+                                    Comment
+                    </button>
+                    `
         }      
         document.getElementById("post").innerHTML = display_post + '</div></div>'
         });
