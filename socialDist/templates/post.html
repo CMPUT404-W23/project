@@ -199,6 +199,7 @@
         if (document.getElementById("Visibility").value == "FRIENDS" 
         && document.getElementById("target").value != "ALL") {
             await sendToInbox(document.getElementById("target").value, data);
+            await sendToInbox(author.id, data);
         }
         else {
             console.log(followers);
@@ -208,7 +209,7 @@
         }
         if (response.status == 201) {
             displayAlert("alert-success", "Post created successfully!");
-            // window.location.href = "/";
+            window.location.href = "/";
         } else {
             displayAlert("alert-danger", "Post creation failed!");
         }
