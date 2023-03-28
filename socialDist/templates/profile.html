@@ -89,6 +89,7 @@
                 `);
                 console.log(htmlElement);
                 document.getElementById("posts").appendChild(htmlElement);
+                isLiked(index); // check if post is liked by user
             }
             else if (item.type === "comment") {
                 let content;
