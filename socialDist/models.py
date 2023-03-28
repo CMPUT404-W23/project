@@ -95,6 +95,7 @@ class Connection(models.Model):
     # Creditentals used to connect to API of node, add this to Authorization header
     # when sending HTTP requests to fetch external data
     apiCreds=models.TextField(blank=True)
+    hostName=models.URLField()
 
 # Model to store relationships between followers
 # Source:

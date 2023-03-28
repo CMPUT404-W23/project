@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from socialDist.models import Author, Post, Connection
-from socialDist.serializers import ConnectionSerializer
+from socialDist.serializers import ConnectionSerializer, AuthorSerializer
 import base64
 import json
 import marko
@@ -50,6 +50,16 @@ def settings(request):
     context = {'author': author}
     return render(request, 'settings.html', context)
 
+@login_required
+def search(request):
+    connections = Connection.objects.all()
+    connections_serial = ConnectionSerializer(connections, many=True) 
+    author = Author.objects.get(user=request.user)
+    author_serial = AuthorSerializer(author)
+    context = {'connections': json.dumps(connections_serial.data),
+               'author': json.dumps(author_serial.data)}
+    return render(request, 'search.html', context)
+
 # URL to public post, even if unlisted, if image, will be actual image!
 def postPage(request, author_id, post_id):
     try:
@@ -95,4 +105,10 @@ def editPost(request, author_id, post_id):
     
 @login_required
 def create_post(request):
-    return render(request, 'post.html')
+    connections = Connection.objects.all()
+    connections_serial = ConnectionSerializer(connections, many=True) 
+    author = Author.objects.get(user=request.user)
+    author_serial = AuthorSerializer(author)
+    context = {'connections': json.dumps(connections_serial.data),
+               'author': json.dumps(dict(author_serial.data))}
+    return render(request, 'post.html', context)
