@@ -80,7 +80,8 @@ class ConnectionSerializer(serializers.ModelSerializer):
         model = Connection
         fields = (
             'apiAddress',
-            'apiCreds'
+            'apiCreds',
+            'hostName'
         )
 
 

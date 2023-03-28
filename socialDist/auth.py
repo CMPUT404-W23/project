@@ -36,6 +36,7 @@ class RemotePermission(permissions.BasePermission):
         # Special permission for admin users, can use API without auth token
         if request.user.is_authenticated and request.user.is_staff:
             return True
+
         try:
             authorization = request.headers['Authorization']
             authorizationArr = authorization.split()
@@ -75,10 +76,8 @@ class InboxPermission(permissions.BasePermission):
         if request.user.is_authenticated and request.user.is_staff:
             return True
         try:
-            print(request.headers)
             authorization = request.headers['Authorization']
             authorizationArr = authorization.split()
-            print(authorizationArr)
             if authorizationArr[0] != "Token":
                 return False
             server = models.Server.objects.get(serverKey=authorizationArr[1])

@@ -209,7 +209,7 @@ class APIListAuthors(APIView):
                 profileImage="",
             )
             inbox = Inbox.objects.create(
-                inboxID=user.pk,
+                inboxID=HOST+"authors/"+str(user.pk)+"/inbox",
                 author=author
             )
             return Response(status=201)
@@ -659,6 +659,8 @@ class APIFollower(APIView):
             userfollowing = UserFollowing(user_id=followingAuthor, 
                                           following_user_id=targetAuthor)
             userfollowing.save()
+            followRequest = FollowRequest.objects.get(target=targetAuthor, sender=followingAuthor)
+            followRequest.delete()
             return Response(status=201)
     
     # Make the foreign author not follow the author
@@ -786,8 +788,8 @@ class APIInbox(APIView):
             try:
                 sendingAuthor = Author.objects.get(pk=request.data["actor"]["id"])
             except Author.DoesNotExist:
-                if request.data["author"]["host"] == HOST:
-                        return Response(status=404)
+                if request.data["author"]["host"] == HOST:  
+                    return Response(status=404)
                 new_author_serial = AuthorSerializer(data=request.data["actor"], partial=True)
                 if not new_author_serial.is_valid():
                     return Response(status=400, data=new_author_serial.errors)
@@ -833,17 +835,19 @@ class APIInbox(APIView):
             like_dict["id"] = request.data["object"]+"/likes/"+like_id
             like_dict["author"] = request.data["author"]["id"]
             like_dict["published"] = datetime.datetime.now().isoformat()
-            if (isPost):
-                like_dict["parentPost"] = request.data["object"]
-                like_dict["likeType"] = "Post"
-            else:
-                like_dict["parentComment"] = request.data["object"]
-                like_dict["likeType"] = "Comment"
+      
             like_serial = LikeSerializer(data=like_dict, partial=True)
             if not like_serial.is_valid():
                 return Response(status=400, data=like_serial.errors)
             like_serial.save()
             like = Like.objects.get(pk=request.data["object"]+"/likes/"+like_id)
+            if (isPost):
+                like.parentPost = post
+                like.likeType = "Post"
+            else:
+                like.parentComment = comment
+                like.likeType = "Comment"
+            like.save()
             inbox.likes.add(like)
             return Response(status=200)
         
@@ -901,6 +905,7 @@ class APIPosts(APIView):
                 continue
             posts = PostSerializer(Post.objects.filter(author=each_author).filter(visibility="VISIBLE").filter(unlisted=False), many=True)
             author_posts_pair.append([each_author, posts.data])
-            print("num_post for "+dict(AuthorSerializer(each_author).data)["id"]+": "+str(len(posts.data)))
-
+            # prints num_post for each author
+            # print("num_post for "+dict(AuthorSerializer(each_author).data)["id"]+": "+str(len(posts.data)))
+            
         return Response(status=200, data=api_helper.construct_list_of_all_posts(author_posts_pair))
