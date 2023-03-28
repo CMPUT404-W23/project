@@ -37,7 +37,15 @@ HOST = "https://socialdistcmput404.herokuapp.com/"
 def home(request):
     connections = Connection.objects.all()
     connections_serial = ConnectionSerializer(connections, many=True) 
-    context = {'connections': json.dumps(connections_serial.data)}
+    
+    try:
+        current_author = Author.objects.get(user=request.user)
+        current_author_serial = AuthorSerializer(current_author)
+        context = {'connections': json.dumps(connections_serial.data),
+               'current_author': json.dumps(dict(current_author_serial.data))}
+    except:
+        context = {'connections': json.dumps(connections_serial.data),
+                   'current_author': json.dumps({})}
     return render(request, 'home.html', context)
 
 @login_required
