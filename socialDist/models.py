@@ -190,6 +190,7 @@ class Like(models.Model):
     parentPost = models.ForeignKey(Post, on_delete=models.CASCADE, related_name="likes",null=True, blank=True)
     parentComment = models.ForeignKey(Comment, on_delete=models.CASCADE, related_name="likes", null=True, blank=True)
     published = models.DateTimeField(auto_created=True)
+    summary = models.TextField()
 
 
 # Changes towards Inbox (02/28):
