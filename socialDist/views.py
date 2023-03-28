@@ -659,6 +659,8 @@ class APIFollower(APIView):
             userfollowing = UserFollowing(user_id=followingAuthor, 
                                           following_user_id=targetAuthor)
             userfollowing.save()
+            followRequest = FollowRequest.objects.get(target=targetAuthor, sender=followingAuthor)
+            followRequest.delete()
             return Response(status=201)
     
     # Make the foreign author not follow the author
