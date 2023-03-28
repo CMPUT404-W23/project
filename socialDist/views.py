@@ -209,7 +209,7 @@ class APIListAuthors(APIView):
                 profileImage="",
             )
             inbox = Inbox.objects.create(
-                inboxID=user.pk,
+                inboxID=HOST+"authors/"+str(user.pk)+"/inbox",
                 author=author
             )
             return Response(status=201)

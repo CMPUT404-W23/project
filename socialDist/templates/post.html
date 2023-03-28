@@ -198,8 +198,8 @@
         const response_txt = await response.text();
         if (document.getElementById("Visibility").value == "FRIENDS" 
         && document.getElementById("target").value != "ALL") {
-            await sendToInbox(document.getElementById("target").value, data);
-            await sendToInbox(author.id, data);
+            await sendToInbox(document.getElementById("target").value, JSON.parse(response_txt));
+            await sendToInbox(author.id, JSON.parse(response_txt));
         }
         else {
             console.log(followers);

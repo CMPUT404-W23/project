@@ -116,7 +116,7 @@
     async function accept(id, target) {
         let path = "/api/authors/{{user.id}}/followers/" + id + "/";
         console.log(path);
-        fetch(path,  
+        await fetch(path,  
             { method: "PUT",
               headers: {
                     "Content-Type": "application/json",
@@ -124,6 +124,7 @@
                     "Authorization": "Token 516e5c3d636f46228edb8f09b9613d5b4b166816"
                 },
               body: JSON.stringify(followReqActors[target])});
+        window.location.reload();
     };
 </script>
 {% endif %}
