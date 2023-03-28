@@ -75,11 +75,20 @@ def postPage(request, author_id, post_id):
     except Author.DoesNotExist:
         return HttpResponse(status=404, content="Post does not exist")
     try:
+        current_author = Author.objects.get(user=request.user)
+        current_author_serial = AuthorSerializer(current_author)
+        current_author_context = json.dumps(dict(current_author_serial.data))
+    except:
+        current_author_context = json.dumps({})
+    try:
         post = Post.objects.filter(visibility="VISIBLE").get(id=HOST+"authors/"+author_id+"/posts/"+post_id)
-        context = {'post': post}
-        return render(request, 'post_page.html', context)
     except Post.DoesNotExist:
         return HttpResponse(status=404, content="Post does not exist")
+    context = {
+        'post': post,
+        'current_author': current_author_context,
+    }
+    return render(request, 'post_page.html', context)
 
 # URL to author profile page, will contain inbox if owner
 def authorPage(request, author_id):
