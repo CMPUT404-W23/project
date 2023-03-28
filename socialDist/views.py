@@ -209,7 +209,7 @@ class APIListAuthors(APIView):
                 profileImage="",
             )
             inbox = Inbox.objects.create(
-                inboxID=user.pk,
+                inboxID=HOST+"authors/"+str(user.pk)+"/inbox",
                 author=author
             )
             return Response(status=201)
@@ -835,17 +835,19 @@ class APIInbox(APIView):
             like_dict["id"] = request.data["object"]+"/likes/"+like_id
             like_dict["author"] = request.data["author"]["id"]
             like_dict["published"] = datetime.datetime.now().isoformat()
-            if (isPost):
-                like_dict["parentPost"] = request.data["object"]
-                like_dict["likeType"] = "Post"
-            else:
-                like_dict["parentComment"] = request.data["object"]
-                like_dict["likeType"] = "Comment"
+      
             like_serial = LikeSerializer(data=like_dict, partial=True)
             if not like_serial.is_valid():
                 return Response(status=400, data=like_serial.errors)
             like_serial.save()
             like = Like.objects.get(pk=request.data["object"]+"/likes/"+like_id)
+            if (isPost):
+                like.parentPost = post
+                like.likeType = "Post"
+            else:
+                like.parentComment = comment
+                like.likeType = "Comment"
+            like.save()
             inbox.likes.add(like)
             return Response(status=200)
         
