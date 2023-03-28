@@ -96,7 +96,7 @@ from .models import Author, Post, Comment, Like, Server, Inbox, UserFollowing, F
 from . import api_helper, sample_dicts
 import base64 
 
-HOST = "https://socialdistcmput404.herokuapp.com/"
+HOST = "http://127.0.0.1:8000/"
 
 # TODO: A few left :((
 # APIAuthor: GOOD
@@ -506,11 +506,15 @@ class APIListComments(APIView):
                                               post_id+
                                               "/comments/"+
                                               comment_id)
+
                 continue
             except Comment.DoesNotExist:
+                print("data", request.data)
                 newCommentDict = dict(request.data)
+
                 newCommentDict["id"] = HOST+"authors/"+author_id+"/posts/"+post_id+"/comments/"+comment_id
                 newCommentDict["parentPost"] = HOST+"authors/"+author_id+"/posts/"+post_id
+                print("newCommentDict", newCommentDict)
                 # check if author is saved in our DB (remote or local)
                 try:
                     commentAuthor = Author.objects.get(pk=newCommentDict["author"]["id"])

@@ -31,7 +31,7 @@ import marko
 
 # Markdown parser: https://marko-py.readthedocs.io/en/latest/
 
-HOST = "https://socialdistcmput404.herokuapp.com/"
+HOST = "http://127.0.0.1:8000/"
 
 @login_required
 def home(request):
@@ -112,3 +112,17 @@ def create_post(request):
     context = {'connections': json.dumps(connections_serial.data),
                'author': json.dumps(dict(author_serial.data))}
     return render(request, 'post.html', context)
+
+@login_required
+def postComment(request, author_id, post_id):
+    try:
+        author =  Author.objects.get(id=HOST+"authors/"+author_id)
+    except Author.DoesNotExist:
+        return HttpResponse(status=404, content="Post does not exist")
+    try:
+        post = Post.objects.filter(visibility="VISIBLE").get(id=HOST+"authors/"+author_id+"/posts/"+post_id)
+        # author =  Author.objects.get(id=HOST+"authors/"+author_id)
+        context = {'post': post, 'author':author}
+        return render(request, 'post_comment.html', context)
+    except Post.DoesNotExist:
+        return HttpResponse(status=404, content="Post does not exist")

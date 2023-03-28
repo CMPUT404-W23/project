@@ -31,6 +31,10 @@
         url = new URL(id)
         window.location.href = url.pathname + "/edit/"
     }
+    function postComment(id){
+        url = new URL(id)
+        window.location.href = url.pathname + "/comments/"
+    }
     let posts;
     fetch("/api/posts/", { headers: new Headers({ "Authorization": "Token 516e5c3d636f46228edb8f09b9613d5b4b166816" }) })
         .then((response) => response.json())
@@ -80,7 +84,12 @@
                                     </button>
                                     <button type="button" class="btn btn-danger btn-sm" onclick="deletePost('${post.id}')">
                                         <i class="fa-solid fa-trash"></i>
-                                    </button>`
+                                    </button>
+                                    <button type="button" class="btn btn-secondary btn-sm" onclick="postComment('${post.id}')">
+                                    Comment
+                                    </button>
+                                    `
+                                    
                 }
                 isLiked(index); // check if post is liked by user
                 return (display_posts + '</div></div>')

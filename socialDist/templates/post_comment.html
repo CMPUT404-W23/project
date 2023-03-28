@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% block content %}
+<main>
+    <div class="container-md mt-2">
+        <form method="post">
+            {% csrf_token %}
+            <div class="m-3">
+                <h1>
+                    Post a comment!
+                </h1>
+                <div class="mb-3">
+                    <label for="Comment" class="form-label"> Comment: </label>
+                    <textarea class="form-control" id="Comment" style="width:80%" type="text"
+                        placeholder="Please enter comment"></textarea>               
+                </div>
+                <div id="save-alert"></div>
+                <button type="button" class="btn btn-dark" onclick="postComment()">Post!</button>
+            </div>
+        </form>
+    </div>
+    <script>
+        async function postComment(){
+            let post_url = new URL("{{post.id}}")
+            comment_url = "/api" + post_url.pathname + "/comments/"
+            console.log("{{post}}")
+            console.log("{{author}}")
+            const data = {
+                content : document.getElementById("Comment"),
+                contentType : "plaintext",
+                // author : 
+            }
+
+            const response = await fetch(comment_url, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": "{{ csrf_token }}",
+                "Authorization": "Token 516e5c3d636f46228edb8f09b9613d5b4b166816"
+            },
+            body: JSON.stringify(data),
+            });
+            if (response.status == 201) {
+                displayAlert("alert-success", "Post edited successfully!");
+            window.location.href = "/";
+            } else {
+                displayAlert("alert-danger", "Editing post failed!");
+            }
+        }
+    </script>
+</main>
+{% endblock content %}
