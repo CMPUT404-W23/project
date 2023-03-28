@@ -31,6 +31,7 @@
         url = new URL(id)
         window.location.href = url.pathname + "/edit/"
     }
+    var current_author = JSON.parse('{{current_author|escapejs}}');
     let posts;
     fetch("/api/posts/", { headers: new Headers({ "Authorization": "Token 516e5c3d636f46228edb8f09b9613d5b4b166816" }) })
         .then((response) => response.json())
@@ -100,7 +101,7 @@
             "@context": "Post Like",
             "summary": "{{ user.username }} Likes your post",
             "type": "Like",
-            "author": author,
+            "author": current_author,
             "object": post.id
         }
         const response = await fetch(url, {
