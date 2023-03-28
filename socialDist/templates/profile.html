@@ -1,4 +1,214 @@
 {% extends 'base.html' %}
 {% block content %}
-<h5>{{author.displayName}}</h5>
+<head>
+    <!-- FontAwesome Icons link -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css"
+        integrity="sha512-KfkfwYDsLkIlwQp6LFnl8zNdLGxu9YAA1QvwINks4PhcElQSvqcyVLLD9aMhXd13uQjoXtEKNosOWaZqXgel0g=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+</head>
+<h5>{{author.displayName}} Profile Page </h5>
+<h6>Followers: {{follower_list | length}}</h6>
+<div class="grid">
+    {% for follower in follower_list %}
+    <div class="card my-3">
+        <div class="card-body">
+            {{follower.user_id.displayName}}
+        </div>
+    </div>
+    {% endfor %}
+</div>
+<h6>Following: {{following_list | length}}</h6>
+<div class="grid">
+    {% for following in following_list %}
+    <div class="card my-3">
+        <div class="card-body">
+            {{following.user_id.displayName}}
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+{% if isOwner %}
+<div class="grid">
+    <h4>Posts</h4>
+    <div class="grid" id="posts">
+    </div>
+    <h4>Likes</h4>
+    <div class="grid" id="likes">
+    </div>
+    <h4>Comments</h4>
+    <div class="grid" id="comments">
+    </div>
+    <h4>Follow Requests</h4>
+    <div class="grid" id="requests">
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script>
+    //Source: https://stackoverflow.com/questions/494143/creating-a-new-dom-element-from-an-html-string-using-built-in-dom-methods-or-pro/35385518#35385518
+    function htmlToElement(html) {
+                var template = document.createElement('template');
+                template.innerHTML = html;
+                return template.content;
+    };
+    var followReqActors = [];
+    var followIndex = 0;
+    let inboxData;
+    const current_author = JSON.parse('{{current_author|escapejs}}');
+    fetch("/api/authors/"+"{{user.id}}"+"/inbox/", {headers: new Headers({"Authorization": "Token 516e5c3d636f46228edb8f09b9613d5b4b166816",
+    "X-CSRFToken": "{{ csrf_token }}"})})
+    .then((response) => response.json())
+    .then((data) => {
+        inboxData = data.items; // list of all data in inbox
+        console.log(data);
+        let index = 0;
+        for (let item of data.items) {
+            if (item.type === "post") {
+                let content;
+                if (item.contentType.startsWith("image")) {
+                    content = `<img class="img-fluid mx-auto d-block" style="max-width: 50%" src="data:${item.contentType}, ${item.content}"/><br>`;
+                } else if (item.contentType === "text/markdown") {
+                    item.title = marked.parse(item.title);
+                    item.description = marked.parse(item.description);
+                    content = `<p class="card-text">${marked.parse(item.content)}</p>`;
+                } else {
+                    content = `<p class="card-text">${item.content}</p>`;
+                }
+                var htmlElement = htmlToElement(`
+                <div class="card my-3">
+                    <div class="card-body">
+                        <h5 class="card-title"><a href="${item.id}">${item.title}</a></h5>
+                        <h6 class="card-subtitle mb-2 text-muted"><a href="${item.author.url}">${item.author.displayName}</a></h6>
+                        <h6 class="card-subtitle mb-2 text-muted">${item.description} <span class="badge bg-secondary">${item.categories}</span></h6>
+                        ${content}
+                        <button type="button" class="btn btn-secondary btn-sm" id="like-btn-${index}" onclick="likePost(${index})">
+                            <i class="fa-regular fa-heart"></i>  
+                        </button>
+                    </div>
+                </div>
+                `);
+                console.log(htmlElement);
+                document.getElementById("posts").appendChild(htmlElement);
+                isLiked(index); // check if post is liked by user
+            }
+            else if (item.type === "comment") {
+                let content;
+                if (item.contentType === "text/markdown") {
+                    content = `<p class="card-text">${marked.parse(item.content)}</p>`;
+                } else {
+                    content = `<p class="card-text">${item.content}</p>`;
+                }
+                var htmlElement = htmlToElement(`
+                <div class="card my-3">
+                    <div class="card-body">
+                        <h6 class="card-subtitle mb-2 text-muted"><a href="${item.author.url}">${item.author.displayName}</a></h6>
+                        ${content}
+                        <button type="button" class="btn btn-secondary btn-sm" id="likeButton">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-heart" viewBox="0 0 16 16">
+                                <path d="m8 2.748-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385.92 1.815 2.834 3.989 6.286 6.357 3.452-2.368 5.365-4.542 6.286-6.357.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01L8 2.748zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143c.06.055.119.112.176.171a3.12 3.12 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15z"/>
+                            </svg>   
+                        </button>
+                    </div>
+                </div>
+                `);
+                console.log(htmlElement);
+                document.getElementById("comments").appendChild(htmlElement);
+            }
+            else if (item.type === "Like") {
+                var htmlElement = htmlToElement(`
+                <div class="card my-3">
+                    <div class="card-body">
+                        <a href="${item.author.url}">${item.author.displayName}</a> liked
+                        <a href="${item.object}">this</a>
+                    </div>
+                </div>
+                `);
+                console.log(htmlElement);
+                document.getElementById("likes").appendChild(htmlElement);
+            }
+            else if (item.type === "Follow") {
+                var htmlElement = htmlToElement(`
+                <div class="card my-3">
+                    <div class="card-body">
+                        <a href="${item.actor.url}">${item.actor.displayName}</a> wants to follow you!
+                    </div>
+                    <button onclick="accept('${item.actor.id}')">Accept</button>
+                    <button onclick="reject('${item.actor.id}', ${followIndex})">Reject</button>
+                </div>
+                `);
+                followReqActors.push(item.actor);
+                followIndex++;
+                console.log(htmlElement);
+                document.getElementById("requests").appendChild(htmlElement);
+            }
+            index += 1;
+        }
+    });
+    async function accept(id, target) {
+        let path = "/api/authors/{{user.id}}/followers/" + id + "/";
+        console.log(path);
+        await fetch(path,  
+            { method: "PUT",
+              headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": "{{ csrf_token }}",
+                    "Authorization": "Token 516e5c3d636f46228edb8f09b9613d5b4b166816"
+                },
+              body: JSON.stringify(followReqActors[target])});
+        window.location.reload();
+    };
+    async function likePost(i) {
+        const post = inboxData[i]; // we got a list of all inbox items from fetch; like button passes the index of which post to like
+        const author = post.author;
+        const authorID = author.id.split("/").pop();
+        const url = `/api/authors/${authorID}/inbox/`
+        const data = {
+            "@context": "Post Like",
+            "summary": "{{ user.username }} Likes your post",
+            "type": "Like",
+            "author": current_author,
+            "object": post.id
+        }
+        const response = await fetch(url, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": "{{ csrf_token }}",
+                "Authorization": "Token 516e5c3d636f46228edb8f09b9613d5b4b166816"
+            },
+            body: JSON.stringify(data),
+        });
+        if (response.status == 200) {
+            document.getElementById(`like-btn-${i}`).innerHTML = `<i class="fa-solid fa-heart"></i>`;
+            document.getElementById(`like-btn-${i}`).disabled = true;
+        } else {
+            console.log(response.status, response.statusText)
+        }
+    }
+
+    async function isLiked(i) {
+        // checks if current user liked the post
+        const post = inboxData[i];
+        const author = post.author;
+        const authorID = author.id.split("/").pop();
+        const url = `/api/authors/${authorID}/posts/${post.id.split('/').pop()}/likes/`
+        const response = await fetch(url, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": "{{ csrf_token }}",
+                "Authorization": "Token 516e5c3d636f46228edb8f09b9613d5b4b166816"
+            },
+        }).then(response => response.json())
+            .then(data => {
+                for (like of data.items) {
+                    if (like.author.id.split('/').pop() == "{{user.id}}") {
+                        document.getElementById(`like-btn-${i}`).innerHTML = `<i class="fa-solid fa-heart"></i>`;
+                        document.getElementById(`like-btn-${i}`).disabled = true;
+                    }
+                }
+            });
+    }
+</script>
+{% endif %}
 {% endblock content %}

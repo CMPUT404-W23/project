@@ -28,7 +28,7 @@
                 <div class="mb-3">
                     <label for="Title" class="form-label">Title*:</label>
                     <input class="form-control" id="Title" style="width:80%" type="text"
-                        placeholder="Please enter title of post"  value={{post.title}}></input>
+                        placeholder="Please enter title of post"  value="{{post.title}}"></input>
                 </div>
                 <!--Description-->
                 <div class="mb-3">
@@ -89,7 +89,9 @@
         return new Promise((resolve, reject) => {
             const input = document.getElementById("ImagePost");
             const file = input.files[0];
-
+            if (file == undefined) {
+                resolve("{{post.content}}");
+            }
             const reader = new FileReader();
             reader.readAsDataURL(file);
 
@@ -111,8 +113,14 @@
         let postContent, contentType;
         if (document.getElementById("ImagePost")) { // if post is an image
             const base64String = await toBase64();
+            // get file extension
             postContent = base64String;
-            contentType = `image/${document.getElementById("ImagePost").value.split('.').pop()};base64`; // get file extension
+            if (document.getElementById("ImagePost").value.split('.').pop() == "") {
+                contentType = "{{post.contentType}}"
+            }
+            else {
+                contentType = `image/${document.getElementById("ImagePost").value.split('.').pop()};base64`; 
+            }
         }
         else {
             contentType = document.getElementById("ContentType").value;

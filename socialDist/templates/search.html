@@ -1,0 +1,176 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="container py-5 h-100 w-25" style="min-width: 21em">
+  <h2 class="text-center mb-3">Search for an Account</h2>
+  <div class="input-group mb-3">
+    <input type="text" class="form-control" placeholder="Username" aria-label="Username"
+      aria-describedby="button-addon2" id="searchbar">
+    <button onclick="searchAccounts()" class="btn btn-primary" type="button" id="button-addon2">Button</button>
+  </div>
+  <div class="grid" id="authorList"></div>
+</div>
+
+<script>
+  var connections = JSON.parse('{{connections|escapejs}}');
+  var sender = JSON.parse('{{author|escapejs}}')
+  var authorList = [];
+  fetch("/api/authors", {headers: new Headers({"Authorization": "Token 516e5c3d636f46228edb8f09b9613d5b4b166816"})})
+  .then((response) => response.json())
+  .then((data) => {
+    authorList = authorList.concat(data.items);
+    fetchExternalAuthors();
+  });
+
+  async function fetchExternalAuthors() {
+      for (connection of connections) {
+        try {
+            let returnedData;
+            if (connection.apiCreds === "") {
+                returnedData = await fetch(connection.apiAddress + "/authors/");
+            }
+            else {
+                returnedData = await fetch(connection.apiAddress + "/authors/", 
+                                            {headers: new Headers({"Authorization": connection.apiCreds })});
+            }
+            let returnedDatatext = await returnedData.text();
+            let returnedDataJSON = JSON.parse(returnedDatatext);
+            authorList = authorList.concat(returnedDataJSON.items);
+            console.log(authorList);
+        }
+      catch {
+        console.log("Error");
+      }
+    }
+  }
+
+  async function searchAccounts() {
+    let searchList = document.getElementById("authorList");
+    searchList.innerHTML = "";
+    var index = 0;
+    for (author of authorList) {
+        if (author.id == sender.id) {
+            index++;
+            continue;
+        }
+        if (author.displayName.includes(document.getElementById("searchbar").value)) {
+          let listElement = document.createElement("div");
+          let isFollower = await checkIfFollower(author.id);
+          if (!isFollower) {
+            listElement.innerHTML = `<p>${author.displayName}</p>
+          <button id='${author.id}' onclick="sendToInbox('${author.id}', ${index})">Follow</button>`
+          }
+          else {
+            listElement.innerHTML =  `<p>${author.displayName}</p>
+          <button id='${author.id}'>Already following!</button>`
+          }
+          searchList.appendChild(listElement);
+      }
+      index++;
+    }
+  }
+
+  async function checkIfFollower(id) {
+    let url = new URL(id);
+    let author_relative_path = url.pathname + "/"
+    for (connection of connections) {
+            if ("https://" + url.hostname == connection.hostName) {
+              try {
+                if (connection.apiCreds === "") {
+                  const response = await fetch(connection.apiAddress + author_relative_path + "followers/" + sender.id +"/");
+                }
+                else {
+                  const response = await fetch(connection.apiAddress + author_relative_path + "followers/" + sender.id +"/", {
+                    headers: {
+                        "Authorization": connection.apiCreds
+                    }
+                });
+                }
+                if (response.status == 200) {
+                   return true;
+                }
+                else {
+                  return false;
+                }
+              }
+              catch {
+                return false;
+              }
+                
+                break;
+            }
+            else if ("https://" + url.hostname == "https://socialdistcmput404.herokuapp.com") {
+                try {
+                  const response = await fetch("/api" + author_relative_path + "followers/" + sender.id +"/", {
+                      headers: {
+                          "Authorization": "Token 516e5c3d636f46228edb8f09b9613d5b4b166816"
+                      }});
+                  if (response.status == 200) {
+                    return true;
+                  }
+                  else {
+                    return false;
+                }
+                }
+                catch {
+                  return false;
+                }
+             
+                break;
+            }
+    }
+  }
+
+  async function sendToInbox(id,target) {
+        console.log(id);
+        let url = new URL(id);
+        let author_relative_path = url.pathname + "/"
+        console.log(author_relative_path);
+        console.log(sender);
+        sender["type"] = "author";
+        sender["url"] = sender.id;
+        let data = {
+          "type":"Follow",
+          "summary": sender.displayName + " wants to follow " + authorList[target].displayName,
+          "actor": sender,
+          "object": authorList[target]
+        };
+        console.log(data);
+        for (connection of connections) {
+            if ("https://" + url.hostname == connection.hostName) {
+                author_relative_path = author_relative_path.replace("/api","")
+                const response = await fetch(connection.apiAddress + author_relative_path + "inbox/", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRFToken": "{{ csrf_token }}",
+                        "Authorization": connection.apiCreds
+                    },
+                    body: JSON.stringify(data),
+                })
+                if (response.status == 200  || response.status == 201) {
+                   document.getElementById(id).innerText = "Request sent!";
+                }
+                break;
+            }
+            else if ("https://" + url.hostname == "https://socialdistcmput404.herokuapp.com") {
+              const response = await fetch("/api" + author_relative_path + "inbox/", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRFToken": "{{ csrf_token }}",
+                        "Authorization": "Token 516e5c3d636f46228edb8f09b9613d5b4b166816"
+                    },
+                    body: JSON.stringify(data),
+                })
+                if (response.status == 200 || response.status == 201) {
+                   document.getElementById(id).innerText = "Request sent!";
+                }
+                break;
+            }
+        }
+    }
+
+</script>
+
+{% endblock %}

@@ -94,7 +94,8 @@ class Connection(models.Model):
     apiAddress=models.URLField(primary_key=True)
     # Creditentals used to connect to API of node, add this to Authorization header
     # when sending HTTP requests to fetch external data
-    apiCreds=models.TextField()
+    apiCreds=models.TextField(blank=True)
+    hostName=models.URLField()
 
 # Model to store relationships between followers
 # Source:
@@ -184,7 +185,6 @@ class Comment(models.Model):
 # Current foreignkey fields: isLiked
 class Like(models.Model):
     id = models.CharField(primary_key=True, max_length=200)
-    summary=models.TextField()
     likeType = models.CharField(max_length=20)
     author = models.ForeignKey(Author, on_delete=models.CASCADE, related_name="liked")
     parentPost = models.ForeignKey(Post, on_delete=models.CASCADE, related_name="likes",null=True, blank=True)
@@ -200,7 +200,7 @@ class Like(models.Model):
 # Current foreignkey fields: isLiked
 class Inbox(models.Model):
     # EDIT: 
-    inboxID=models.CharField(primary_key=True, max_length=40, default="")
+    inboxID=models.CharField(primary_key=True, max_length=200, default="")
 
     author=models.ForeignKey(Author, on_delete=models.CASCADE)
     # owner=models.ForeignKey(Author, on_delete=models.CASCADE)

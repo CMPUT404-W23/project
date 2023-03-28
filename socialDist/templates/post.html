@@ -59,7 +59,13 @@
                     <label for="Visibility" class="form-label">Visibility*:</label>
                     <select class="form-select" style="width:80%" id="Visibility">
                         <option selected value="VISIBLE"> Visible</option>
-                        <option value="PRIVATE">Private</option>
+                        <option value="FRIENDS">Private</option>
+                    </select>
+                </div>
+                <div class id="target-author" class="mb-3" hidden>
+                    <label for="target" class="form-label">Target Author:</label>
+                    <select class="form-select" style="width:80%" id="target">
+                        <option selected value="ALL"> All followers</option>
                     </select>
                 </div>
                 <!--Unlisted-->
@@ -79,6 +85,31 @@
 </main>
 
 <script>
+    var author = JSON.parse('{{author|escapejs}}');
+    var followers;
+    var connections = JSON.parse('{{connections|escapejs}}');
+    fetch("/api/authors/{{user.id}}/followers/", {
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": "{{ csrf_token }}",
+                "Authorization": "Token 516e5c3d636f46228edb8f09b9613d5b4b166816"
+            }})
+    .then((response) => response.json())
+    .then((data) => {
+        followers = data.items;
+        console.log(followers);
+        let targetSelect = document.getElementById("target");
+        for (let follower of followers) {
+            let option = document.createElement("option")
+            option.value = follower.id;
+            option.innerHTML = follower.displayName;
+            targetSelect.appendChild(option);
+        }
+        followers.push(author);
+    })
+    .catch((error) => {
+        console.error("Fetch error:", error);
+    });
     document.getElementById("PostType").addEventListener("change", () => {
         const postType = document.getElementById("PostType").value;
         let toggle = false;
@@ -90,6 +121,14 @@
         document.getElementById("content-type").hidden = toggle;
         document.getElementById("post-content").hidden = toggle;
         document.getElementById("post-image").hidden = !toggle;
+    });
+    document.getElementById("Visibility").addEventListener("change", () => {
+        const visType = document.getElementById("Visibility").value;
+        if (visType == "VISIBLE") {
+            document.getElementById("target-author").hidden = true;
+        } else if (visType == "FRIENDS") {
+            document.getElementById("target-author").hidden = false;
+        }
     });
 
     function displayAlert(alertType, alertMessage) {
@@ -155,11 +194,52 @@
             },
             body: JSON.stringify(data),
         });
+        const response_txt = await response.text();
+        if (document.getElementById("Visibility").value == "FRIENDS" 
+        && document.getElementById("target").value != "ALL") {
+            await sendToInbox(document.getElementById("target").value, JSON.parse(response_txt));
+            await sendToInbox(author.id, JSON.parse(response_txt));
+        }
+        else {
+            for (follower of followers) {
+                await sendToInbox(follower.id, JSON.parse(response_txt));
+            }
+        }
         if (response.status == 201) {
             displayAlert("alert-success", "Post created successfully!");
             window.location.href = "/";
         } else {
             displayAlert("alert-danger", "Post creation failed!");
+        }
+    }
+    async function sendToInbox(id, data) {
+        let url = new URL(id);
+        let author_relative_path = url.pathname + "/"
+        for (connection of connections) {
+            if ("https://" + url.hostname == connection.hostName) {
+                fetch(connection.apiAddress + author_relative_path + "inbox/", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRFToken": "{{ csrf_token }}",
+                        "Authorization": connections.apiCreds
+                    },
+                    body: JSON.stringify(data),
+                });
+                break;
+            }
+            else if ("https://" + url.hostname == "https://socialdistcmput404.herokuapp.com") {
+                fetch("/api" + author_relative_path + "inbox/", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRFToken": "{{ csrf_token }}",
+                        "Authorization": "Token 516e5c3d636f46228edb8f09b9613d5b4b166816"
+                    },
+                    body: JSON.stringify(data),
+                });
+                break;
+            }
         }
     }
 

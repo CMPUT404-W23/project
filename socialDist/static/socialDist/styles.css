@@ -57,3 +57,9 @@ header {
   max-width: 600px;
   border: 1px solid #ddd;
 }
+
+.form-popup {
+  display: none;
+  border: 3px solid black;
+}
+

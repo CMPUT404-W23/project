@@ -45,8 +45,11 @@ from django.http import QueryDict
 from rest_framework import status
 from django.utils.crypto import get_random_string
 from django.contrib.auth.models import User
-from .serializers import AuthorSerializer, PostSerializer, CommentSerializer, LikeSerializer, ServerSerializer, InboxSerializer
+from .serializers import AuthorSerializer, PostSerializer, CommentSerializer, LikeSerializer, ServerSerializer, InboxSerializer, FollowRequestSerializer
 import urllib.parse
+# from itertools import chain
+from drf_yasg.utils import swagger_auto_schema
+from drf_yasg import openapi
 
 # TODO: we need to support the following operations to connect with other nodes!
 # What is said below appiles to local node elements too!
@@ -90,15 +93,33 @@ import urllib.parse
 #   - Note: need to see if we use AJAX or node to node commuication
 
 from .models import Author, Post, Comment, Like, Server, Inbox, UserFollowing, FollowRequest
-from . import api_helper
+from . import api_helper, sample_dicts
 import base64 
 
 HOST = "https://socialdistcmput404.herokuapp.com/"
+
+# TODO: A few left :((
+# APIAuthor: GOOD
+# APIListAuthors: PUT(request_body and response): ASK warren
+# APIPost: GOOD
+# APIListPosts: GOOD
+# APIImage: GOOD
+# APIComment: POST (can't add request_body)
+# APIListcomments: POST(ADD request_body)(Can't do now)
+# APIListLikesPost: GOOD
+# APIListLikesComments: GOOD
+# APILiked: GOOD
+# APIFollowers: GOOD
+# APIFollower: ALL METHODS (request_body and response)
+# APIInbox: POSTing to inbox (which object?)
+# APIPosts: GOOD
+
 
 # API View for single author API queries (endpoint /api/authors/<author_id>/)
 class APIAuthor(APIView):
     # Getting the information of a single author with that id
     permission_classes = [auth.RemotePermission]
+    @swagger_auto_schema(operation_summary="Retrieve an author's profile", operation_description="Retrieve an author's profile based on:\n\n* The author's id", tags=["Author's Profile"], responses=sample_dicts.sampleGETAuthorDict)
     def get(self, request, id):
         try:
             # find author object
@@ -113,6 +134,7 @@ class APIAuthor(APIView):
 
     # Edit the author object  
     # When posting, send an author object in body in JSON with modified fields
+    @swagger_auto_schema(operation_summary="Edit/create an author's profile", operation_description="Edit/create an author's profile based on:\n\n* The author's id", tags=["Author's Profile"], request_body=AuthorSerializer,responses=sample_dicts.samplePOSTAuthorDict)
     def post(self, request, id):
         # Check if author exists, 404 if not
         try:
@@ -143,6 +165,7 @@ class APIAuthor(APIView):
 class APIListAuthors(APIView):
     # Getting list of authors
     permission_classes = [auth.RemotePermission]
+    @swagger_auto_schema(operation_summary="Retrieve every author's profile within the server", operation_description="Retrieve every author's profile within the server", tags=["Authors List"], responses=sample_dicts.sampleListAuthorDict)
     def get(self, request):
         if (request.META["QUERY_STRING"] != ""):
             queryDict = QueryDict(request.META["QUERY_STRING"])
@@ -169,6 +192,8 @@ class APIListAuthors(APIView):
             serializer = AuthorSerializer(authors, many=True)
             return Response(status=200, data=api_helper.construct_list_of_authors(serializer.data))
     
+    # Update an author's profile
+    @swagger_auto_schema(operation_summary="Create a new author's profile", operation_description="Create an author's profile without any fields", tags=["Author's Profile"], responses=sample_dicts.sampleGETAuthorDict)
     def put(self, request):
         username = request.data["username"]
         email = request.data.get("email", "") # if email is not provided, set it to empty string
@@ -183,6 +208,10 @@ class APIListAuthors(APIView):
                 github="",
                 profileImage="",
             )
+            inbox = Inbox.objects.create(
+                inboxID=HOST+"authors/"+str(user.pk)+"/inbox",
+                author=author
+            )
             return Response(status=201)
         except (IntegrityError, ValueError) as e:
             if IntegrityError:
@@ -194,6 +223,7 @@ class APIListAuthors(APIView):
 class APIPost(APIView):
     # Get a single post
     permission_classes = [auth.RemotePermission]
+    @swagger_auto_schema(operation_summary="Retrieve a public post", operation_description="Retrieve a public post's information based on:\n\n* The id of the post's author\n* The id of the post itself", tags=["Posts"], responses=sample_dicts.sampleGETPostDict)
     def get(self, request, author_id, post_id):
         # Check if specified author exists
         try:
@@ -211,6 +241,7 @@ class APIPost(APIView):
     # Edit a single post
     # When POSTing, send a post object in JSON with the modified fields
     # Cannot edit a private post!
+    @swagger_auto_schema(operation_summary="Edit a public post", operation_description="Edit a public post's information based on:\n\n* The id of the post's author\n* The id of the post itself", tags=["Posts"],responses=sample_dicts.samplePOSTPostDict, request_body=PostSerializer)
     def post(self, request, author_id, post_id):
         # Check if specified author exists
         try:
@@ -238,6 +269,7 @@ class APIPost(APIView):
     # Note that host and id will be set to HOST and HOST/authors/author_id/posts/post_id
     # When PUTTing to a public post that already exists, replace post with JSON post object in body
     # Cannot PUT to an already existing private post!
+    @swagger_auto_schema(operation_summary="Create a public post", operation_description="Create a public post based on:\n\n* The id of the post's author\n* The id of the post itself", tags=["Posts"],responses=sample_dicts.samplePOSTPostDict, request_body=PostSerializer)
     def put(self, request, author_id, post_id):
         try:
             author = Author.objects.get(pk=HOST+"authors/"+author_id)
@@ -277,16 +309,19 @@ class APIPost(APIView):
         
     # Delete the single post
     # Cannot delete private posts!
+    @swagger_auto_schema(operation_summary="Delete a public post", operation_description="Delete a public post's information based on:\n\n* The id of the post's author\n* The id of the post itself", tags=["Posts"], responses=sample_dicts.sampleDELETEDict)
     def delete(self, request, author_id, post_id):
         try:
             author = Author.objects.get(pk=HOST+"authors/"+author_id)
         except Author.DoesNotExist:
+            print("author")
             return Response(status=404)
         if not request.user.is_authenticated and request.user.id != author_id:
             return Response(status=401)
         try:
             post = Post.objects.filter(visibility="VISIBLE").get(pk=HOST+"authors/"+author_id+"/posts/"+post_id)
         except Post.DoesNotExist:
+            print("post")
             return Response(status=404)
         post.delete()
         return Response(status=200)
@@ -295,6 +330,7 @@ class APIPost(APIView):
 class APIListPosts(APIView):
     # Get a list of posts, with paginating support
     permission_classes = [auth.RemotePermission]
+    @swagger_auto_schema(operation_summary="Retrieve a list of posts (public posts only) for a specific author", operation_description="Retrieve a list of posts (public posts only) for a specific author based on:\n\n* The author's own id", tags=["Post List"], responses=sample_dicts.sampleListPostsDict)
     def get(self, request, author_id):
         try:
             author = Author.objects.get(pk=HOST+"authors/"+author_id)
@@ -324,10 +360,12 @@ class APIListPosts(APIView):
     # Add a post with a randomized post id
     # Include a post object in JSON with modified fields
     # Note that host and id field will be ignored!
+    @swagger_auto_schema(operation_summary="Create a post with a randomized post id", operation_description="Create a post with a randomized post id based on:\n\n* The author's own id", tags=["Post List"], request_body=PostSerializer, responses=sample_dicts.samplePOSTPostDict)
     def post(self, request, author_id):
         try:
             author = Author.objects.get(pk=HOST+"authors/"+author_id)
         except Author.DoesNotExist:
+            print("Author does not exist")
             return Response(status=404)
         if not request.user.is_authenticated and request.user.id != author_id:
             return Response(status=401)
@@ -351,6 +389,7 @@ class APIListPosts(APIView):
 # Endpoint used to fetch image posts as images (endpoint /api/authors/<author_id>/posts/<post_id>/image)
 class APIImage(APIView):
     permission_classes = [auth.RemotePermission]
+    @swagger_auto_schema(operation_summary="Retrieve an image post", operation_description="Retrieve an image post based on:\n\n* The id of the post's author\n* The id of the post itself", tags=["Images"], responses=sample_dicts.sampleImagePostGETDict)
     def get(self, request, author_id, post_id):
         try:
             author = Author.objects.get(pk=HOST+"authors/"+author_id)
@@ -359,8 +398,7 @@ class APIImage(APIView):
         # Check if resource already exists, if it does, acts like a GET request
         try:
             post = Post.objects.get(pk=HOST+"authors/"+author_id+"/posts/"+post_id)
-            # TODO: create a function to check if requesting user is allowed
-            if post.visibility == "PRIVATE":
+            if post.visibility == "PRIVATE" or not api_helper.is_follower(request.user, author):
                 return Response(status=401)
             if post.contentType != "image/png;base64" and post.contentType != "image/jpeg;base64" and post.contentType != "image/jpg;base64":
                 return Response(status=404)
@@ -374,6 +412,7 @@ class APIImage(APIView):
 #API View for single comment queries (endpoint /api/authors/<author_id>/posts/<post_id>/comments/<comment_id>)
 class APIComment(APIView):
     permission_classes = [auth.RemotePermission]
+    @swagger_auto_schema(operation_summary="Retrieve a comment within a post", operation_description="Retrieve a comment within a post based on:\n\n* The id of the comment's author\n* The id of the comment's commented post\n* The id of the comment itself", tags=["Comments"], responses=sample_dicts.sampleGETCommentDict)
     def get(self, request, author_id, post_id, comment_id):
         try:
             author = Author.objects.get(pk=HOST+"authors/"+author_id)
@@ -406,7 +445,8 @@ class APIComment(APIView):
 #API View for list of comments queries (endpoint /api/authors/<author_id>/posts/<post_id>/comments/)
 class APIListComments(APIView):
     # Get list of comments
-    permission_classes = [auth.RemotePermission]
+    permission_classes = [auth.CommentsPermissions]
+    @swagger_auto_schema(operation_summary="Retrieve all of the comments within a post", operation_description="Retrieve all of the comments within a post based on:\n\n* The id of the comment's author\n* The id of the comment's commented post", tags=["Comments"], responses=sample_dicts.sampleListCommentsDict)
     def get(self, request, author_id, post_id):
         try:
             author = Author.objects.get(pk=HOST+"authors/"+author_id)
@@ -446,6 +486,7 @@ class APIListComments(APIView):
     # Post a comment under that post
     # Include comment object in body in JSON form
     # id and parentPost field will be ignored!
+    @swagger_auto_schema(operation_summary="Create a comment in a post", operation_description="Create a comment in a post based on:\n\n* The id of the comment's author\n* The id of the comment's commented post", tags=["Comments"],responses=sample_dicts.samplePOSTCommentDict, request_body=CommentSerializer)
     def post(self, request, author_id, post_id):
         try:
             author = Author.objects.get(pk=HOST+"authors/"+author_id)
@@ -494,6 +535,7 @@ class APIListComments(APIView):
 # API view for likes on a post (endpoint /api/authors/<author_id>/posts/<post_id>/likes/)
 class APIListLikesPost(APIView):
     permission_classes = [auth.RemotePermission]
+    @swagger_auto_schema(operation_summary="Retrieve all of the likes for a post", operation_description="Retrieve all of the likes for a post based on:\n\n* The id of the comment's author\n* The id of the comment's commented post", tags=["Likes"], responses=sample_dicts.sampleListLikesPostDict)
     def get(self, request, author_id, post_id):
         try:
             author = Author.objects.get(pk=HOST+"authors/"+author_id)
@@ -511,6 +553,7 @@ class APIListLikesPost(APIView):
 class APIListLikesComments(APIView):
     # Get list of likes originating on this comment
     permission_classes = [auth.RemotePermission]
+    @swagger_auto_schema(operation_summary="Retrieve all of likes for a comment", operation_description="Retrieve all of the likes for a comment based on:\n\n* The id of the comment's author\n* The id of the comment's commented post\n* The id of the comment itself", tags=["Likes"])
     def get(self, request, author_id, post_id, comment_id):
         try:
             author = Author.objects.get(pk=HOST+"authors/"+author_id)
@@ -536,6 +579,7 @@ class APILiked(APIView):
     # Get list of likes on public objects (comments on public posts, public posts)
     # originating from this author
     permission_classes = [auth.RemotePermission]
+    @swagger_auto_schema(operation_summary="Retrieve a list of likes from public posts and their comments", operation_description="Retrieve a list of likes from public posts and their comments based on:\n\n* The author's own id", tags=["Likes"], responses=sample_dicts.sampleListLikedDict)
     def get(self, request, author_id):
         try:
             author = Author.objects.get(pk=HOST+"authors/"+author_id)
@@ -549,6 +593,7 @@ class APILiked(APIView):
 class APIFollowers(APIView):
     # Get list of followers
     permission_classes = [auth.RemotePermission]
+    @swagger_auto_schema(operation_summary="Retrieve a list of followers for an author", operation_description="Retrieve a list of followers for an author based on:\n\n* The author's own id", tags=["Followers"], responses=sample_dicts.sampleFollowersDict)
     def get(self, request, author_id):
         try:
             author = Author.objects.get(pk=HOST+"authors/"+author_id)
@@ -567,6 +612,7 @@ class APIFollower(APIView):
     # Check if the specified foreign author is a follower of the author
     # Returns the author object if it exists
     permission_classes = [auth.RemotePermission]
+    @swagger_auto_schema(operation_summary="Check whether an author is a followr for another author", operation_description="Check whether an author is a followr for another author based on:\n\n* The author's own id\n* The FULL id of the foreign author (i.e. https://socialdistcmput404.herokuapp.com/authors/2/)", tags=["Followers"], responses=sample_dicts.sampleGETAuthorDict, parameters=[{"allowReserved": True}])
     def get(self, request, author_id, foreign_author_id):
         try:
             targetAuthor = Author.objects.get(pk=HOST+"authors/"+author_id)
@@ -587,6 +633,7 @@ class APIFollower(APIView):
     # Make the foreign author follow the author
     # foreign_author_id should be an abs URL, encoded as a parameter or path element
     # PUT body should contain author object, which is author object of requested follower
+    @swagger_auto_schema(operation_summary="Allow one author to follow another author", operation_description="Allow one author to follow another author based on:\n\n* The author's own id\n* The FULL id of the foreign author (i.e. https://socialdistcmput404.herokuapp.com/authors/2/)", tags=["Followers"])
     def put(self, request, author_id, foreign_author_id):
         try:
             targetAuthor = Author.objects.get(pk=HOST+"authors/"+author_id)
@@ -612,11 +659,14 @@ class APIFollower(APIView):
             userfollowing = UserFollowing(user_id=followingAuthor, 
                                           following_user_id=targetAuthor)
             userfollowing.save()
+            followRequest = FollowRequest.objects.get(target=targetAuthor, sender=followingAuthor)
+            followRequest.delete()
             return Response(status=201)
     
     # Make the foreign author not follow the author
     # foreign_author_id should be an abs URL, encoded as a parameter or path element
     # same notes as before!
+    @swagger_auto_schema(operation_summary="Allow one author to not follow another author", operation_description="Allow one author to not follow another author based on:\n\n* The author's own id\n* The FULL id of the foreign author (i.e. https://socialdistcmput404.herokuapp.com/authors/2/)", tags=["Followers"], responses=sample_dicts.sampleDELETEDict)
     def delete(self, request, author_id, foreign_author_id):
         try:
             targetAuthor = Author.objects.get(pk=HOST+"authors/"+author_id)
@@ -638,118 +688,59 @@ class APIFollower(APIView):
 
 # TODO Fix required
 class APIInbox(APIView):
+    permission_classes = [auth.InboxPermission]
+    @swagger_auto_schema(operation_summary="Retrieve a list of objects(posts, follow requests, post likes, comment likes, comments) within an author's inbox", operation_description="Retrieve an inbox object based on:\n\n* The author's own id", tags=["Inbox"], responses=sample_dicts.sampleInboxDict)
     def get(self, request, author_id):
         # get the owner first in order to get the inbox
         try:
             author = Author.objects.get(pk=HOST+"authors/"+author_id)
         except Author.DoesNotExist:
-            return Response(status=404)
+            return Response(status=404, data="a1")
         try:
             inbox=Inbox.objects.filter(author=author).get(pk=HOST+"authors/"+author_id+"/inbox")
             serializer=InboxSerializer(inbox)
-            # 1. getting the type
-            inboxDict=dict(serializer.data)
-            inboxDict["type"]="inbox"
-            # 2. getting the author (which is the getter him/herself)
-            serializer= AuthorSerializer(author)
-            inboxDict["author"]=serializer["id"]
-
-            # 3. getting all of the items (post, comment, likes, followrequsts)
-            itemList=[]
-            # 3a. getting post objects
-            # 3a filter the posts to ensure they are all followers
-            # 3a.1 Get id for every follower (learned from APIFollowers)
-            user_followers = author.followers.all()
-            followersList = []
-            for user_follower in user_followers:
-                followersList.append(user_follower.user_id)
-            # 3a.2 use those id's to get their posts (learned from APIListPosts)
-            postList = []
-            # 3a.3 For each follower (each id), get all posts
-            for each in followersList:
-                posts = Post.objects.filter(author=each)
-                serializer = PostSerializer(posts, many=True)
-                # Post list to gather info from all posts
-                for post_serial in serializer.data:
-                    postDict = dict(post_serial)
-                    postDict["type"] = "post"
-                    postDict["url"] = postDict["id"]
-                    serialzer = AuthorSerializer(author)
-                    authorDict = dict(serialzer.data)
-                    authorDict["type"] = "author"
-                    authorDict["url"] = authorDict["id"]
-                    postDict["author"] = authorDict
-                    postDict["count"] = len(Comment.objects.filter(parentPost=post_serial["id"]))
-                    postDict["comments"] = postDict["id"] + "/comments/"
-                    postList.append(postDict)
-
-            # 3b. get comment object
-            commentList=[]
-            # get the actual comments (learned from APIListComments)
-            comments = Comment.objects.filter(parentPost=postDict["id"])
-            serializer = CommentSerializer(comments, many=True)
-            commentList = []
-            for comment_serial in serializer.data:
-                commentDict = dict(comment_serial)
-                commentAuthor = Author.objects.get(pk=comment_serial["author"])
-                author_serialzer = AuthorSerializer(commentAuthor)
-                authorDict = dict(author_serialzer.data)
-                authorDict["type"] = "author"
-                authorDict["url"] = authorDict["id"]
-                commentDict["author"] = authorDict
-                commentDict["type"] = "comment"
-                commentList.append(commentDict)
-
-
-            # 3c. get like object
-            # get the likes for the post
-            likes = Like.objects.filter(parentPost=postDict["id"])
-            likeList = []
-            serializer = LikeSerializer(likes, many=True)
-            for like_serial in serializer.data:
-                likeDict = dict(like_serial)
-                likeAuthor = Author.objects.get(pk=like_serial["author"])
-                author_serialzer = AuthorSerializer(likeAuthor)
-                authorDict = dict(author_serialzer.data)
-                authorDict["type"] = "author"
-                authorDict["url"] = authorDict["id"]
-                likeDict["author"] = authorDict
-                likeDict["object"] = HOST + "authors/" + author_id + "/posts/" + post_id
-                likeList.append(likeDict)
-
-            # 3d. adding the follower request object
-            # get the id for every follower
-            user_followers = author.followers.all()
-            followersList = []
-            for user_follower in user_followers:
-                followersList.append(user_follower.user_id)
-
-            followRequestList=[]
-            # For each follower (each id), get the follower request
-            for each in followersList:
-                localAuthor=Author.objects.get(pk=each)
-                author_serialzer = AuthorSerializer(localAuthor)
-                localAuthorDict=dict(author_serialzer.data)
-
-                # getting all the fields and append them into a list using request
-                followRequestDict=dict(request.data)
-                followRequestDict["type"]="Follow"
-                followRequestDict["sunmmary"]=request.data["summary"]
-                followRequestDict["actor"]=request.data["actor"]
-                # first get the authors, then get the actors
-                followRequestDict["author"]=localAuthorDict
-                followRequestList.append(followRequestDict)
-
-            # 3e. setting the items to be the postlist
-            itemList=postList+commentList+likeList+followRequestList
-
-            # Finalizing up
-            inboxDict["items"]=itemList
+            itemList = []
+            for post in inbox.posts.all():
+                post_serial = PostSerializer(post, partial=True)
+                post_author = Author.objects.get(pk=post_serial.data["author"])
+                itemList.append(api_helper.construct_post_object(post_serial.data, post_author))
+            for follow_request in inbox.requests.all():
+                request_serial = FollowRequestSerializer(follow_request, partial=True)
+                target = Author.objects.get(pk=request_serial.data["target"])
+                sender = Author.objects.get(pk=request_serial.data["sender"])
+                itemList.append(api_helper.construct_follow_request_object(request_serial.data,
+                                                                           target,
+                                                                           sender))
+            for like in inbox.likes.all():
+                like_serial = LikeSerializer(like, partial=True)
+                like_author = Author.objects.get(pk=like_serial.data["author"])
+                if like.likeType == "Post":
+                    itemList.append(api_helper.construct_like_object(like_serial.data,
+                                                                     like.parentPost.id, 
+                                                                     like_author))
+                else:
+                    itemList.append(api_helper.construct_like_object(like_serial.data,
+                                                                     like.parentComment.id, 
+                                                                     like_author))
+            for comment in inbox.comments.all():
+                comment_serial = CommentSerializer(comment, partial=True)
+                comment_author = Author.objects.get(pk=comment_serial.data["author"])
+                itemList.append(api_helper.construct_comment_object(comment_serial.data, comment_author))
+            inboxDict = {}
+            inboxDict["type"] = "inbox"
+            inboxDict["author"] = author.id
+            inboxDict["items"] = itemList
+            # print(itemList)
+            # for post in inbox.posts:
+            #     print('here')
+            # print(serializer.data)
             return Response(status=200, data=inboxDict)
-        except:
+        except Inbox.DoesNotExist:
             return Response(status=404)
+           
     
     # send respective object in body
+    @swagger_auto_schema(operation_summary="Send an object(posts, follow requests, post likes, comment likes, comments) to an author's inbox", operation_description="Send an object(posts, follow requests, post likes, comment likes, comments) to an author's inbox based on:\n\n* The author's own id", tags=["Inbox"], responses=sample_dicts.sampleInboxDict, request_body=InboxSerializer)
     def post(self, request, author_id):
         # get the author object first
         try:
@@ -797,8 +788,8 @@ class APIInbox(APIView):
             try:
                 sendingAuthor = Author.objects.get(pk=request.data["actor"]["id"])
             except Author.DoesNotExist:
-                if request.data["author"]["host"] == HOST:
-                        return Response(status=404)
+                if request.data["author"]["host"] == HOST:  
+                    return Response(status=404)
                 new_author_serial = AuthorSerializer(data=request.data["actor"], partial=True)
                 if not new_author_serial.is_valid():
                     return Response(status=400, data=new_author_serial.errors)
@@ -844,15 +835,19 @@ class APIInbox(APIView):
             like_dict["id"] = request.data["object"]+"/likes/"+like_id
             like_dict["author"] = request.data["author"]["id"]
             like_dict["published"] = datetime.datetime.now().isoformat()
-            if (isPost):
-                like_dict["parentPost"] = request.data["object"]
-            else:
-                like_dict["parentComment"] = request.data["object"]
+      
             like_serial = LikeSerializer(data=like_dict, partial=True)
             if not like_serial.is_valid():
                 return Response(status=400, data=like_serial.errors)
             like_serial.save()
             like = Like.objects.get(pk=request.data["object"]+"/likes/"+like_id)
+            if (isPost):
+                like.parentPost = post
+                like.likeType = "Post"
+            else:
+                like.parentComment = comment
+                like.likeType = "Comment"
+            like.save()
             inbox.likes.add(like)
             return Response(status=200)
         
@@ -878,8 +873,8 @@ class APIInbox(APIView):
             inbox.comments.add(comment)
             return Response(status=200)
             
-
-        # TBA
+    # TBA
+    @swagger_auto_schema(operation_summary="Clear an author's inbox",operation_description="Clear an author's inbox based on:\n\n* The author's own id", tags=["Inbox"], responses=sample_dicts.sampleDELETEDict)
     def delete (request, author_id):
         try:
             author = Author.objects.get(pk=HOST+"authors/"+author_id)
@@ -890,7 +885,10 @@ class APIInbox(APIView):
         except Inbox.DoesNotExist:
             return Response(status=404)
         # making inbox empty by setting all the fields as blank except author, every other field the same
-        inbox["items"]={}
+        # Delete inbox and recreating it
+        inbox.delete()
+        inbox.create(inbox_id=HOST+"authors/"+author_id+"/inbox", author=HOST+"authors/"+author_id, post=[])
+
         return Response(status=200)
 
         
@@ -899,13 +897,15 @@ class APIInbox(APIView):
 
 class APIPosts(APIView): 
     permission_classes = [auth.RemotePermission]
+    @swagger_auto_schema(operation_summary="Retrieve all of the posts from every author",operation_description="Retrieve all of the posts from every author", tags=["Posts"], responses=sample_dicts.sampleListEveryPostDict)
     def get(self, request):
         author_posts_pair = []
-        for each_author in Author.objects.all():
+        for each_author in Author.objects.filter(host=HOST):
             if not Post.objects.filter(author=each_author).count():
                 continue
             posts = PostSerializer(Post.objects.filter(author=each_author).filter(visibility="VISIBLE").filter(unlisted=False), many=True)
             author_posts_pair.append([each_author, posts.data])
-            print("num_post for "+dict(AuthorSerializer(each_author).data)["id"]+": "+str(len(posts.data)))
-
+            # prints num_post for each author
+            # print("num_post for "+dict(AuthorSerializer(each_author).data)["id"]+": "+str(len(posts.data)))
+            
         return Response(status=200, data=api_helper.construct_list_of_all_posts(author_posts_pair))
