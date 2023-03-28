@@ -23,8 +23,9 @@
                 var template = document.createElement('template');
                 template.innerHTML = html;
                 return template.content;
-    }
-
+    };
+    var followReqActors = [];
+    var followIndex = 0;
     fetch("/api/authors/"+"{{user.id}}"+"/inbox/", {headers: new Headers({"Authorization": "Token 516e5c3d636f46228edb8f09b9613d5b4b166816",
     "X-CSRFToken": "{{ csrf_token }}"})})
     .then((response) => response.json())
@@ -101,13 +102,29 @@
                     <div class="card-body">
                         <a href="${item.actor.url}">${item.actor.displayName}</a> wants to follow you!
                     </div>
+                    <button onclick="accept('${item.actor.id}')">Accept</button>
+                    <button onclick="reject('${item.actor.id}', ${followIndex})">Reject</button>
                 </div>
                 `);
+                followReqActors.push(item.actor);
+                followIndex++;
                 console.log(htmlElement);
                 document.getElementById("requests").appendChild(htmlElement);
             }
         }
     });
+    async function accept(id, target) {
+        let path = "/api/authors/{{user.id}}/followers/" + id + "/";
+        console.log(path);
+        fetch(path,  
+            { method: "PUT",
+              headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": "{{ csrf_token }}",
+                    "Authorization": "Token 516e5c3d636f46228edb8f09b9613d5b4b166816"
+                },
+              body: JSON.stringify(followReqActors[target])});
+    };
 </script>
 {% endif %}
 {% endblock content %}
