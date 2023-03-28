@@ -55,6 +55,7 @@
     var followIndex = 0;
     let inboxData;
     const current_author = JSON.parse('{{current_author|escapejs}}');
+    // Get inbox data
     fetch("/api/authors/"+"{{user.id}}"+"/inbox/", {headers: new Headers({"Authorization": "Token 516e5c3d636f46228edb8f09b9613d5b4b166816",
     "X-CSRFToken": "{{ csrf_token }}"})})
     .then((response) => response.json())
@@ -145,6 +146,7 @@
         }
     });
     async function accept(id, target) {
+        // accept a follow request
         let path = "/api/authors/{{user.id}}/followers/" + id + "/";
         console.log(path);
         await fetch(path,  
@@ -158,6 +160,7 @@
         window.location.reload();
     };
     async function likePost(i) {
+        // like a post
         const post = inboxData[i]; // we got a list of all inbox items from fetch; like button passes the index of which post to like
         const author = post.author;
         const authorID = author.id.split("/").pop();
@@ -169,6 +172,7 @@
             "author": current_author,
             "object": post.id
         }
+        // POST a like object to the author's inbox
         const response = await fetch(url, {
             method: "POST",
             headers: {
@@ -192,6 +196,7 @@
         const author = post.author;
         const authorID = author.id.split("/").pop();
         const url = `/api/authors/${authorID}/posts/${post.id.split('/').pop()}/likes/`
+        // GET all likes for the post
         const response = await fetch(url, {
             method: "GET",
             headers: {
