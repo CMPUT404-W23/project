@@ -87,8 +87,18 @@ def authorPage(request, author_id):
         author =  Author.objects.get(id=HOST+"authors/"+author_id)
     except Author.DoesNotExist:
         return HttpResponse(status=404, content="Author does not exist!")
+    user_followers = author.followers.all()
+    follower_list = []
+    for follower in user_followers:
+        follower_list.append(follower)
+    user_following = author.following.all()
+    following_list = []
+    for following in user_following:
+        following_list.append(following)
     context = {'author' :author,
-               'isOwner': request.user.is_authenticated and (request.user.is_staff or request.user.author == author)}
+               'isOwner': request.user.is_authenticated and (request.user.is_staff or request.user.author == author),
+               'follower_list':follower_list,
+               'following_list':following_list}
     #TODO: create a page for the author, if the requester is the author, add inbox here!
     return render(request, 'profile.html', context)
 

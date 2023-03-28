@@ -82,7 +82,7 @@
                 else {
                   const response = await fetch(connection.apiAddress + author_relative_path + "followers/" + sender.id +"/", {
                     headers: {
-                        "Authorization": connections.apiCreds
+                        "Authorization": connection.apiCreds
                     }
                 });
                 }
@@ -142,7 +142,7 @@
                     headers: {
                         "Content-Type": "application/json",
                         "X-CSRFToken": "{{ csrf_token }}",
-                        "Authorization": connections.apiCreds
+                        "Authorization": connection.apiCreds
                     },
                     body: JSON.stringify(data),
                 })
