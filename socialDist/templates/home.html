@@ -70,7 +70,7 @@
                                     <h6 class="card-subtitle mb-2 text-muted">${post.description}</h6>
                                     <span class="badge bg-secondary">${post.categories}</span>
                                     ${content}
-                                    <button type="button" class="btn btn-secondary btn-sm" id="like-btn-${index}">
+                                    <button type="button" class="btn btn-secondary btn-sm" id="like-btn-${index}" onclick="likePost(${index})">
                                         <i class="fa-regular fa-heart"></i>
                                     </button>`
                 if (author_id == "{{user.id}}") {
