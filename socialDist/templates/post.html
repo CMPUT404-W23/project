@@ -59,7 +59,7 @@
                     <label for="Visibility" class="form-label">Visibility*:</label>
                     <select class="form-select" style="width:80%" id="Visibility">
                         <option selected value="VISIBLE"> Visible</option>
-                        <option value="PRIVATE">Private</option>
+                        <option value="FRIENDS">Private</option>
                     </select>
                 </div>
                 <div class id="target-author" class="mb-3" hidden>
@@ -86,7 +86,6 @@
 
 <script>
     var author = JSON.parse('{{author|escapejs}}');
-    console.log(author);
     var followers;
     var connections = JSON.parse('{{connections|escapejs}}');
     fetch("/api/authors/{{user.id}}/followers/", {
@@ -98,14 +97,15 @@
     .then((response) => response.json())
     .then((data) => {
         followers = data.items;
-        followers.push(author);
+        console.log(followers);
         let targetSelect = document.getElementById("target");
-        for (let follower in followers) {
+        for (let follower of followers) {
             let option = document.createElement("option")
             option.value = follower.id;
             option.innerHTML = follower.displayName;
             targetSelect.appendChild(option);
         }
+        followers.push(author);
     })
     .catch((error) => {
         console.error("Fetch error:", error);
@@ -126,7 +126,7 @@
         const visType = document.getElementById("Visibility").value;
         if (visType == "VISIBLE") {
             document.getElementById("target-author").hidden = true;
-        } else if (visType == "PRIVATE") {
+        } else if (visType == "FRIENDS") {
             document.getElementById("target-author").hidden = false;
         }
     });
@@ -196,8 +196,8 @@
             body: JSON.stringify(data),
         });
         const response_txt = await response.text();
-        if (document.getElementById("Visibility").value == "PRIVATE" 
-        || document.getElementById("target").value != "ALL") {
+        if (document.getElementById("Visibility").value == "FRIENDS" 
+        && document.getElementById("target").value != "ALL") {
             await sendToInbox(document.getElementById("target").value, data);
         }
         else {
@@ -208,7 +208,7 @@
         }
         if (response.status == 201) {
             displayAlert("alert-success", "Post created successfully!");
-            window.location.href = "/";
+            // window.location.href = "/";
         } else {
             displayAlert("alert-danger", "Post creation failed!");
         }
