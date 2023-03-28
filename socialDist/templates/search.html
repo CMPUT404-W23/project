@@ -127,6 +127,8 @@
         let author_relative_path = url.pathname + "/"
         console.log(author_relative_path);
         console.log(sender);
+        sender["type"] = "author";
+        sender["url"] = sender.id;
         let data = {
           "type":"Follow",
           "summary": sender.displayName + " wants to follow " + authorList[target].displayName,
@@ -146,7 +148,7 @@
                     },
                     body: JSON.stringify(data),
                 })
-                if (response.status == 200) {
+                if (response.status == 200  || response.status == 201) {
                    document.getElementById(id).innerText = "Request sent!";
                 }
                 break;
@@ -161,7 +163,7 @@
                     },
                     body: JSON.stringify(data),
                 })
-                if (response.status == 200) {
+                if (response.status == 200 || response.status == 201) {
                    document.getElementById(id).innerText = "Request sent!";
                 }
                 break;
