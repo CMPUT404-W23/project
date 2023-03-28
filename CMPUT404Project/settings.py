@@ -161,7 +161,9 @@ CORS_ALLOWED_ORIGINS = [
 "http://localhost:8000",
 "http://127.0.0.1:8000",
 "https://social-t30.herokuapp.com",
-"https://sd7-api.herokuapp.com"
+"https://sd7-api.herokuapp.com",
+"https://ultimate-teapot.herokuapp.com",
+"https://distributed-social-net.herokuapp.com"
 ]
 
 # Static files (CSS, JavaScript, Images)
