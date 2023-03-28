@@ -82,7 +82,7 @@
                 else {
                   const response = await fetch(connection.apiAddress + author_relative_path + "followers/" + sender.id +"/", {
                     headers: {
-                        "Authorization": connections.apiCreds
+                        "Authorization": connection.apiCreds
                     }
                 });
                 }
@@ -126,6 +126,7 @@
         let url = new URL(id);
         let author_relative_path = url.pathname + "/"
         console.log(author_relative_path);
+        console.log(sender);
         let data = {
           "type":"Follow",
           "summary": sender.displayName + " wants to follow " + authorList[target].displayName,
@@ -135,12 +136,13 @@
         console.log(data);
         for (connection of connections) {
             if ("https://" + url.hostname == connection.hostName) {
+                author_relative_path = author_relative_path.replace("/api","")
                 const response = await fetch(connection.apiAddress + author_relative_path + "inbox/", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
                         "X-CSRFToken": "{{ csrf_token }}",
-                        "Authorization": connections.apiCreds
+                        "Authorization": connection.apiCreds
                     },
                     body: JSON.stringify(data),
                 })
