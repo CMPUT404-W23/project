@@ -135,7 +135,7 @@
         console.log(data);
         for (connection of connections) {
             if ("https://" + url.hostname == connection.hostName) {
-                const response = await fetch(connection.apiAddress + author_relative_path + "inbox/", {
+                const response = await fetch(author_relative_path + "inbox/", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
