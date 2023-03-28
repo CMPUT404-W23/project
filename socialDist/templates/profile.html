@@ -1,6 +1,27 @@
 {% extends 'base.html' %}
 {% block content %}
 <h5>{{author.displayName}} Profile Page</h5>
+<h6>Followers: {{follower_list | length}}</h6>
+<div class="grid">
+    {% for follower in follower_list %}
+    <div class="card my-3">
+        <div class="card-body">
+            {{follower.user_id.displayName}}
+        </div>
+    </div>
+    {% endfor %}
+</div>
+<h6>Following: {{following_list | length}}</h6>
+<div class="grid">
+    {% for following in following_list %}
+    <div class="card my-3">
+        <div class="card-body">
+            {{following.user_id.displayName}}
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
 {% if isOwner %}
 <div class="grid">
     <h4>Posts</h4>
