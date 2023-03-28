@@ -20,6 +20,7 @@
                             <option value="text/markdown">Markdown</option>
                         </select>
                     </div>            
+
                 </div>
                 <div id="save-alert"></div>
                 <button type="button" class="btn btn-dark" onclick="postComment()">Post!</button>
@@ -44,6 +45,7 @@
                 contentType : document.getElementById("ContentType").value,
                 author : JSON.parse('{{author|escapejs}}'),
             };
+
 
             const response = await fetch(comment_url, {
                 method: "POST",

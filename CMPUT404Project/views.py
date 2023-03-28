@@ -37,7 +37,15 @@ HOST = "https://socialdistcmput404.herokuapp.com/"
 def home(request):
     connections = Connection.objects.all()
     connections_serial = ConnectionSerializer(connections, many=True) 
-    context = {'connections': json.dumps(connections_serial.data)}
+    
+    try:
+        current_author = Author.objects.get(user=request.user)
+        current_author_serial = AuthorSerializer(current_author)
+        context = {'connections': json.dumps(connections_serial.data),
+               'current_author': json.dumps(dict(current_author_serial.data))}
+    except:
+        context = {'connections': json.dumps(connections_serial.data),
+                   'current_author': json.dumps({})}
     return render(request, 'home.html', context)
 
 @login_required
@@ -67,11 +75,20 @@ def postPage(request, author_id, post_id):
     except Author.DoesNotExist:
         return HttpResponse(status=404, content="Post does not exist")
     try:
+        current_author = Author.objects.get(user=request.user)
+        current_author_serial = AuthorSerializer(current_author)
+        current_author_context = json.dumps(dict(current_author_serial.data))
+    except:
+        current_author_context = json.dumps({})
+    try:
         post = Post.objects.filter(visibility="VISIBLE").get(id=HOST+"authors/"+author_id+"/posts/"+post_id)
-        context = {'post': post}
-        return render(request, 'post_page.html', context)
     except Post.DoesNotExist:
         return HttpResponse(status=404, content="Post does not exist")
+    context = {
+        'post': post,
+        'current_author': current_author_context,
+    }
+    return render(request, 'post_page.html', context)
 
 # URL to author profile page, will contain inbox if owner
 def authorPage(request, author_id):
@@ -79,8 +96,27 @@ def authorPage(request, author_id):
         author =  Author.objects.get(id=HOST+"authors/"+author_id)
     except Author.DoesNotExist:
         return HttpResponse(status=404, content="Author does not exist!")
-    context = {'author' :author,
-               'isOwner': request.user.is_authenticated and (request.user.is_staff or request.user.author == author)}
+    try:
+        current_author = Author.objects.get(user=request.user)
+        current_author_serial = AuthorSerializer(current_author)
+        current_author_context = json.dumps(dict(current_author_serial.data))
+    except:
+        current_author_context = json.dumps({})
+    user_followers = author.followers.all()
+    follower_list = []
+    for follower in user_followers:
+        follower_list.append(follower)
+    user_following = author.following.all()
+    following_list = []
+    for following in user_following:
+        following_list.append(following)
+    context = {
+        'author' :author,
+        'isOwner': request.user.is_authenticated and (request.user.is_staff or request.user.author == author),
+        'follower_list':follower_list,
+        'following_list':following_list,
+        'current_author': current_author_context
+    }
     #TODO: create a page for the author, if the requester is the author, add inbox here!
     return render(request, 'profile.html', context)
 
