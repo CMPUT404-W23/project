@@ -11,7 +11,15 @@
                 <div class="mb-3">
                     <label for="Comment" class="form-label"> Comment: </label>
                     <textarea class="form-control" id="Comment" style="width:80%" type="text"
-                        placeholder="Please enter comment"></textarea>               
+                        placeholder="Please enter comment"></textarea>   
+                    <!--Content Type-->
+                    <div class="mb-3" id="content-type">
+                        <label for="ContentType" class="form-label">Content Type:</label>
+                        <select class="form-select" id="ContentType" aria-label="Default select example" style="width:80%">
+                            <option selected value="text/plain">Plain Text</option>
+                            <option value="text/markdown">Markdown</option>
+                        </select>
+                    </div>            
                 </div>
                 <div id="save-alert"></div>
                 <button type="button" class="btn btn-dark" onclick="postComment()">Post!</button>
@@ -19,29 +27,36 @@
         </form>
     </div>
     <script>
+        function displayAlert(alertType, alertMessage) {
+            alertContainer = document.getElementById("save-alert");
+            alertContainer.innerHTML = "";
+            saveAlert = document.createElement("div");
+            saveAlert.classList.add("alert", alertType);
+            saveAlert.innerText = alertMessage;
+            alertContainer.appendChild(saveAlert);
+        }
+
         async function postComment(){
-            let post_url = new URL("{{post.id}}")
-            comment_url = "/api" + post_url.pathname + "/comments/"
-            console.log("{{post}}")
-            console.log("{{author}}")
+            const post_url = new URL("{{post.id}}");
+            const comment_url = "/api" + post_url.pathname + "/comments/";
             const data = {
-                content : document.getElementById("Comment"),
-                contentType : "plaintext",
-                // author : 
-            }
+                content : document.getElementById("Comment").value,
+                contentType : document.getElementById("ContentType").value,
+                author : JSON.parse('{{author|escapejs}}'),
+            };
 
             const response = await fetch(comment_url, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "X-CSRFToken": "{{ csrf_token }}",
-                "Authorization": "Token 516e5c3d636f46228edb8f09b9613d5b4b166816"
-            },
-            body: JSON.stringify(data),
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": "{{ csrf_token }}",
+                    "Authorization": "Token 516e5c3d636f46228edb8f09b9613d5b4b166816"
+                },
+                body: JSON.stringify(data),
             });
+            console.log(response);
             if (response.status == 201) {
                 displayAlert("alert-success", "Post edited successfully!");
-            window.location.href = "/";
             } else {
                 displayAlert("alert-danger", "Editing post failed!");
             }

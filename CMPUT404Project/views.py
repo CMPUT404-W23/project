@@ -115,14 +115,12 @@ def create_post(request):
 
 @login_required
 def postComment(request, author_id, post_id):
-    try:
-        author =  Author.objects.get(id=HOST+"authors/"+author_id)
-    except Author.DoesNotExist:
-        return HttpResponse(status=404, content="Post does not exist")
+    author = Author.objects.get(user=request.user)
+    author_serial = AuthorSerializer(author)
     try:
         post = Post.objects.filter(visibility="VISIBLE").get(id=HOST+"authors/"+author_id+"/posts/"+post_id)
         # author =  Author.objects.get(id=HOST+"authors/"+author_id)
-        context = {'post': post, 'author':author}
+        context = {'post': post, 'author':json.dumps(author_serial.data)}
         return render(request, 'post_comment.html', context)
     except Post.DoesNotExist:
         return HttpResponse(status=404, content="Post does not exist")
