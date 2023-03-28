@@ -6,7 +6,7 @@
         integrity="sha512-KfkfwYDsLkIlwQp6LFnl8zNdLGxu9YAA1QvwINks4PhcElQSvqcyVLLD9aMhXd13uQjoXtEKNosOWaZqXgel0g=="
         crossorigin="anonymous" referrerpolicy="no-referrer" />
 </head>
-<h5>{{author.displayName}} Profile Page</h5>
+<h5>{{author.displayName}} Profile Page </h5>
 <h6>Followers: {{follower_list | length}}</h6>
 <div class="grid">
     {% for follower in follower_list %}
@@ -54,6 +54,7 @@
     var followReqActors = [];
     var followIndex = 0;
     let inboxData;
+    const current_author = JSON.parse('{{current_author|escapejs}}');
     fetch("/api/authors/"+"{{user.id}}"+"/inbox/", {headers: new Headers({"Authorization": "Token 516e5c3d636f46228edb8f09b9613d5b4b166816",
     "X-CSRFToken": "{{ csrf_token }}"})})
     .then((response) => response.json())
