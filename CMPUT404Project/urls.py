@@ -41,14 +41,14 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import include, path
 from django.views.generic.base import TemplateView, RedirectView
-from .views import settings, home, postPage, authorPage, create_post, editPost
+from .views import settings, home, postPage, authorPage, create_post, editPost, search
 
 urlpatterns = [
     
     ######################################################### 
     # Do not add any path above this
     # else redirection functionality won't work as intended
-    path("search/", TemplateView.as_view(template_name="search.html"), name="search"),
+    path("search/", search,  name="search"),
     path("accounts/", include("django.contrib.auth.urls")),
     path("post/", create_post, name="post"),
     path("api/", include("socialDist.urls")),

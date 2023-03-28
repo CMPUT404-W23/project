@@ -85,6 +85,10 @@
 </main>
 
 <script>
+    var author = JSON.parse('{{author|escapejs}}');
+    console.log(author);
+    var followers;
+    var connections = JSON.parse('{{connections|escapejs}}');
     fetch("/api/authors/{{user.id}}/followers/", {
             headers: {
                 "Content-Type": "application/json",
@@ -93,7 +97,8 @@
             }})
     .then((response) => response.json())
     .then((data) => {
-        let followers = data.items;
+        followers = data.items;
+        followers.push(author);
         let targetSelect = document.getElementById("target");
         for (let follower in followers) {
             let option = document.createElement("option")
@@ -190,11 +195,53 @@
             },
             body: JSON.stringify(data),
         });
+        const response_txt = await response.text();
+        if (document.getElementById("Visibility").value == "PRIVATE" 
+        || document.getElementById("target").value != "ALL") {
+            await sendToInbox(document.getElementById("target").value, data);
+        }
+        else {
+            console.log(followers);
+            for (follower of followers) {
+                await sendToInbox(follower.id, JSON.parse(response_txt));
+            }
+        }
         if (response.status == 201) {
             displayAlert("alert-success", "Post created successfully!");
             window.location.href = "/";
         } else {
             displayAlert("alert-danger", "Post creation failed!");
+        }
+    }
+    async function sendToInbox(id, data) {
+        console.log(data);
+        let url = new URL(id);
+        let author_relative_path = url.pathname + "/"
+        for (connection of connections) {
+            if ("https://" + url.hostname == connection.hostName) {
+                fetch(connection.apiAddress + author_relative_path + "inbox/", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRFToken": "{{ csrf_token }}",
+                        "Authorization": connections.apiCreds
+                    },
+                    body: JSON.stringify(data),
+                });
+                break;
+            }
+            else if ("https://" + url.hostname == "https://socialdistcmput404.herokuapp.com") {
+                fetch("/api" + author_relative_path + "inbox/", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRFToken": "{{ csrf_token }}",
+                        "Authorization": "Token 516e5c3d636f46228edb8f09b9613d5b4b166816"
+                    },
+                    body: JSON.stringify(data),
+                });
+                break;
+            }
         }
     }
 
