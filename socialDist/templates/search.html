@@ -44,18 +44,80 @@
     }
   }
 
-  function searchAccounts() {
+  async function searchAccounts() {
     let searchList = document.getElementById("authorList");
     searchList.innerHTML = "";
     var index = 0;
     for (author of authorList) {
+        if (author.id == sender.id) {
+            index++;
+            continue;
+        }
         if (author.displayName.includes(document.getElementById("searchbar").value)) {
           let listElement = document.createElement("div");
-          listElement.innerHTML = `<p>${author.displayName}</p>
+          let isFollower = await checkIfFollower(author.id);
+          if (!isFollower) {
+            listElement.innerHTML = `<p>${author.displayName}</p>
           <button id='${author.id}' onclick="sendToInbox('${author.id}', ${index})">Follow</button>`
+          }
+          else {
+            listElement.innerHTML =  `<p>${author.displayName}</p>
+          <button id='${author.id}'>Already following!</button>`
+          }
           searchList.appendChild(listElement);
       }
       index++;
+    }
+  }
+
+  async function checkIfFollower(id) {
+    let url = new URL(id);
+    let author_relative_path = url.pathname + "/"
+    for (connection of connections) {
+            if ("https://" + url.hostname == connection.hostName) {
+              try {
+                if (connection.apiCreds === "") {
+                  const response = await fetch(connection.apiAddress + author_relative_path + "followers/" + sender.id +"/");
+                }
+                else {
+                  const response = await fetch(connection.apiAddress + author_relative_path + "followers/" + sender.id +"/", {
+                    headers: {
+                        "Authorization": connections.apiCreds
+                    }
+                });
+                }
+                if (response.status == 200) {
+                   return true;
+                }
+                else {
+                  return false;
+                }
+              }
+              catch {
+                return false;
+              }
+                
+                break;
+            }
+            else if ("https://" + url.hostname == "https://socialdistcmput404.herokuapp.com") {
+                try {
+                  const response = await fetch("/api" + author_relative_path + "followers/" + sender.id +"/", {
+                      headers: {
+                          "Authorization": "Token 516e5c3d636f46228edb8f09b9613d5b4b166816"
+                      }});
+                  if (response.status == 200) {
+                    return true;
+                  }
+                  else {
+                    return false;
+                }
+                }
+                catch {
+                  return false;
+                }
+             
+                break;
+            }
     }
   }
 
