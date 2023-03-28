@@ -687,7 +687,7 @@ class APIFollower(APIView):
 # TODO Fix required
 class APIInbox(APIView):
     permission_classes = [auth.InboxPermission]
-    @swagger_auto_schema(operation_summary="Retrieve a list of objects(posts, follow requests, post likes, comment likes, comments) within an author's inbox", operation_description="Retrieve an inbox object based on:\n\n* The author's own id", tags=["Inbox"], responses=sample_dicts.sampleInboxDict)
+    @swagger_auto_schema(operation_summary="Retrieve a list of objects(posts, follow requests, post likes, comment likes, comments) within an author's inbox", operation_description="Retrieve an inbox object based on:\n\n* The author's own id", tags=["Inbox"])
     def get(self, request, author_id):
         # get the owner first in order to get the inbox
         try:
@@ -738,7 +738,7 @@ class APIInbox(APIView):
            
     
     # send respective object in body
-    @swagger_auto_schema(operation_summary="Send an object(posts, follow requests, post likes, comment likes, comments) to an author's inbox", operation_description="Send an object(posts, follow requests, post likes, comment likes, comments) to an author's inbox based on:\n\n* The author's own id", tags=["Inbox"], responses=sample_dicts.sampleInboxDict, request_body=InboxSerializer)
+    @swagger_auto_schema(operation_summary="Send an object(posts, follow requests, post likes, comment likes, comments) to an author's inbox", operation_description="Send an object(posts, follow requests, post likes, comment likes, comments) to an author's inbox based on:\n\n* The author's own id", tags=["Inbox"])
     def post(self, request, author_id):
         # get the author object first
         try:
