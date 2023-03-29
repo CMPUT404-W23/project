@@ -142,13 +142,14 @@
             if ("https://" + url.hostname == connection.hostName) {
                 author_relative_path = author_relative_path.replace("/api","");
                 author_relative_path = author_relative_path.replace("/main","");
+                console.log(connection.hostname);
                 const response = await fetch(connection.apiAddress + author_relative_path + "inbox/", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
                         "X-CSRFToken": "{{ csrf_token }}",
                         "Authorization": connection.apiCreds,
-                        "Referer": connection.apiAddress
+                        "Referer": connection.hostname
                     },
                     body: JSON.stringify(data),
                 })
