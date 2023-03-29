@@ -15,7 +15,7 @@
   var connections = JSON.parse('{{connections|escapejs}}');
   var sender = JSON.parse('{{author|escapejs}}')
   var authorList = [];
-  fetch("/api/authors/", {headers: new Headers({"Authorization": "Token 516e5c3d636f46228edb8f09b9613d5b4b166816"})})
+  fetch("/api/authors", {headers: new Headers({"Authorization": "Token 516e5c3d636f46228edb8f09b9613d5b4b166816"})})
   .then((response) => response.json())
   .then((data) => {
     authorList = authorList.concat(data.items);
@@ -31,13 +31,12 @@
             }
             else {
                 returnedData = await fetch(connection.apiAddress + "/authors/", 
-                                            {headers: new Headers({
-                                              "Authorization": connection.apiCreds,
-                                            })});
+                                            {headers: new Headers({"Authorization": connection.apiCreds })});
             }
             let returnedDatatext = await returnedData.text();
             let returnedDataJSON = JSON.parse(returnedDatatext);
             authorList = authorList.concat(returnedDataJSON.items);
+            console.log(authorList);
         }
       catch (error) {
         console.log("Error", error);
@@ -148,7 +147,8 @@
                     headers: {
                         "Content-Type": "application/json",
                         "X-CSRFToken": "{{ csrf_token }}",
-                        "Authorization": connection.apiCreds
+                        "Authorization": connection.apiCreds,
+                        "Referer": connection.apiAddress
                     },
                     body: JSON.stringify(data),
                 })
