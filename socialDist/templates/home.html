@@ -73,7 +73,7 @@
                                     <h6 class="card-subtitle mb-2 text-muted">${post.description}</h6>
                                     <span class="badge bg-secondary">${post.categories}</span>
                                     ${content}
-                                    <button type="button" class="btn btn-secondary btn-sm" id="like-btn-${index}" onclick="likePost(${index})">
+                                    <button type="button" class="btn btn-secondary btn-sm" id="like-btn-${index}" onclick="likePost(${index}, 'internal')">
                                         <i class="fa-regular fa-heart"></i>
                                     </button>`
                 if (author_id == "{{user.id}}") {
@@ -87,7 +87,7 @@
                                     `
                                     
                 }
-                isLiked(index); // check if post is liked by user
+                isLiked(index, 'internal'); // check if post is liked by user
                 return (display_posts + '</div></div>')
             }).join('');
         })
@@ -96,11 +96,21 @@
             document.getElementById('posts').innerHTML = `<div class="d-flex justify-content-center py-4"><h3>Error fetching posts</h3></div>`
         });
 
-    async function likePost(i) {
-        const post = posts[i]; // we got a list of all posts from fetch; like button passes the index of which post to like
-        const author = post.author;
-        const authorID = author.id.split("/").pop();
-        const url = `/api/authors/${authorID}/inbox/`
+    async function likePost(i, type) {
+        // i is the index of the post in the posts/externalPosts array
+        // type is either internal or external
+        let post, url;
+        if (type == "internal") {
+            post = posts[i]; // we got a list of all posts from fetch; like button passes the index of which post to like
+            const author = post.author;
+            const authorID = author.id.split("/").pop();
+            url = `/api/authors/${authorID}/inbox/`
+        } else {
+            post = externalPosts[i];
+            const author = post.author;
+            const authorID = author.id.split("/").pop();
+            url = `${new URL(post.author.id).hostname}/api/authors/${authorID}/inbox/`
+        }
         const data = {
             "@context": "Post Like",
             "summary": "{{ user.username }} Likes your post",
@@ -126,12 +136,22 @@
         }
     }
 
-    async function isLiked(i) {
+    async function isLiked(i, type) {
         // checks if current user liked the post
-        const post = posts[i];
-        const author = post.author;
-        const authorID = author.id.split("/").pop();
-        const url = `/api/authors/${authorID}/posts/${post.id.split('/').pop()}/likes/`
+        // i is the index of the post in the posts/externalPosts array
+        // type is either internal or external
+        let post, url;
+        if (type == "internal") {
+            post = posts[i];
+            const author = post.author;
+            const authorID = author.id.split("/").pop();
+            url = `/api/authors/${authorID}/posts/${post.id.split('/').pop()}/likes/`
+        } else {
+            const author = post.author;
+            const authorID = author.id.split("/").pop();
+            post = externalPosts[i];
+            url = `${new URL(post.author.id).hostname}/api/authors/${authorID}/posts/${post.id.split('/').pop()}/likes/`
+        }
         // GET list of likes for the post
         const response = await fetch(url, {
             method: "GET",
@@ -228,14 +248,14 @@
                                                     <h6 class="card-subtitle mb-2 text-muted">${post.description}</h6>
                                                     <span class="badge bg-secondary">${post.categories}</span>
                                                     ${content}
-                                                    <button type="button" class="btn btn-secondary btn-sm" id="like-btn-${i}" onclick="likePost(${i})">
+                                                    <button type="button" class="btn btn-secondary btn-sm" id="like-btn-${i}" onclick="likePost(${i}, 'external')">
                                                         <i class="fa-regular fa-heart"></i> 
                                                     </button>
                                                 </div>
                                             </div>
                                         `);
                                 document.getElementById("posts").appendChild(htmlElement);
-                                isLiked(i);
+                                isLiked(i, 'external');
                             }
                             catch {
                                 continue;
