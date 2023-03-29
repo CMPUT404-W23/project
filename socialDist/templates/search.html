@@ -34,6 +34,7 @@
                                             {headers: new Headers({
                                               "Authorization": connection.apiCreds,
                                               "X-CSRFToken": "{{ csrf_token }}",
+                                              "Referer": connection.apiAddress,
                                             })});
             }
             let returnedDatatext = await returnedData.text();
