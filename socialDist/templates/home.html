@@ -163,6 +163,7 @@
         // fetch foreign posts and render
         //Source: https://stackoverflow.com/questions/43305020/how-to-use-the-context-variables-passed-from-django-in-javascript
         var listOfConnections = JSON.parse('{{connections|escapejs}}');
+        let externalPosts;
         for (connection of listOfConnections) {
             try {
                 let returnedData;
@@ -201,6 +202,8 @@
                         if (posts.length == 0) {
                             continue;
                         }
+                        externalPosts = posts
+                        let i = 0;
                         for (post of posts) {
                             try {
                                 let content;
@@ -225,13 +228,14 @@
                                                     <h6 class="card-subtitle mb-2 text-muted">${post.description}</h6>
                                                     <span class="badge bg-secondary">${post.categories}</span>
                                                     ${content}
-                                                    <button type="button" class="btn btn-secondary btn-sm">
+                                                    <button type="button" class="btn btn-secondary btn-sm" id="like-btn-${i}" onclick="likePost(${i})">
                                                         <i class="fa-regular fa-heart"></i> 
                                                     </button>
                                                 </div>
                                             </div>
                                         `);
                                 document.getElementById("posts").appendChild(htmlElement);
+                                isLiked(i);
                             }
                             catch {
                                 continue;
