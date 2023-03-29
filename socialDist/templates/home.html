@@ -1,8 +1,8 @@
 {% extends 'base.html' %}
 <link rel="stylesheet" href="../static/socialDist/styles.css">
 {% block content %}
-
 <head>
+    <!-- FontAwesome Icons link -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css"
         integrity="sha512-KfkfwYDsLkIlwQp6LFnl8zNdLGxu9YAA1QvwINks4PhcElQSvqcyVLLD9aMhXd13uQjoXtEKNosOWaZqXgel0g=="
         crossorigin="anonymous" referrerpolicy="no-referrer" />
@@ -20,6 +20,7 @@
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 <script>
     function deletePost(id) {
+        // DELETE a post
         url = new URL(id)
         fetch_url = "/api" + url.pathname + "/"
         fetch(fetch_url, { headers: new Headers({ "X-CSRFToken": "{{ csrf_token }}", "Authorization": "Token 516e5c3d636f46228edb8f09b9613d5b4b166816" }), method: 'DELETE' })
@@ -33,6 +34,7 @@
     }
     var current_author = JSON.parse('{{current_author|escapejs}}');
     let posts;
+    // GET all public posts and display them
     fetch("/api/posts/", { headers: new Headers({ "Authorization": "Token 516e5c3d636f46228edb8f09b9613d5b4b166816" }) })
         .then((response) => response.json())
         .then((data) => {
@@ -81,7 +83,9 @@
                                     </button>
                                     <button type="button" class="btn btn-danger btn-sm" onclick="deletePost('${post.id}')">
                                         <i class="fa-solid fa-trash"></i>
-                                    </button>`
+                                    </button>
+                                    `
+                                    
                 }
                 isLiked(index); // check if post is liked by user
                 return (display_posts + '</div></div>')
@@ -104,6 +108,7 @@
             "author": current_author,
             "object": post.id
         }
+        // POST a like object to the author's inbox
         const response = await fetch(url, {
             method: "POST",
             headers: {
@@ -115,6 +120,7 @@
         });
         if (response.status == 200) {
             document.getElementById(`like-btn-${i}`).innerHTML = `<i class="fa-solid fa-heart"></i>`;
+            document.getElementById(`like-btn-${i}`).disabled = true;
         } else {
             console.log(response.status, response.statusText)
         }
@@ -126,6 +132,7 @@
         const author = post.author;
         const authorID = author.id.split("/").pop();
         const url = `/api/authors/${authorID}/posts/${post.id.split('/').pop()}/likes/`
+        // GET list of likes for the post
         const response = await fetch(url, {
             method: "GET",
             headers: {
@@ -156,6 +163,7 @@
         // fetch foreign posts and render
         //Source: https://stackoverflow.com/questions/43305020/how-to-use-the-context-variables-passed-from-django-in-javascript
         var listOfConnections = JSON.parse('{{connections|escapejs}}');
+        let externalPosts;
         for (connection of listOfConnections) {
             try {
                 let returnedData;
@@ -194,6 +202,8 @@
                         if (posts.length == 0) {
                             continue;
                         }
+                        externalPosts = posts
+                        let i = 0;
                         for (post of posts) {
                             try {
                                 let content;
@@ -218,13 +228,14 @@
                                                     <h6 class="card-subtitle mb-2 text-muted">${post.description}</h6>
                                                     <span class="badge bg-secondary">${post.categories}</span>
                                                     ${content}
-                                                    <button type="button" class="btn btn-secondary btn-sm">
+                                                    <button type="button" class="btn btn-secondary btn-sm" id="like-btn-${i}" onclick="likePost(${i})">
                                                         <i class="fa-regular fa-heart"></i> 
                                                     </button>
                                                 </div>
                                             </div>
                                         `);
                                 document.getElementById("posts").appendChild(htmlElement);
+                                isLiked(i);
                             }
                             catch {
                                 continue;
