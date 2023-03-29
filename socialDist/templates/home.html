@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 <link rel="stylesheet" href="../static/socialDist/styles.css">
 {% block content %}
+
 <head>
     <!-- FontAwesome Icons link -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css"
@@ -33,7 +34,7 @@
         window.location.href = url.pathname + "/edit/"
     }
     var current_author = JSON.parse('{{current_author|escapejs}}');
-    let posts;
+    let posts, externalPosts;
     // GET all public posts and display them
     fetch("/api/posts/", { headers: new Headers({ "Authorization": "Token 516e5c3d636f46228edb8f09b9613d5b4b166816" }) })
         .then((response) => response.json())
@@ -85,7 +86,7 @@
                                         <i class="fa-solid fa-trash"></i>
                                     </button>
                                     `
-                                    
+
                 }
                 isLiked(index, 'internal'); // check if post is liked by user
                 return (display_posts + '</div></div>')
@@ -99,18 +100,11 @@
     async function likePost(i, type) {
         // i is the index of the post in the posts/externalPosts array
         // type is either internal or external
-        let post, url;
-        if (type == "internal") {
-            post = posts[i]; // we got a list of all posts from fetch; like button passes the index of which post to like
-            const author = post.author;
-            const authorID = author.id.split("/").pop();
-            url = `/api/authors/${authorID}/inbox/`
-        } else {
-            post = externalPosts[i];
-            const author = post.author;
-            const authorID = author.id.split("/").pop();
-            url = `${new URL(post.author.id).hostname}/api/authors/${authorID}/inbox/`
-        }
+        const source = type === "internal" ? posts : externalPosts;
+        const post = source[i];
+        const authorID = post.author.id.split("/").pop();
+        const hostname = type === "external" ? new URL(post.author.id).hostname : "";
+        const url = `${hostname}/api/authors/${authorID}/inbox/`;
         const data = {
             "@context": "Post Like",
             "summary": "{{ user.username }} Likes your post",
@@ -183,7 +177,6 @@
         // fetch foreign posts and render
         //Source: https://stackoverflow.com/questions/43305020/how-to-use-the-context-variables-passed-from-django-in-javascript
         var listOfConnections = JSON.parse('{{connections|escapejs}}');
-        let externalPosts;
         for (connection of listOfConnections) {
             try {
                 let returnedData;
