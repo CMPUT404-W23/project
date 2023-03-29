@@ -789,7 +789,7 @@ class APIInbox(APIView):
             try:
                 sendingAuthor = Author.objects.get(pk=request.data["actor"]["id"])
             except Author.DoesNotExist:
-                if request.data["author"]["host"] == HOST:  
+                if request.data["actor"]["host"] == HOST:  
                     return Response(status=404)
                 new_author_serial = AuthorSerializer(data=request.data["actor"], partial=True)
                 if not new_author_serial.is_valid():
