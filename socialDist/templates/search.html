@@ -146,7 +146,7 @@
                 var response;
                 if (connection.hostName == "https://social-distribution-w23-t17.herokuapp.com") {
                   response = await fetch(connection.apiAddress + "/authors/" + id + "/inbox/", {
-                    method: "POST",
+                    method: "PUT",
                     headers: {
                         "Content-Type": "application/json",
                         "X-CSRFToken": "{{ csrf_token }}",
@@ -175,7 +175,7 @@
             }
             else if ("https://" + url.hostname == "https://socialdistcmput404.herokuapp.com") {
               const response = await fetch("/api" + author_relative_path + "inbox/", {
-                    method: "PUT",
+                    method: "POST",
                     headers: {
                         "Content-Type": "application/json",
                         "X-CSRFToken": "{{ csrf_token }}",
