@@ -51,6 +51,7 @@ import urllib.parse
 # from itertools import chain
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
+import uuid
 
 # TODO: we need to support the following operations to connect with other nodes!
 # What is said below appiles to local node elements too!
@@ -135,7 +136,7 @@ class APIAuthor(APIView):
 
     # Edit the author object  
     # When posting, send an author object in body in JSON with modified fields
-    @swagger_auto_schema(operation_summary="Edit/create an author's profile", operation_description="Edit/create an author's profile based on:\n\n* The author's id", tags=["Author's Profile"], request_body=AuthorSerializer,responses=sample_dicts.samplePOSTAuthorDict)
+    @swagger_auto_schema(operation_summary="Edit an author's profile", operation_description="Edit an author's profile based on:\n\n* The author's id", tags=["Author's Profile"], request_body=AuthorSerializer,responses=sample_dicts.samplePOSTAuthorDict)
     def post(self, request, id):
         # Check if author exists, 404 if not
         try:
@@ -194,16 +195,27 @@ class APIListAuthors(APIView):
             return Response(status=200, data=api_helper.construct_list_of_authors(serializer.data))
     
     # Update an author's profile
+
     @swagger_auto_schema(operation_summary="Create a new author's profile", operation_description="Create an author's profile without any fields", tags=["Author's Profile"], responses=sample_dicts.sampleGETAuthorDict)
     def put(self, request):
+        # need to provide the dict type(later for swagger)
+        # Template
+        # {
+        #     "username": "testUsername",
+        #     "email": "",
+        #     "password1": "cmput404"
+        # }
         username = request.data["username"]
         email = request.data.get("email", "") # if email is not provided, set it to empty string
         password = request.data["password1"]
         try:
             user = User.objects.create_user(username, email, password)
+            # Generate a UUID
+            UUID=uuid.uuid4()
             author = Author.objects.create(
                 user=user,
-                id=HOST+"authors/" + str(user.pk),
+                # id=HOST+"authors/" + str(user.pk),
+                id=HOST+"authors/"+str(UUID),
                 host=HOST,
                 displayName=username,
                 github="",
@@ -301,9 +313,9 @@ class APIPost(APIView):
             serializer = PostSerializer(data=postDict, partial=True)
             if serializer.is_valid():
                 serializer.save()
-                # OLD
+                #
                 # return Response(status=201, data=api_helper.construct_post_object(serializer.data))
-                # NEW: add argument for author since that's what needed from api_helper
+                #  add argument for author since that's what needed from api_helper
                 return Response(status=201, data=api_helper.construct_post_object(serializer.data, author))
                 # return Response(status=201, data=api_helper.construct_post_object(serializer.data))
             return Response(status=400, data=serializer.errors)
@@ -359,6 +371,22 @@ class APIListPosts(APIView):
     # Add a post with a randomized post id
     # Include a post object in JSON with modified fields
     # Note that host and id field will be ignored!
+
+    # Template
+    # {
+    #     "id": "",
+    #     "title": "UUID testing",
+    #     "source": "UUID",
+    #     "origin": "string",
+    #     "description": "string",
+    #     "content": "string",
+    #     "contentType": "text/plain",
+    #     "author": "https://socialdistcmput404.herokuapp.com/authors/2",
+    #     "published": "2023-03-30T20:31:50.362Z",
+    #     "visibility": "VISIBLE",
+    #     "categories": "string",
+    #     "unlisted": true
+    # }
     @swagger_auto_schema(operation_summary="Create a post with a randomized post id", operation_description="Create a post with a randomized post id based on:\n\n* The author's own id", tags=["Post List"], request_body=PostSerializer, responses=sample_dicts.samplePOSTPostDict)
     def post(self, request, author_id):
         try:
@@ -369,7 +397,16 @@ class APIListPosts(APIView):
         if not request.user.is_authenticated and request.user.id != author_id:
             return Response(status=401)
         while True:
-            post_id = get_random_string(10)
+            # OLD start
+            # post_id = get_random_string(10)
+            # old end
+
+            # NEW start
+            # generate new UUID
+            UUID=uuid.uuid4()
+            post_id=str(UUID)
+            # NEW end
+
             try:
                 post = Post.objects.get(postID=HOST+"authors/"+author_id+"/posts/"+post_id)
                 continue
@@ -496,7 +533,37 @@ class APIListComments(APIView):
         except Post.DoesNotExist:
             return Response(status=404)
         while True:
-            comment_id = get_random_string(20)
+
+            # template
+            # {
+            #     "id": "https://socialdistcmput404.herokuapp.com/authors/2/posts/1/comments/1",
+            #     "content": "haha",
+            #     "contentType": "text/plain",
+            #     "published": "2023-03-22T21:37:36Z",
+            #     "author": {
+            #         "id": "https://socialdistcmput404.herokuapp.com/authors/2",
+            #         "host": "https://socialdistcmput404.herokuapp.com/",
+            #         "displayName": "2",
+            #         "github": Null,
+            #         "profileImage": Null,
+            #         "type": "author",
+            #         "url": "https://socialdistcmput404.herokuapp.com/authors/2"
+            #     },
+            #     "type": "comment"
+            # }
+
+            # OLD start
+            # comment_id = get_random_string(20)
+            # OLD end
+
+            # NEW start
+            # Generate a UUID
+            UUID=uuid.uuid4()
+            comment_id=str(UUID)
+            # NEW end
+            
+
+            # try searching that comment
             try:
                 comment = Comment.objects.get(id=HOST+
                                               "authors/"+
@@ -808,6 +875,25 @@ class APIInbox(APIView):
             return Response(status=200)
             
         # if the type is “like” then add that like to AUTHOR_ID’s inbox
+
+        # Template
+
+        # {
+        #     "@context": "https://www.w3.org/ns/activitystreams",
+        #     "summary": "2 Likes your post",         
+        #     "type": "Like",
+        #     "author": {
+        #     "id": "https://socialdistcmput404.herokuapp.com/authors/2",
+        #     "host": "https://socialdistcmput404.herokuapp.com/",
+        #     "displayName": "2",
+        #     "github": null,
+        #     "profileImage": null,
+        #     "type": "author",
+        #     "url": "https://socialdistcmput404.herokuapp.com/authors/2"
+        #     },
+        #     "object":"https://socialdistcmput404.herokuapp.com/authors/1/posts/1"
+        # }
+
         elif request.data["type"]=="Like":
             isPost = False
             try:
@@ -828,7 +914,16 @@ class APIInbox(APIView):
                     return Response(status=400, data=new_author_serial.errors)
                 new_author_serial.save()
             while True:
-                like_id = get_random_string(20)
+                # OLD start
+                # like_id = get_random_string(20)
+                # OLD end
+
+                # New start
+                # Generate a UUID
+                UUID=uuid.uuid4()
+                like_id=str(UUID)
+                # New end
+
                 try:
                     like = Like.objects.get(pk=request.data["object"]+"/likes/"+like_id)
                     continue
