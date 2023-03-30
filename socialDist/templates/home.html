@@ -204,7 +204,7 @@
                             data_path = data_path.substring(index + 4)
                         }
                         let posts_response;
-                        if (connection.hostName == "https://social-distribution-w23-t17.herokuapp.com/") {
+                        if (connection.hostName == "https://social-distribution-w23-t17.herokuapp.com") {
                             posts_response = await fetch(connection.apiAddress + "/authors/" + data.id + "/posts/",
                             { headers: new Headers({ "Authorization": connection.apiCreds,
                             "Accept": "application/json", }) });

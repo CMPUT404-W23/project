@@ -143,7 +143,9 @@
                 author_relative_path = author_relative_path.replace("/api","");
                 author_relative_path = author_relative_path.replace("/main","");
                 console.log(connection.hostName);
-                const response = await fetch(connection.apiAddress + author_relative_path + "inbox/", {
+                var response;
+                if (connection.hostName == "https://social-distribution-w23-t17.herokuapp.com") {
+                  response = await fetch(connection.apiAddress + "/authors/" + data.id + "inbox/", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
@@ -153,6 +155,19 @@
                     },
                     body: JSON.stringify(data),
                 })
+                }
+                else {
+                  response = await fetch(connection.apiAddress + author_relative_path + "inbox/", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRFToken": "{{ csrf_token }}",
+                        "Authorization": connection.apiCreds,
+                        "Referer": connection.hostName
+                    },
+                    body: JSON.stringify(data),
+                })
+                }
                 if (response.status == 200  || response.status == 201) {
                    document.getElementById(id).innerText = "Request sent!";
                 }
