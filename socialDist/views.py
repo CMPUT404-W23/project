@@ -51,6 +51,7 @@ import urllib.parse
 # from itertools import chain
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
+import uuid
 
 # TODO: we need to support the following operations to connect with other nodes!
 # What is said below appiles to local node elements too!
@@ -135,7 +136,7 @@ class APIAuthor(APIView):
 
     # Edit the author object  
     # When posting, send an author object in body in JSON with modified fields
-    @swagger_auto_schema(operation_summary="Edit/create an author's profile", operation_description="Edit/create an author's profile based on:\n\n* The author's id", tags=["Author's Profile"], request_body=AuthorSerializer,responses=sample_dicts.samplePOSTAuthorDict)
+    @swagger_auto_schema(operation_summary="Edit an author's profile", operation_description="Edit an author's profile based on:\n\n* The author's id", tags=["Author's Profile"], request_body=AuthorSerializer,responses=sample_dicts.samplePOSTAuthorDict)
     def post(self, request, id):
         # Check if author exists, 404 if not
         try:
@@ -194,16 +195,27 @@ class APIListAuthors(APIView):
             return Response(status=200, data=api_helper.construct_list_of_authors(serializer.data))
     
     # Update an author's profile
+
     @swagger_auto_schema(operation_summary="Create a new author's profile", operation_description="Create an author's profile without any fields", tags=["Author's Profile"], responses=sample_dicts.sampleGETAuthorDict)
     def put(self, request):
+        # need to provide the dict type(later for swagger)
+        # Template
+        # {
+        #     "username": "testUsername",
+        #     "email": "",
+        #     "password1": "cmput404"
+        # }
         username = request.data["username"]
         email = request.data.get("email", "") # if email is not provided, set it to empty string
         password = request.data["password1"]
         try:
             user = User.objects.create_user(username, email, password)
+            # Generate a UUID
+            UUID=uuid.uuid4()
             author = Author.objects.create(
                 user=user,
-                id=HOST+"authors/" + str(user.pk),
+                # id=HOST+"authors/" + str(user.pk),
+                id=HOST+"authors/"+str(UUID),
                 host=HOST,
                 displayName=username,
                 github="",
