@@ -181,11 +181,13 @@
             try {
                 let returnedData;
                 if (connection.apiCreds === "") {
-                    returnedData = await fetch(connection.apiAddress + "/authors/");
+                    returnedData = await fetch(connection.apiAddress + "/authors/", 
+                    {headers: new Headers({"Content-Type": "application/json"})});
                 }
                 else {
                     returnedData = await fetch(connection.apiAddress + "/authors/",
-                        { headers: new Headers({ "Authorization": connection.apiCreds }) });
+                        { headers: new Headers({ "Authorization": connection.apiCreds, 
+                        "Content-Type": "application/json"}) });
                 }
                 let returnedDatatext = await returnedData.text();
                 let returnedDataList = JSON.parse(returnedDatatext);
@@ -202,7 +204,8 @@
                             data_path = data_path.substring(index + 4)
                         }
                         let posts_response = await fetch(connection.apiAddress + data_path + "/posts/",
-                            { headers: new Headers({ "Authorization": connection.apiCreds }) });
+                            { headers: new Headers({ "Authorization": connection.apiCreds,
+                            "Content-Type": "application/json", }) });
                         let posts_list_json = await posts_response.text();
                         let post_list_obj = JSON.parse(posts_list_json);
                         let posts;

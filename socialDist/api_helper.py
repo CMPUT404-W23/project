@@ -210,12 +210,12 @@ def construct_paginated_list_of_comments(comment_list_data, pageNum, sizeNum, au
 #   parentObject - parent object (Post or Comment)
 #   author - Author object of like
 # Returns: dict representing a like JSON object
-def construct_like_object(like_data, parentObject, author):
+def construct_like_object(like_data, parentObject, objectType, author):
     likeDict = dict(like_data)
     author_serialzer = AuthorSerializer(author)
     likeDict["author"] = construct_author_object(author_serialzer.data)
     likeDict["object"] = parentObject
-    likeDict["summary"] = author.displayName + " likes this"
+    likeDict["summary"] = author.displayName + " liked your " + objectType
     likeDict["type"] = "Like"
     return likeDict
 
@@ -225,11 +225,11 @@ def construct_like_object(like_data, parentObject, author):
 #   like__list_data - list of serialized form of Like objects
 #   parentObjectID - parent object ID (Post or Comment)
 # Returns: dict representing a list of likes JSON object
-def construct_list_of_likes(like_list_data, parentObjectID):
+def construct_list_of_likes(like_list_data, parentObjectID, parentObjectType):
     likeList = []
     for like_serial in like_list_data:
         likeAuthor = Author.objects.get(pk=like_serial["author"])
-        likeList.append(construct_like_object(like_serial, parentObjectID, likeAuthor))
+        likeList.append(construct_like_object(like_serial, parentObjectID, parentObjectType, likeAuthor))
     likeListDict = {}
     likeListDict["type"] = "likes"
     likeListDict["items"] = likeList
@@ -248,11 +248,11 @@ def construct_list_of_liked(liked_list_data, author):
         if like.likeType == "Post":
             if like.parentPost.visibility != "VISIBLE":
                 continue
-            likeList.append(construct_like_object(like_serial, like.parentPost.id, author))
+            likeList.append(construct_like_object(like_serial, like.parentPost.id, "post", author))
         else: 
             if like.parentComment.parentPost.visibility != "VISIBLE":
                 continue
-            likeList.append(construct_like_object(like_serial, like.parentComment.id, author))
+            likeList.append(construct_like_object(like_serial, like.parentComment.id, "comment", author))
     likeListDict = {}
     likeListDict["type"] = "liked"
     likeListDict["items"] = likeList
