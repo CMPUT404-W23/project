@@ -14,7 +14,13 @@
         {% for follower in follower_list %}
         <div class="card my-3">
             <div class="card-body">
-                {{follower.user_id.displayName}}
+               <p>{{follower.user_id.displayName}} 
+                <span>
+                    <button class="btn btn-dark" onclick="deleteFollower('{{follower.user_id.id}}')">
+                        Remove follower
+                    </button>
+                </span>
+            </p>
             </div>
         </div>
         {% endfor %}
@@ -139,8 +145,8 @@
                     <div class="card-body">
                         <a href="${item.actor.url}">${item.actor.displayName}</a> wants to follow you!
                     </div>
-                    <button onclick="accept('${item.actor.id}')">Accept</button>
-                    <button onclick="reject('${item.actor.id}', ${followIndex})">Reject</button>
+                    <button class="btn btn-dark" onclick="accept('${item.actor.id}')">Accept</button>
+                    <button class="btn btn-dark" onclick="reject('${item.actor.id}', ${followIndex})">Reject</button>
                 </div>
                 `);
                     followReqActors.push(item.actor);
@@ -196,6 +202,20 @@
         } else {
             console.log(response.status, response.statusText)
         }
+    }
+
+    async function deleteFollower(id) {
+        let path = "/api/authors/{{user.id}}/followers/" + id + "/";
+        await fetch(path,
+            {
+                method: "DELETE",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": "{{ csrf_token }}",
+                    "Authorization": "Token 516e5c3d636f46228edb8f09b9613d5b4b166816"
+                }
+            });
+        window.location.reload();
     }
 
     async function isLiked(i) {
