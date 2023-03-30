@@ -371,6 +371,22 @@ class APIListPosts(APIView):
     # Add a post with a randomized post id
     # Include a post object in JSON with modified fields
     # Note that host and id field will be ignored!
+
+    # Template
+    # {
+    #     "id": "",
+    #     "title": "UUID testing",
+    #     "source": "UUID",
+    #     "origin": "string",
+    #     "description": "string",
+    #     "content": "string",
+    #     "contentType": "text/plain",
+    #     "author": "https://socialdistcmput404.herokuapp.com/authors/2",
+    #     "published": "2023-03-30T20:31:50.362Z",
+    #     "visibility": "VISIBLE",
+    #     "categories": "string",
+    #     "unlisted": true
+    # }
     @swagger_auto_schema(operation_summary="Create a post with a randomized post id", operation_description="Create a post with a randomized post id based on:\n\n* The author's own id", tags=["Post List"], request_body=PostSerializer, responses=sample_dicts.samplePOSTPostDict)
     def post(self, request, author_id):
         try:
@@ -381,7 +397,12 @@ class APIListPosts(APIView):
         if not request.user.is_authenticated and request.user.id != author_id:
             return Response(status=401)
         while True:
-            post_id = get_random_string(10)
+            # OLD
+            # post_id = get_random_string(10)
+
+            # NEW: generate new UUID
+            UUID=uuid.uuid4()
+            post_id=str(UUID)
             try:
                 post = Post.objects.get(postID=HOST+"authors/"+author_id+"/posts/"+post_id)
                 continue
@@ -508,7 +529,32 @@ class APIListComments(APIView):
         except Post.DoesNotExist:
             return Response(status=404)
         while True:
-            comment_id = get_random_string(20)
+
+            # template
+            # {
+            #     "id": "https://socialdistcmput404.herokuapp.com/authors/2/posts/1/comments/1",
+            #     "content": "haha",
+            #     "contentType": "text/plain",
+            #     "published": "2023-03-22T21:37:36Z",
+            #     "author": {
+            #         "id": "https://socialdistcmput404.herokuapp.com/authors/2",
+            #         "host": "https://socialdistcmput404.herokuapp.com/",
+            #         "displayName": "2",
+            #         "github": Null,
+            #         "profileImage": Null,
+            #         "type": "author",
+            #         "url": "https://socialdistcmput404.herokuapp.com/authors/2"
+            #     },
+            #     "type": "comment"
+            # }
+
+            # Generate a UUID
+            UUID=uuid.uuid4()
+            comment_id=str(UUID)
+            # OLD
+            # comment_id = get_random_string(20)
+
+            # try searching that comment
             try:
                 comment = Comment.objects.get(id=HOST+
                                               "authors/"+
@@ -840,7 +886,14 @@ class APIInbox(APIView):
                     return Response(status=400, data=new_author_serial.errors)
                 new_author_serial.save()
             while True:
-                like_id = get_random_string(20)
+                # OLD
+                # like_id = get_random_string(20)
+
+                # New
+                # Generate a UUID
+                UUID=uuid.uuid4()
+                like_id=str(UUID)
+
                 try:
                     like = Like.objects.get(pk=request.data["object"]+"/likes/"+like_id)
                     continue
