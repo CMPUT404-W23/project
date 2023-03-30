@@ -179,6 +179,8 @@ CORS_ALLOWED_ORIGINS = [
 "https://social-distribution-w23-t17.herokuapp.com", 
 # Team 4
 "https://www.distribution.social"
+# Team 6
+"https://cmput404-group6-instatonne.herokuapp.com"    
 ]
 
 # Static files (CSS, JavaScript, Images)
