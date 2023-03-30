@@ -175,7 +175,7 @@
             }
             else if ("https://" + url.hostname == "https://socialdistcmput404.herokuapp.com") {
               const response = await fetch("/api" + author_relative_path + "inbox/", {
-                    method: "POST",
+                    method: "PUT",
                     headers: {
                         "Content-Type": "application/json",
                         "X-CSRFToken": "{{ csrf_token }}",
