@@ -313,9 +313,9 @@ class APIPost(APIView):
             serializer = PostSerializer(data=postDict, partial=True)
             if serializer.is_valid():
                 serializer.save()
-                # OLD
+                #
                 # return Response(status=201, data=api_helper.construct_post_object(serializer.data))
-                # NEW: add argument for author since that's what needed from api_helper
+                #  add argument for author since that's what needed from api_helper
                 return Response(status=201, data=api_helper.construct_post_object(serializer.data, author))
                 # return Response(status=201, data=api_helper.construct_post_object(serializer.data))
             return Response(status=400, data=serializer.errors)
@@ -397,12 +397,16 @@ class APIListPosts(APIView):
         if not request.user.is_authenticated and request.user.id != author_id:
             return Response(status=401)
         while True:
-            # OLD
+            # OLD start
             # post_id = get_random_string(10)
+            # old end
 
-            # NEW: generate new UUID
+            # NEW start
+            # generate new UUID
             UUID=uuid.uuid4()
             post_id=str(UUID)
+            # NEW end
+
             try:
                 post = Post.objects.get(postID=HOST+"authors/"+author_id+"/posts/"+post_id)
                 continue
@@ -548,11 +552,16 @@ class APIListComments(APIView):
             #     "type": "comment"
             # }
 
+            # OLD start
+            # comment_id = get_random_string(20)
+            # OLD end
+
+            # NEW start
             # Generate a UUID
             UUID=uuid.uuid4()
             comment_id=str(UUID)
-            # OLD
-            # comment_id = get_random_string(20)
+            # NEW end
+            
 
             # try searching that comment
             try:
@@ -905,13 +914,15 @@ class APIInbox(APIView):
                     return Response(status=400, data=new_author_serial.errors)
                 new_author_serial.save()
             while True:
-                # OLD
+                # OLD start
                 # like_id = get_random_string(20)
+                # OLD end
 
-                # New
+                # New start
                 # Generate a UUID
                 UUID=uuid.uuid4()
                 like_id=str(UUID)
+                # New end
 
                 try:
                     like = Like.objects.get(pk=request.data["object"]+"/likes/"+like_id)
