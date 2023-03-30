@@ -58,11 +58,11 @@
           let isFollower = await checkIfFollower(author.id);
           if (!isFollower) {
             listElement.innerHTML = `<p>${author.displayName}</p>
-          <button id='${author.id}' onclick="sendToInbox('${author.id}', ${index})">Follow</button>`
+          <button class="btn btn-dark" id='${author.id}' onclick="sendToInbox('${author.id}', ${index})">Follow</button>`
           }
           else {
             listElement.innerHTML =  `<p>${author.displayName}</p>
-          <button id='${author.id}'>Already following!</button>`
+          <button class="btn btn-dark" id='${author.id}'>Already following!</button>`
           }
           searchList.appendChild(listElement);
       }
@@ -145,7 +145,7 @@
                 console.log(connection.hostName);
                 var response;
                 if (connection.hostName == "https://social-distribution-w23-t17.herokuapp.com") {
-                  response = await fetch(connection.apiAddress + "/authors/" + id + "inbox/", {
+                  response = await fetch(connection.apiAddress + "/authors/" + id + "/inbox/", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
