@@ -548,7 +548,7 @@ class APIListLikesPost(APIView):
             return Response(status=404)
         likes = Like.objects.filter(parentPost=post)
         serializer = LikeSerializer(likes, many=True)
-        return Response(status=200, data=api_helper.construct_list_of_likes(serializer.data, post.id))
+        return Response(status=200, data=api_helper.construct_list_of_likes(serializer.data, post.id, "post"))
     
 # API view for likes on a comment (endpoint /api/authors/<author_id>/posts/<post_id>/comments/<comment_id>/likes)
 class APIListLikesComments(APIView):
@@ -573,7 +573,7 @@ class APIListLikesComments(APIView):
             return Response(status=404)
         likes = Like.objects.filter(parentComment=comment)
         serializer = LikeSerializer(likes, many=True)
-        return Response(status=200, data=api_helper.construct_list_of_likes(serializer.data, comment.id))
+        return Response(status=200, data=api_helper.construct_list_of_likes(serializer.data, comment.id, "comment"))
     
 # API view for liked objects by the author (endpoint /api/authors/<author_id>/liked)
 class APILiked(APIView):
@@ -718,10 +718,12 @@ class APIInbox(APIView):
                 if like.likeType == "Post":
                     itemList.append(api_helper.construct_like_object(like_serial.data,
                                                                      like.parentPost.id, 
+                                                                     "post",
                                                                      like_author))
                 else:
                     itemList.append(api_helper.construct_like_object(like_serial.data,
                                                                      like.parentComment.id, 
+                                                                     "comment",
                                                                      like_author))
             for comment in inbox.comments.all():
                 comment_serial = CommentSerializer(comment, partial=True)
