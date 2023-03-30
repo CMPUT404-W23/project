@@ -203,9 +203,18 @@
                         if (index != -1) {
                             data_path = data_path.substring(index + 4)
                         }
-                        let posts_response = await fetch(connection.apiAddress + data_path + "/posts/",
+                        let posts_response;
+                        if (connection.hostName == "https://social-distribution-w23-t17.herokuapp.com") {
+                            posts_response = await fetch(connection.apiAddress + "/authors/" + data.id + "/posts/",
                             { headers: new Headers({ "Authorization": connection.apiCreds,
                             "Accept": "application/json", }) });
+                        }
+                        else {
+                            posts_response = await fetch(connection.apiAddress + data_path + "/posts/",
+                            { headers: new Headers({ "Authorization": connection.apiCreds,
+                            "Accept": "application/json", }) });
+                        }
+                  
                         let posts_list_json = await posts_response.text();
                         let post_list_obj = JSON.parse(posts_list_json);
                         let posts;
