@@ -226,7 +226,7 @@
                     headers: {
                         "Content-Type": "application/json",
                         "X-CSRFToken": "{{ csrf_token }}",
-                        "Authorization": connections.apiCreds
+                        "Authorization": connection.apiCreds
                     },
                     body: JSON.stringify(data),
                 });
