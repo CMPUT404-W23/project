@@ -156,20 +156,30 @@ USE_L10N = True
 USE_TZ = True
 
 # Attach domains of external domains
-# TEMP FOR TEAM 4 demo
-CORS_ALLOW_ALL_ORIGINS = True
+# TEMP FOR TEAM 4 demo, commented out incase we need it again in the future
+# CORS_ALLOW_ALL_ORIGINS = True
 
 
-# CORS_ALLOWED_ORIGINS = [
-# "https://socialdistcmput404.herokuapp.com",
-# "http://localhost:8000",
-# "http://127.0.0.1:8000",
-# "https://social-t30.herokuapp.com",
-# "https://sd7-api.herokuapp.com",
-# "https://ultimate-teapot.herokuapp.com",
-# "https://distributed-social-net.herokuapp.com",
-# "https://social-distribution-w23-t17.herokuapp.com"
-# ]
+CORS_ALLOWED_ORIGINS = [
+# Our own(team 10 heroku
+"https://socialdistcmput404.herokuapp.com",
+# Local Host
+"http://localhost:8000",
+# Local Host
+"http://127.0.0.1:8000",
+# Team 5
+"https://social-t30.herokuapp.com",
+# Team 7
+"https://sd7-api.herokuapp.com",
+# Team 9
+"https://ultimate-teapot.herokuapp.com",
+# Team 18
+"https://distributed-social-net.herokuapp.com",
+# Team 17
+"https://social-distribution-w23-t17.herokuapp.com", 
+# Team 4
+"https://www.distribution.social/"
+]
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
