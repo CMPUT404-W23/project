@@ -866,6 +866,25 @@ class APIInbox(APIView):
             return Response(status=200)
             
         # if the type is “like” then add that like to AUTHOR_ID’s inbox
+
+        # Template
+
+        # {
+        #     "@context": "https://www.w3.org/ns/activitystreams",
+        #     "summary": "2 Likes your post",         
+        #     "type": "Like",
+        #     "author": {
+        #     "id": "https://socialdistcmput404.herokuapp.com/authors/2",
+        #     "host": "https://socialdistcmput404.herokuapp.com/",
+        #     "displayName": "2",
+        #     "github": null,
+        #     "profileImage": null,
+        #     "type": "author",
+        #     "url": "https://socialdistcmput404.herokuapp.com/authors/2"
+        #     },
+        #     "object":"https://socialdistcmput404.herokuapp.com/authors/1/posts/1"
+        # }
+
         elif request.data["type"]=="Like":
             isPost = False
             try:
