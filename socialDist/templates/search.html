@@ -83,10 +83,10 @@
               author_relative_path = author_relative_path.replace("/main","");
               try {
                 if (connection.apiCreds === "") {
-                  const response = await fetch(connection.apiAddress + author_relative_path + "/followers/" + sender.id +"/");
+                  const response = await fetch(connection.apiAddress + author_relative_path + "followers/" + sender.id +"/");
                 }
                 else {
-                  const response = await fetch(connection.apiAddress + author_relative_path + "/followers/" + sender.id +"/", {
+                  const response = await fetch(connection.apiAddress + author_relative_path + "followers/" + sender.id +"/", {
                     headers: {
                         "Authorization": connection.apiCreds
                     }
@@ -107,7 +107,7 @@
             }
             else if ("https://" + url.hostname == "https://socialdistcmput404.herokuapp.com") {
                 try {
-                  const response = await fetch("/api" + author_relative_path + "/followers/" + sender.id +"/", {
+                  const response = await fetch("/api" + author_relative_path + "followers/" + sender.id +"/", {
                       headers: {
                           "Authorization": "Token 516e5c3d636f46228edb8f09b9613d5b4b166816"
                       }});
@@ -161,7 +161,7 @@
                 })
                 }
                 else {
-                  response = await fetch(connection.apiAddress + author_relative_path + "/inbox/", {
+                  response = await fetch(connection.apiAddress + author_relative_path + "inbox/", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
@@ -178,7 +178,7 @@
                 break;
             }
             else if ("https://" + url.hostname == "https://socialdistcmput404.herokuapp.com") {
-              const response = await fetch("/api" + author_relative_path + "/inbox/", {
+              const response = await fetch("/api" + author_relative_path + "inbox/", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
