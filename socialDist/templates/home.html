@@ -79,7 +79,7 @@
                                     <button type="button" class="btn btn-secondary btn-sm" id="like-btn-${index}" onclick="likePost(${index}, 'internal')">
                                         <i class="fa-regular fa-heart"></i>
                                     </button>`
-                if (author_url == current_author.id) {
+                if (post.author.id == current_author.id) {
                     display_posts += `
                                     <button type="button" class="btn btn-secondary btn-sm" onclick="editPost('${post.id}')">
                                     Edit

@@ -1035,6 +1035,5 @@ class APIPosts(APIView):
                 continue
             posts = PostSerializer(Post.objects.filter(author=each_author).filter(visibility="VISIBLE").filter(unlisted=False), many=True)
             author_posts_pair.append([each_author, posts.data])
-            print("num_post for "+dict(AuthorSerializer(each_author).data)["id"]+": "+str(len(posts.data)))
             
         return Response(status=200, data=api_helper.construct_list_of_all_posts(author_posts_pair))
