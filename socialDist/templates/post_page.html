@@ -92,7 +92,7 @@
                                 <button type="button" class="btn btn-secondary btn-sm" onclick="postComment('${post.id}')">
                                     Comment
                                 </button>`
-            if (author_id == current_author.id) {
+            if (post.author.id == current_author.id) {
                 display_post += `
                             <button type="button" class="btn btn-secondary btn-sm" onclick="editPost('${post.id}')">
                                 Edit
