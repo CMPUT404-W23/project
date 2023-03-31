@@ -221,10 +221,19 @@ class APIListAuthors(APIView):
                 github="",
                 profileImage="",
             )
+            # OLD start
+            # inbox = Inbox.objects.create(
+            #     inboxID=HOST+"authors/"+str(user.pk)+"/inbox",
+            #     author=author
+            # )
+            # OLD end
+
+            # NEW start
             inbox = Inbox.objects.create(
-                inboxID=HOST+"authors/"+str(user.pk)+"/inbox",
+                inboxID=HOST+"authors/"+str(UUID)+"/inbox",
                 author=author
             )
+            # NEW end
             return Response(status=201)
         except (IntegrityError, ValueError) as e:
             if IntegrityError:
@@ -541,13 +550,13 @@ class APIListComments(APIView):
             #     "contentType": "text/plain",
             #     "published": "2023-03-22T21:37:36Z",
             #     "author": {
-            #         "id": "https://socialdistcmput404.herokuapp.com/authors/2",
+            #         "id": "https://socialdistcmput404.herokuapp.com/authors/114d321c-2b74-4814-aa5a-465c49513d94",
             #         "host": "https://socialdistcmput404.herokuapp.com/",
             #         "displayName": "2",
-            #         "github": Null,
-            #         "profileImage": Null,
+            #         "github": null,
+            #         "profileImage": null,
             #         "type": "author",
-            #         "url": "https://socialdistcmput404.herokuapp.com/authors/2"
+            #         "url": "https://socialdistcmput404.herokuapp.com/authors/114d321c-2b74-4814-aa5a-465c49513d94"
             #     },
             #     "type": "comment"
             # }
@@ -565,6 +574,7 @@ class APIListComments(APIView):
 
             # try searching that comment
             try:
+                # return Response(status=200)
                 comment = Comment.objects.get(id=HOST+
                                               "authors/"+
                                               author_id+
