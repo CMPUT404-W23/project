@@ -41,14 +41,14 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import include, path
 from django.views.generic.base import TemplateView, RedirectView
-from .views import settings, home, postPage, authorPage, create_post, editPost
+from .views import settings, home, postPage, authorPage, create_post, editPost, search, postComment
 
 urlpatterns = [
     
     ######################################################### 
     # Do not add any path above this
     # else redirection functionality won't work as intended
-    path("search/", TemplateView.as_view(template_name="search.html"), name="search"),
+    path("search/", search,  name="search"),
     path("accounts/", include("django.contrib.auth.urls")),
     path("post/", create_post, name="post"),
     path("api/", include("socialDist.urls")),
@@ -59,7 +59,8 @@ urlpatterns = [
     path("accounts/signup", TemplateView.as_view(template_name="registration/signup.html"), name="signup"),
     path("authors/<str:author_id>/", view=authorPage, name="page_author"),
     path("authors/<str:author_id>/posts/<str:post_id>/", view=postPage, name="page_post"),
-    path("authors/<str:author_id>/posts/<str:post_id>/edit", view=editPost, name="edit_post"),
+    path("authors/<str:author_id>/posts/<str:post_id>/edit/", view=editPost, name="edit_post"),
+    path("authors/<str:author_id>/posts/<str:post_id>/comments/",view=postComment, name="post_comment" )
 ]
 # Automatically add redirections
 # set number of items to add to itself from the beginning

@@ -7,14 +7,14 @@ sampleGETAuthorDict={
         description="OK",
         examples={
             "application/json": {
-            "id": "https://socialdistcmput404.herokuapp.com/authors/1",
-            "host": "https://socialdistcmput404.herokuapp.com/",
-            "displayName": "1",
-            "github": "https://sampleUser.github.com",
-            "profileImage": "http://sampleUserImage.com/1.jpg",
-            "type": "author",
-            "url": "https://socialdistcmput404.herokuapp.com/authors/1"
-        }
+                "id": "https://socialdistcmput404.herokuapp.com/authors/1641802d-c565-45b2-b4f7-ec08504038c8",
+                "host": "https://socialdistcmput404.herokuapp.com/",
+                "displayName": "UUIDauthor",
+                "github": "https://sampleUser1.github.com",
+                "profileImage": "http://sampleUserImage.com/1.jpg",
+                "type": "author",
+                "url": "https://socialdistcmput404.herokuapp.com/authors/1641802d-c565-45b2-b4f7-ec08504038c8"
+            }
         }
     ),
     "404": openapi.Response(
@@ -27,14 +27,14 @@ samplePOSTAuthorDict={
         description="Created",
         examples={
             "application/json": {
-            "id": "https://socialdistcmput404.herokuapp.com/authors/1",
-            "host": "https://socialdistcmput404.herokuapp.com/",
-            "displayName": "1",
-            "github": "https://sampleUser.github.com",
-            "profileImage": "http://sampleUserImage.com/1.jpg",
-            "type": "author",
-            "url": "https://socialdistcmput404.herokuapp.com/authors/1"
-        }
+                "id": "https://socialdistcmput404.herokuapp.com/authors/1641802d-c565-45b2-b4f7-ec08504038c8",
+                "host": "https://socialdistcmput404.herokuapp.com/",
+                "displayName": "UUIDauthor",
+                "github": "https://sampleUser1.github.com",
+                "profileImage": "http://sampleUserImage.com/1.jpg",
+                "type": "author",
+                "url": "https://socialdistcmput404.herokuapp.com/authors/1641802d-c565-45b2-b4f7-ec08504038c8"
+            }
         }
     ),
     "400": openapi.Response(
@@ -56,24 +56,24 @@ sampleListAuthorDict={
             "application/json":{
             "type": "authors",
             "items": [
-                {
-                "id": "https://socialdistcmput404.herokuapp.com/authors/2",
+            {
+                "id": "https://socialdistcmput404.herokuapp.com/authors/1641802d-c565-45b2-b4f7-ec08504038c8",
                 "host": "https://socialdistcmput404.herokuapp.com/",
-                "displayName": "2",
+                "displayName": "UUIDauthor",
+                "github": "https://sampleUser1.github.com",
+                "profileImage": "http://sampleUserImage.com/1.jpg",
+                "type": "author",
+                "url": "https://socialdistcmput404.herokuapp.com/authors/1641802d-c565-45b2-b4f7-ec08504038c8"
+            },
+            {
+                "id": "https://socialdistcmput404.herokuapp.com/authors/ba109973-9c56-4e06-9e2e-9d4bef94f7c2",
+                "host": "https://socialdistcmput404.herokuapp.com/",
+                "displayName": "UUIDTest",
                 "github": "https://sampleUser2.github.com",
-                "profileImage": "sampleUser2Image.jpg",
+                "profileImage": "http://sampleUserImage.com/1.jpg",
                 "type": "author",
-                "url": "https://socialdistcmput404.herokuapp.com/authors/2"
-                },
-                {
-                "id": "https://socialdistcmput404.herokuapp.com/authors/1",
-                "host": "https://socialdistcmput404.herokuapp.com/",
-                "displayName": "1",
-                "github": "https://sampleUser.github.com",
-                "profileImage": "sampleUserImage.jpg",
-                "type": "author",
-                "url": "https://socialdistcmput404.herokuapp.com/authors/1"
-                }
+                "url": "https://socialdistcmput404.herokuapp.com/authors/ba109973-9c56-4e06-9e2e-9d4bef94f7c2"
+            }
             ]
             }
         }
@@ -96,13 +96,13 @@ sampleGETPostDict={
             "content": "testPost",
             "contentType": "text/plain",
             "author": {
-                "id": "https://socialdistcmput404.herokuapp.com/authors/1",
+                "id": "https://socialdistcmput404.herokuapp.com/authors/ba109973-9c56-4e06-9e2e-9d4bef94f7c2",
                 "host": "https://socialdistcmput404.herokuapp.com/",
-                "displayName": "1",
-                "github": "https://sampleUser.github.com",
-                "profileImage": "http://sampleUserImage.com/2.jpg",
+                "displayName": "UUIDTest",
+                "github": "https://sampleUser2.github.com",
+                "profileImage": "http://sampleUserImage.com/1.jpg",
                 "type": "author",
-                "url": "https://socialdistcmput404.herokuapp.com/authors/1"
+                "url": "https://socialdistcmput404.herokuapp.com/authors/ba109973-9c56-4e06-9e2e-9d4bef94f7c2"
             },
             "published": "2023-03-22T19:15:07Z",
             "visibility": "VISIBLE",
@@ -124,30 +124,30 @@ samplePOSTPostDict={
         description="Created",
         examples={
             "application/json": {
-            "id": "https://socialdistcmput404.herokuapp.com/authors/1/posts/1",
-            "title": "testTitle",
+            "id": "https://socialdistcmput404.herokuapp.com/authors/2/posts/ef29e6f2-8302-4f5d-901c-cc47ae2daca6",
+            "title": "UUID post",
             "source": "testSource",
             "origin": "testOrigin",
-            "description": "testDescr",
+            "description": "hello UUID",
             "content": "testPost",
             "contentType": "text/plain",
             "author": {
-                "id": "https://socialdistcmput404.herokuapp.com/authors/1",
+                "id": "https://socialdistcmput404.herokuapp.com/authors/2",
                 "host": "https://socialdistcmput404.herokuapp.com/",
-                "displayName": "1",
+                "displayName": "jasonk",
                 "github": "https://sampleUser.github.com",
-                "profileImage": "http://sampleUserImage.com/2.jpg",
+                "profileImage": "http://sampleUserImage.com/1.jpg",
                 "type": "author",
-                "url": "https://socialdistcmput404.herokuapp.com/authors/1"
+                "url": "https://socialdistcmput404.herokuapp.com/authors/2"
             },
-            "published": "2023-03-22T19:15:07Z",
-            "visibility": "VISIBLE",
-            "categories": "test",
+            "published": "2023-03-31T04:21:01.583364Z",
+            "visibility": "FRIENDS",
+            "categories": "hellooo",
             "unlisted": False,
             "type": "post",
             "count": 0,
-            "comments": "https://socialdistcmput404.herokuapp.com/authors/1/posts/1/comments/"
-            }
+            "comments": "https://socialdistcmput404.herokuapp.com/authors/2/posts/ef29e6f2-8302-4f5d-901c-cc47ae2daca6/comments/"
+        }
         }
     ),
     "400": openapi.Response(
@@ -184,54 +184,54 @@ sampleListPostsDict={
             "type": "posts",
             "items": [
                 {
-                "id": "https://socialdistcmput404.herokuapp.com/authors/1/posts/1",
-                "title": "testTitle",
-                "source": "testSource",
-                "origin": "testOrigian",
-                "description": "testDescr",
-                "content": "testPost",
-                "contentType": "text/plain",
-                "author": {
-                    "id": "https://socialdistcmput404.herokuapp.com/authors/1",
-                    "host": "https://socialdistcmput404.herokuapp.com/",
-                    "displayName": "1",
-                    "github": "https://sampleUser.github.com",
-                    "profileImage": "sampleUserImage.jpg",
-                    "type": "author",
-                    "url": "https://socialdistcmput404.herokuapp.com/authors/1"
-                },
-                "published": "2023-03-22T19:15:07Z",
-                "visibility": "VISIBLE",
-                "categories": "test",
-                "unlisted": False,
-                "type": "post",
-                "count": 2,
-                "comments": "https://socialdistcmput404.herokuapp.com/authors/1/posts/1/comments/"
+                    "id": "https://socialdistcmput404.herokuapp.com/authors/ba109973-9c56-4e06-9e2e-9d4bef94f7c2/posts/112bce3e-194c-40f0-a167-e737181b7d71",
+                    "title": "UUID testing heroku",
+                    "source": "UUID heroku",
+                    "origin": "string",
+                    "description": "UUID Post",
+                    "content": "heroku 2.0",
+                    "contentType": "text/plain",
+                    "author": {
+                        "id": "https://socialdistcmput404.herokuapp.com/authors/ba109973-9c56-4e06-9e2e-9d4bef94f7c2",
+                        "host": "https://socialdistcmput404.herokuapp.com/",
+                        "displayName": "UUIDTest",
+                        "github": "https://sampleUser.github.com",
+                        "profileImage": "http://sampleUserImage.com/1.jpg",
+                        "type": "author",
+                        "url": "https://socialdistcmput404.herokuapp.com/authors/ba109973-9c56-4e06-9e2e-9d4bef94f7c2"
+                    },
+                    "published": "2023-03-31T02:08:01.730885Z",
+                    "visibility": "VISIBLE",
+                    "categories": "string",
+                    "unlisted": True,
+                    "type": "post",
+                    "count": 1,
+                    "comments": "https://socialdistcmput404.herokuapp.com/authors/ba109973-9c56-4e06-9e2e-9d4bef94f7c2/posts/112bce3e-194c-40f0-a167-e737181b7d71/comments/"
                 },
                 {
-                "id": "string",
-                "title": "string",
-                "source": "string",
-                "origin": "string",
-                "description": "string",
-                "content": "string",
-                "contentType": "text/plain",
-                "author": {
-                    "id": "https://socialdistcmput404.herokuapp.com/authors/1",
-                    "host": "https://socialdistcmput404.herokuapp.com/",
-                    "displayName": "1",
-                    "github": "https://sampleUser.github.com",
-                    "profileImage": "sampleUserImage.jpg",
-                    "type": "author",
-                    "url": "https://socialdistcmput404.herokuapp.com/authors/1"
-                },
-                "published": "2023-03-27T00:20:07.768000Z",
-                "visibility": "VISIBLE",
-                "categories": "string",
-                "unlisted": True,
-                "type": "post",
-                "count": 0,
-                "comments": "string/comments/"
+                    "id": "https://socialdistcmput404.herokuapp.com/authors/2/posts/ef29e6f2-8302-4f5d-901c-cc47ae2daca6",
+                    "title": "UUID post",
+                    "source": "test Soruce",
+                    "origin": "test origin",
+                    "description": "hello UUID",
+                    "content": "test content",
+                    "contentType": "text/plain",
+                    "author": {
+                        "id": "https://socialdistcmput404.herokuapp.com/authors/ba109973-9c56-4e06-9e2e-9d4bef94f7c2",
+                        "host": "https://socialdistcmput404.herokuapp.com/",
+                        "displayName": "UUIDTest",
+                        "github": "https://sampleUser.github.com",
+                        "profileImage": "http://sampleUserImage.com/1.jpg",
+                        "type": "author",
+                        "url": "https://socialdistcmput404.herokuapp.com/authors/ba109973-9c56-4e06-9e2e-9d4bef94f7c2"
+                    },
+                    "published": "2023-03-31T04:21:01.583364Z",
+                    "visibility": "FRIENDS",
+                    "categories": "hellooo",
+                    "unlisted": False,
+                    "type": "post",
+                    "count": 0,
+                    "comments": "https://socialdistcmput404.herokuapp.com/authors/2/posts/ef29e6f2-8302-4f5d-901c-cc47ae2daca6/comments/"
                 },
             ]
             }
@@ -247,7 +247,7 @@ sampleImagePostGETDict={
         description="OK",
         examples={
             "application/json": {
-            "id": "https://socialdistcmput404.herokuapp.com/authors/1/posts/1",
+            "id": "https://socialdistcmput404.herokuapp.com/authors/2/posts/ef29e6f2-8302-4f5d-901c-cc47ae2daca6",
             "title": "imagePostTitle",
             "source": "imagePostSource",
             "origin": "imagePostOrigin",
@@ -269,7 +269,7 @@ sampleImagePostGETDict={
             "unlisted": False,
             "type": "post",
             "count": 2,
-            "comments": "https://socialdistcmput404.herokuapp.com/authors/1/posts/1/comments/"
+            "comments": "https://socialdistcmput404.herokuapp.com/authors/2/posts/ef29e6f2-8302-4f5d-901c-cc47ae2daca6/comments/",
             }
         }
     ),
@@ -283,21 +283,21 @@ sampleGETCommentDict={
         description="OK",
         examples={
             "application/json": {
-            "id": "https://socialdistcmput404.herokuapp.com/authors/1/posts/1/comments/1",
-            "content": "test comment",
+            "id": "https://socialdistcmput404.herokuapp.com/authors/ba109973-9c56-4e06-9e2e-9d4bef94f7c2/posts/112bce3e-194c-40f0-a167-e737181b7d71/comments/39c779b5-ac73-44da-84a1-8d451ff370f3",
+            "content": "UUID test comment on heroku",
             "contentType": "text/plain",
-            "published": "2023-03-22T19:15:51Z",
+            "published": "2023-03-31T02:12:59.861038Z",
             "author": {
-                "id": "https://socialdistcmput404.herokuapp.com/authors/1",
+                "id": "https://socialdistcmput404.herokuapp.com/authors/ba109973-9c56-4e06-9e2e-9d4bef94f7c2",
                 "host": "https://socialdistcmput404.herokuapp.com/",
-                "displayName": "1",
+                "displayName": "UUIDTest",
                 "github": "https://sampleUser.github.com",
-                "profileImage": "sampleUserImage.jpg",
+                "profileImage": "http://sampleUserImage.com/1.jpg",
                 "type": "author",
-                "url": "https://socialdistcmput404.herokuapp.com/authors/1"
+                "url": "https://socialdistcmput404.herokuapp.com/authors/ba109973-9c56-4e06-9e2e-9d4bef94f7c2"
             },
             "type": "comment"
-}
+        }
         }
     ),
     "404": openapi.Response(
@@ -310,21 +310,21 @@ samplePOSTCommentDict={
         description="Created",
         examples={
             "application/json": {
-            "id": "https://socialdistcmput404.herokuapp.com/authors/1/posts/1/comments/1",
-            "content": "test comment",
+            "id": "https://socialdistcmput404.herokuapp.com/authors/ba109973-9c56-4e06-9e2e-9d4bef94f7c2/posts/112bce3e-194c-40f0-a167-e737181b7d71/comments/39c779b5-ac73-44da-84a1-8d451ff370f3",
+            "content": "UUID test comment on heroku",
             "contentType": "text/plain",
-            "published": "2023-03-22T19:15:51Z",
+            "published": "2023-03-31T02:12:59.861038Z",
             "author": {
-                "id": "https://socialdistcmput404.herokuapp.com/authors/1",
+                "id": "https://socialdistcmput404.herokuapp.com/authors/ba109973-9c56-4e06-9e2e-9d4bef94f7c2",
                 "host": "https://socialdistcmput404.herokuapp.com/",
-                "displayName": "1",
+                "displayName": "UUIDTest",
                 "github": "https://sampleUser.github.com",
-                "profileImage": "sampleUserImage.jpg",
+                "profileImage": "http://sampleUserImage.com/1.jpg",
                 "type": "author",
-                "url": "https://socialdistcmput404.herokuapp.com/authors/1"
+                "url": "https://socialdistcmput404.herokuapp.com/authors/ba109973-9c56-4e06-9e2e-9d4bef94f7c2"
             },
             "type": "comment"
-}
+        }
         }
     ),
     "400": openapi.Response(
@@ -346,34 +346,34 @@ sampleListCommentsDict={
             "type": "comments",
             "items": [
                 {
-                    "id": "https://socialdistcmput404.herokuapp.com/authors/1/posts/1/comments",
-                    "content": "test comment",
+                    "id": "https://socialdistcmput404.herokuapp.com/authors/ba109973-9c56-4e06-9e2e-9d4bef94f7c2/posts/112bce3e-194c-40f0-a167-e737181b7d71/comments/39c779b5-ac73-44da-84a1-8d451ff370f3",
+                    "content": "UUID test comment on heroku",
                     "contentType": "text/plain",
-                    "published": "2023-03-22T19:15:51Z",
+                    "published": "2023-03-31T02:12:59.861038Z",
                     "author": {
-                        "id": "https://socialdistcmput404.herokuapp.com/authors/1",
+                        "id": "https://socialdistcmput404.herokuapp.com/authors/ba109973-9c56-4e06-9e2e-9d4bef94f7c2",
                         "host": "https://socialdistcmput404.herokuapp.com/",
-                        "displayName": "1",
+                        "displayName": "UUIDTest",
                         "github": "https://sampleUser.github.com",
-                        "profileImage": "sampleUserImage.jpg",
+                        "profileImage": "http://sampleUserImage.com/1.jpg",
                         "type": "author",
-                        "url": "https://socialdistcmput404.herokuapp.com/authors/1"
+                        "url": "https://socialdistcmput404.herokuapp.com/authors/ba109973-9c56-4e06-9e2e-9d4bef94f7c2"
                     },
                     "type": "comment"
                 },
                 {
-                    "id": "https://socialdistcmput404.herokuapp.com/authors/1/posts/1/comments/1",
-                    "content": "test comment",
+                    "id": "https://socialdistcmput404.herokuapp.com/authors/ba109973-9c56-4e06-9e2e-9dasfdasefase94f7c2/posts/112bce3e-194c-40f0-a167-e737181b7d71/comments/39c779b5-ac73-44da-84a1-8d451ff370f3",
+                    "content": "UUID test comment on heroku 2",
                     "contentType": "text/plain",
-                    "published": "2023-03-22T19:15:51Z",
+                    "published": "2023-03-31T02:12:59.861038Z",
                     "author": {
-                        "id": "https://socialdistcmput404.herokuapp.com/authors/1",
+                        "id": "https://socialdistcmput404.herokuapp.com/authors/ba109973-9c56-4e06-9e2e-9d4bef94f7c2",
                         "host": "https://socialdistcmput404.herokuapp.com/",
-                        "displayName": "1",
+                        "displayName": "UUIDTest",
                         "github": "https://sampleUser.github.com",
-                        "profileImage": "sampleUserImage.jpg",
+                        "profileImage": "http://sampleUserImage.com/1.jpg",
                         "type": "author",
-                        "url": "https://socialdistcmput404.herokuapp.com/authors/1"
+                        "url": "https://socialdistcmput404.herokuapp.com/authors/ba109973-9c56-4e06-9e2e-9dasfdasefase94f7c2"
                     },
                     "type": "comment"
                 }
@@ -396,35 +396,35 @@ sampleListLikesPostDict={
             "type": "likes",
             "items": [
                 {
-                    "id": "https://socialdistcmput404.herokuapp.com/authors/2/posts/1/likes",
+                    "id": "https://socialdistcmput404.herokuapp.com/authors/ba109973-9c56-4e06-9e2e-9d4bef94f7c2/posts/112bce3e-194c-40f0-a167-e737181b7d71/likes/6dbaed7a-b4de-48b1-915f-261dfcb643c7",
                     "author": {
-                        "id": "https://socialdistcmput404.herokuapp.com/authors/2",
+                        "id": "https://socialdistcmput404.herokuapp.com/authors/1641802d-c565-45b2-b4f7-ec08504038c8",
                         "host": "https://socialdistcmput404.herokuapp.com/",
-                        "displayName": "2",
+                        "displayName": "UUIDauthor",
                         "github": "https://sampleUser.github.com",
-                        "profileImage": "sampleUserImage.jpg",
+                        "profileImage": "http://sampleUserImage.com/1.jpg",
                         "type": "author",
-                        "url": "https://socialdistcmput404.herokuapp.com/authors/2"
+                        "url": "https://socialdistcmput404.herokuapp.com/authors/1641802d-c565-45b2-b4f7-ec08504038c8"
                     },
-                    "published": "2023-03-23T23:46:00Z",
-                    "object": "https://socialdistcmput404.herokuapp.com/authors/1/posts/1",
-                    "summary": "2 likes this",
+                    "published": "2023-03-31T02:16:51.190627Z",
+                    "object": "https://socialdistcmput404.herokuapp.com/authors/ba109973-9c56-4e06-9e2e-9d4bef94f7c2/posts/112bce3e-194c-40f0-a167-e737181b7d71",
+                    "summary": "UUIDauthor likes your post",
                     "type": "Like"
                 },
                 {
-                    "id": "https://socialdistcmput404.herokuapp.com/authors/2/posts/3/likes",
+                    "id": "https://socialdistcmput404.herokuapp.com/authors/ba109973-9c56-4e06-9e2e-9d4bef94f7c2/posts/112bce3e-194c-40f0-a167-e737181b7d71/likes/1c83fa57-0086-4a84-a654-f88a53041c3e",
                     "author": {
-                        "id": "https://socialdistcmput404.herokuapp.com/authors/2",
+                        "id": "https://socialdistcmput404.herokuapp.com/authors/ba109973-9c56-4e06-9e2e-9d4bef94f7c2",
                         "host": "https://socialdistcmput404.herokuapp.com/",
-                        "displayName": "2",
+                        "displayName": "UUIDTest",
                         "github": "https://sampleUser.github.com",
-                        "profileImage": "sampleUserImage.jpg",
+                        "profileImage": "http://sampleUserImage.com/1.jpg",
                         "type": "author",
-                        "url": "https://socialdistcmput404.herokuapp.com/authors/2"
+                        "url": "https://socialdistcmput404.herokuapp.com/authors/ba109973-9c56-4e06-9e2e-9d4bef94f7c2"
                     },
-                    "published": "2023-03-23T23:46:00Z",
-                    "object": "https://socialdistcmput404.herokuapp.com/authors/1/posts/1",
-                    "summary": "2 likes this",
+                    "published": "2023-03-31T04:40:24.413884Z",
+                    "object": "https://socialdistcmput404.herokuapp.com/authors/ba109973-9c56-4e06-9e2e-9d4bef94f7c2/posts/112bce3e-194c-40f0-a167-e737181b7d71",
+                    "summary": "UUIDTest likes your post",
                     "type": "Like"
                 }
             ]
@@ -436,7 +436,7 @@ sampleListLikesPostDict={
     ),
 }
 
-sampleListLikesPostDict={
+sampleListLikesCommentDict={
     "200":openapi.Response(
         description="OK",
         examples={
@@ -444,21 +444,37 @@ sampleListLikesPostDict={
             "type": "likes",
             "items": [
                 {
-                    "id": "https://socialdistcmput404.herokuapp.com/authors/2/posts/1/comments/1/likes",
+                    "id": "https://socialdistcmput404.herokuapp.com/authors/ba109973-9c56-4e06-9e2e-9d4bef94f7c2/posts/112bce3e-194c-40f0-a167-e737181b7d71/likes/6dbaed7a-b4de-48b1-915f-261dfcb643c7",
                     "author": {
-                        "id": "https://socialdistcmput404.herokuapp.com/authors/2",
+                        "id": "https://socialdistcmput404.herokuapp.com/authors/1641802d-c565-45b2-b4f7-ec08504038c8",
                         "host": "https://socialdistcmput404.herokuapp.com/",
-                        "displayName": "2",
+                        "displayName": "UUIDauthor",
                         "github": "https://sampleUser.github.com",
-                        "profileImage": "sampleUserImage.jpg",
+                        "profileImage": "http://sampleUserImage.com/1.jpg",
                         "type": "author",
-                        "url": "https://socialdistcmput404.herokuapp.com/authors/2"
+                        "url": "https://socialdistcmput404.herokuapp.com/authors/1641802d-c565-45b2-b4f7-ec08504038c8"
                     },
-                    "published": "2023-03-23T04:43:20Z",
-                    "object": "https://socialdistcmput404.herokuapp.com/authors/2/posts/1/comments/1",
-                    "summary": "2 likes this",
+                    "published": "2023-03-31T02:16:51.190627Z",
+                    "object": "https://socialdistcmput404.herokuapp.com/authors/ba109973-9c56-4e06-9e2e-9d4bef94f7c2/posts/112bce3e-194c-40f0-a167-e737181b7d71/comments/112bce3e-194c-40f0-a167-e737181b7d71",
+                    "summary": "UUIDauthor likes your comment",
                     "type": "Like"
-                }
+                },
+                {
+                    "id": "https://socialdistcmput404.herokuapp.com/authors/ba109973-9c56-4e06-9e2e-9d4bef94f7c2/posts/112bce3e-194c-40f0-a167-e737181b7d71/likes/1c83fa57-0086-4a84-a654-f88a53041c3e",
+                    "author": {
+                        "id": "https://socialdistcmput404.herokuapp.com/authors/ba109973-9c56-4e06-9e2e-9d4bef94f7c2",
+                        "host": "https://socialdistcmput404.herokuapp.com/",
+                        "displayName": "UUIDTest",
+                        "github": "https://sampleUser.github.com",
+                        "profileImage": "http://sampleUserImage.com/1.jpg",
+                        "type": "author",
+                        "url": "https://socialdistcmput404.herokuapp.com/authors/ba109973-9c56-4e06-9e2e-9d4bef94f7c2"
+                    },
+                    "published": "2023-03-31T04:40:24.413884Z",
+                    "object": "https://socialdistcmput404.herokuapp.com/authors/ba109973-9c56-4e06-9e2e-9d4bef94f7c2/posts/112bce3e-194c-40f0-a167-e737181b7d71/comments/ba109973-9c56-4e06-9e2e-9d4bef94f7c2",
+                    "summary": "UUIDTest likes your comment",
+                    "type": "Like"
+                },
             ]
         }
         }
@@ -476,20 +492,37 @@ sampleListLikedDict={
             "type":"liked",
             "items":[
                 {
-                    "@context": "https://www.w3.org/ns/activitystreams",
-                    "summary": "Lara Croft Likes your post",         
-                    "type": "Like",
-                    "author":{
-                        "type":"author",
-                        "id":"http://127.0.0.1:5454/authors/9de17f29c12e8f97bcbbd34cc908f1baba40658e",
-                        "host":"http://127.0.0.1:5454/",
-                        "displayName":"Lara Croft",
-                        "url":"http://127.0.0.1:5454/authors/9de17f29c12e8f97bcbbd34cc908f1baba40658e",
-                        "github":"http://github.com/laracroft",
-                        "profileImage": "https://i.imgur.com/k7XVwpB.jpeg"
+                    "id": "https://socialdistcmput404.herokuapp.com/authors/ba109973-9c56-4e06-9e2e-9d4bef94f7c2/posts/112bce3e-194c-40f0-a167-e737181b7d71/likes/6dbaed7a-b4de-48b1-915f-261dfcb643c7",
+                    "author": {
+                        "id": "https://socialdistcmput404.herokuapp.com/authors/1641802d-c565-45b2-b4f7-ec08504038c8",
+                        "host": "https://socialdistcmput404.herokuapp.com/",
+                        "displayName": "UUIDauthor",
+                        "github": "https://sampleUser.github.com",
+                        "profileImage": "http://sampleUserImage.com/1.jpg",
+                        "type": "author",
+                        "url": "https://socialdistcmput404.herokuapp.com/authors/1641802d-c565-45b2-b4f7-ec08504038c8"
                     },
-                    "object":"http://127.0.0.1:5454/authors/9de17f29c12e8f97bcbbd34cc908f1baba40658e/posts/764efa883dda1e11db47671c4a3bbd9e"
-                }
+                    "published": "2023-03-31T02:16:51.190627Z",
+                    "object": "https://socialdistcmput404.herokuapp.com/authors/ba109973-9c56-4e06-9e2e-9d4bef94f7c2/posts/112bce3e-194c-40f0-a167-e737181b7d71/comments/112bce3e-194c-40f0-a167-e737181b7d71",
+                    "summary": "UUIDauthor liked your comment",
+                    "type": "Like"
+                },
+                {
+                    "id": "https://socialdistcmput404.herokuapp.com/authors/ba109973-9c56-4e06-9e2e-9d4bef94f7c2/posts/112bce3e-194c-40f0-a167-e737181b7d71/likes/1c83fa57-0086-4a84-a654-f88a53041c3e",
+                    "author": {
+                        "id": "https://socialdistcmput404.herokuapp.com/authors/ba109973-9c56-4e06-9e2e-9d4bef94f7c2",
+                        "host": "https://socialdistcmput404.herokuapp.com/",
+                        "displayName": "UUIDTest",
+                        "github": "https://sampleUser.github.com",
+                        "profileImage": "http://sampleUserImage.com/1.jpg",
+                        "type": "author",
+                        "url": "https://socialdistcmput404.herokuapp.com/authors/ba109973-9c56-4e06-9e2e-9d4bef94f7c2"
+                    },
+                    "published": "2023-03-31T04:40:24.413884Z",
+                    "object": "https://socialdistcmput404.herokuapp.com/authors/ba109973-9c56-4e06-9e2e-9d4bef94f7c2/posts/112bce3e-194c-40f0-a167-e737181b7d71/comments/ba109973-9c56-4e06-9e2e-9d4bef94f7c2",
+                    "summary": "UUIDTest liked your comment",
+                    "type": "Like"
+                },
             ]
         }
         }
@@ -507,22 +540,22 @@ sampleFollowersDict={
             "type": "followers",
             "items": [
                 {
-                    "id": "https://socialdistcmput404.herokuapp.com/authors/2",
-                    "host": "https://socialdistcmput404.herokuapp.com/",
-                    "displayName": "2",
-                    "github":"http://github.com/laracroft",
-                    "profileImage": "https://i.imgur.com/k7XVwpB.jpeg",
-                    "type": "author",
-                    "url": "https://socialdistcmput404.herokuapp.com/authors/2"
+                "id": "https://socialdistcmput404.herokuapp.com/authors/1641802d-c565-45b2-b4f7-ec08504038c8",
+                "host": "https://socialdistcmput404.herokuapp.com/",
+                "displayName": "UUIDauthor",
+                "github": "https://sampleUser1.github.com",
+                "profileImage": "http://sampleUserImage.com/1.jpg",
+                "type": "author",
+                "url": "https://socialdistcmput404.herokuapp.com/authors/1641802d-c565-45b2-b4f7-ec08504038c8"
                 },
                 {
-                    "id": "https://socialdistcmput404.herokuapp.com/authors/3",
-                    "host": "https://socialdistcmput404.herokuapp.com",
-                    "displayName": "3",
-                    "github":"http://github.com/laracroft",
-                    "profileImage": "https://i.imgur.com/k7XVwpB.jpeg",
+                    "id": "https://socialdistcmput404.herokuapp.com/authors/ba109973-9c56-4e06-9e2e-9d4bef94f7c2",
+                    "host": "https://socialdistcmput404.herokuapp.com/",
+                    "displayName": "UUIDTest",
+                    "github": "https://sampleUser2.github.com",
+                    "profileImage": "http://sampleUserImage.com/1.jpg",
                     "type": "author",
-                    "url": "https://socialdistcmput404.herokuapp.com/authors/3"
+                    "url": "https://socialdistcmput404.herokuapp.com/authors/ba109973-9c56-4e06-9e2e-9d4bef94f7c2"
                 }
             ]
         }
@@ -538,36 +571,109 @@ sampleInboxDict={
         description="OK",
         examples={
             "application/json": {
-    "type": "inbox",
-    "author": "https://socialdistcmput404.herokuapp.com/authors/1",
-    "items": [
-        {
-            "id": "https://socialdistcmput404.herokuapp.com/authors/1/posts/1",
-            "title": "testTitle",
-            "source": "testSource",
-            "origin": "testOrigian",
-            "description": "testDescr",
-            "content": "testPost",
-            "contentType": "text/plain",
-            "author": {
-                "id": "https://socialdistcmput404.herokuapp.com/authors/1",
-                "host": "https://socialdistcmput404.herokuapp.com/",
-                "displayName": "1",
-                "github":"http://github.com/laracroft",
-                "profileImage": "https://i.imgur.com/k7XVwpB.jpeg",
-                "type": "author",
-                "url": "https://socialdistcmput404.herokuapp.com/authors/1"
-            },
-            "published": "2023-03-22T19:15:07Z",
-            "visibility": "VISIBLE",
-            "categories": "test",
-            "unlisted": False,
-            "type": "post",
-            "count": 2,
-            "comments": "https://socialdistcmput404.herokuapp.com/authors/1/posts/1/comments/"
+            "type": "inbox",
+            "author": "https://socialdistcmput404.herokuapp.com/authors/ba109973-9c56-4e06-9e2e-9d4bef94f7c2",
+            "items": [
+                {
+                    "id": "https://socialdistcmput404.herokuapp.com/authors/ba109973-9c56-4e06-9e2e-9d4bef94f7c2/posts/112bce3e-194c-40f0-a167-e737181b7d71",
+                    "title": "UUID testing heroku",
+                    "source": "UUID heroku",
+                    "origin": "string",
+                    "description": "UUID Post",
+                    "content": "heroku 2.0",
+                    "contentType": "text/plain",
+                    "author": {
+                        "id": "https://socialdistcmput404.herokuapp.com/authors/ba109973-9c56-4e06-9e2e-9d4bef94f7c2",
+                        "host": "https://socialdistcmput404.herokuapp.com/",
+                        "displayName": "UUIDTest",
+                        "github": "https://sampleUser.github.com",
+                        "profileImage": "http://sampleUserImage.com/1.jpg",
+                        "type": "author",
+                        "url": "https://socialdistcmput404.herokuapp.com/authors/ba109973-9c56-4e06-9e2e-9d4bef94f7c2"
+                    },
+                    "published": "2023-03-31T02:08:01.730885Z",
+                    "visibility": "VISIBLE",
+                    "categories": "string",
+                    "unlisted": True,
+                    "type": "post",
+                    "count": 1,
+                    "comments": "https://socialdistcmput404.herokuapp.com/authors/ba109973-9c56-4e06-9e2e-9d4bef94f7c2/posts/112bce3e-194c-40f0-a167-e737181b7d71/comments/"
+                },
+                {
+                    "id": "https://socialdistcmput404.herokuapp.com/authors/2/posts/ef29e6f2-8302-4f5d-901c-cc47ae2daca6",
+                    "title": "UUID post",
+                    "source": "test Source",
+                    "origin": "test Origin",
+                    "description": "hello UUID",
+                    "content": "test Content",
+                    "contentType": "text/plain",
+                    "author": {
+                        "id": "https://socialdistcmput404.herokuapp.com/authors/2",
+                        "host": "https://socialdistcmput404.herokuapp.com/",
+                        "displayName": "jasonk",
+                        "github": "https://sampleUser.github.com",
+                        "profileImage": "http://sampleUserImage.com/1.jpg",
+                        "type": "author",
+                        "url": "https://socialdistcmput404.herokuapp.com/authors/2"
+                    },
+                    "published": "2023-03-31T04:21:01.583364Z",
+                    "visibility": "FRIENDS",
+                    "categories": "hellooo",
+                    "unlisted": False,
+                    "type": "post",
+                    "count": 0,
+                    "comments": "https://socialdistcmput404.herokuapp.com/authors/2/posts/ef29e6f2-8302-4f5d-901c-cc47ae2daca6/comments/"
+                },
+                {
+                    "id": "https://socialdistcmput404.herokuapp.com/authors/ba109973-9c56-4e06-9e2e-9d4bef94f7c2/posts/112bce3e-194c-40f0-a167-e737181b7d71/likes/6dbaed7a-b4de-48b1-915f-261dfcb643c7",
+                    "author": {
+                        "id": "https://socialdistcmput404.herokuapp.com/authors/1641802d-c565-45b2-b4f7-ec08504038c8",
+                        "host": "https://socialdistcmput404.herokuapp.com/",
+                        "displayName": "UUIDauthor",
+                        "github": "https://sampleUser.github.com",
+                        "profileImage": "http://sampleUserImage.com/1.jpg",
+                        "type": "author",
+                        "url": "https://socialdistcmput404.herokuapp.com/authors/1641802d-c565-45b2-b4f7-ec08504038c8"
+                    },
+                    "published": "2023-03-31T02:16:51.190627Z",
+                    "object": "https://socialdistcmput404.herokuapp.com/authors/ba109973-9c56-4e06-9e2e-9d4bef94f7c2/posts/112bce3e-194c-40f0-a167-e737181b7d71",
+                    "summary": "UUIDauthor liked your post",
+                    "type": "Like"
+                },
+                {
+                    "id": "https://socialdistcmput404.herokuapp.com/authors/ba109973-9c56-4e06-9e2e-9d4bef94f7c2/posts/112bce3e-194c-40f0-a167-e737181b7d71/likes/1c83fa57-0086-4a84-a654-f88a53041c3e",
+                    "author": {
+                        "id": "https://socialdistcmput404.herokuapp.com/authors/ba109973-9c56-4e06-9e2e-9d4bef94f7c2",
+                        "host": "https://socialdistcmput404.herokuapp.com/",
+                        "displayName": "UUIDTest",
+                        "github": "https://sampleUser.github.com",
+                        "profileImage": "http://sampleUserImage.com/1.jpg",
+                        "type": "author",
+                        "url": "https://socialdistcmput404.herokuapp.com/authors/ba109973-9c56-4e06-9e2e-9d4bef94f7c2"
+                    },
+                    "published": "2023-03-31T04:40:24.413884Z",
+                    "object": "https://socialdistcmput404.herokuapp.com/authors/ba109973-9c56-4e06-9e2e-9d4bef94f7c2/posts/112bce3e-194c-40f0-a167-e737181b7d71",
+                    "summary": "UUIDTest liked your post",
+                    "type": "Like"
+                },
+                {
+                    "id": "https://socialdistcmput404.herokuapp.com/authors/ba109973-9c56-4e06-9e2e-9d4bef94f7c2/posts/112bce3e-194c-40f0-a167-e737181b7d71/comments/39c779b5-ac73-44da-84a1-8d451ff370f3",
+                    "content": "UUID test comment on heroku",
+                    "contentType": "text/plain",
+                    "published": "2023-03-31T02:12:59.861038Z",
+                    "author": {
+                        "id": "https://socialdistcmput404.herokuapp.com/authors/ba109973-9c56-4e06-9e2e-9d4bef94f7c2",
+                        "host": "https://socialdistcmput404.herokuapp.com/",
+                        "displayName": "UUIDTest",
+                        "github": "https://sampleUser.github.com",
+                        "profileImage": "http://sampleUserImage.com/1.jpg",
+                        "type": "author",
+                        "url": "https://socialdistcmput404.herokuapp.com/authors/ba109973-9c56-4e06-9e2e-9d4bef94f7c2"
+                    },
+                    "type": "comment"
+                }
+            ]
         }
-    ]
-}
         }
     ),
     "404": openapi.Response(
@@ -583,80 +689,56 @@ sampleListEveryPostDict={
             "type": "posts",
             "items": [
                 {
-                    "id": "https://socialdistcmput404.herokuapp.com/authors/2/posts/1",
-                    "title": "Title",
-                    "source": "source",
-                    "origin": "testOrigian",
-                    "description": "...",
-                    "content": "...",
+                    "id": "https://socialdistcmput404.herokuapp.com/authors/ba109973-9c56-4e06-9e2e-9d4bef94f7c2/posts/112bce3e-194c-40f0-a167-e737181b7d71",
+                    "title": "UUID testing heroku",
+                    "source": "UUID heroku",
+                    "origin": "string",
+                    "description": "UUID Post",
+                    "content": "heroku 2.0",
                     "contentType": "text/plain",
                     "author": {
-                        "id": "https://socialdistcmput404.herokuapp.com/authors/2",
+                        "id": "https://socialdistcmput404.herokuapp.com/authors/ba109973-9c56-4e06-9e2e-9d4bef94f7c2",
                         "host": "https://socialdistcmput404.herokuapp.com/",
-                        "displayName": "2",
-                        "github":"http://github.com/laracroft",
-                        "profileImage": "https://i.imgur.com/k7XVwpB.jpeg",
+                        "displayName": "UUIDTest",
+                        "github": "https://sampleUser.github.com",
+                        "profileImage": "http://sampleUserImage.com/1.jpg",
                         "type": "author",
-                        "url": "https://socialdistcmput404.herokuapp.com/authors/2"
+                        "url": "https://socialdistcmput404.herokuapp.com/authors/ba109973-9c56-4e06-9e2e-9d4bef94f7c2"
                     },
-                    "published": "2023-03-22T21:31:25Z",
+                    "published": "2023-03-31T02:08:01.730885Z",
                     "visibility": "VISIBLE",
-                    "categories": "test",
-                    "unlisted": False,
-                    "type": "post",
-                    "count": 2,
-                    "comments": "https://socialdistcmput404.herokuapp.com/authors/2/posts/1/comments/"
-                },
-                {
-                    "id": "https://socialdistcmput404.herokuapp.com/authors/2/posts/2",
-                    "title": "title 2",
-                    "source": "test 2",
-                    "origin": "2",
-                    "description": "2",
-                    "content": "2222",
-                    "contentType": "text/plain",
-                    "author": {
-                        "id": "https://socialdistcmput404.herokuapp.com/authors/2",
-                        "host": "https://socialdistcmput404.herokuapp.com/",
-                        "displayName": "2",
-                        "github":"http://github.com/laracroft",
-                        "profileImage": "https://i.imgur.com/k7XVwpB.jpeg",
-                        "type": "author",
-                        "url": "https://socialdistcmput404.herokuapp.com/authors/2"
-                    },
-                    "published": "2023-03-22T21:38:54Z",
-                    "visibility": "VISIBLE",
-                    "categories": "test",
-                    "unlisted": False,
+                    "categories": "string",
+                    "unlisted": True,
                     "type": "post",
                     "count": 1,
-                    "comments": "https://socialdistcmput404.herokuapp.com/authors/2/posts/2/comments/"
+                    "comments": "https://socialdistcmput404.herokuapp.com/authors/ba109973-9c56-4e06-9e2e-9d4bef94f7c2/posts/112bce3e-194c-40f0-a167-e737181b7d71/comments/"
                 },
                 {
-                    "id": "https://socialdistcmput404.herokuapp.com/authors/1/posts/1",
-                    "title": "testTitle",
-                    "source": "testSource",
-                    "origin": "testOrigian",
-                    "description": "testDescr",
-                    "content": "testPost",
+                    "id": "https://socialdistcmput404.herokuapp.com/authors/2/posts/ef29e6f2-8302-4f5d-901c-cc47ae2daca6",
+                    "title": "UUID post",
+                    "source": "test Soruce",
+                    "origin": "test origin",
+                    "description": "hello UUID",
+                    "content": "test content",
                     "contentType": "text/plain",
                     "author": {
-                        "id": "https://socialdistcmput404.herokuapp.com/authors/1",
+                        "id": "https://socialdistcmput404.herokuapp.com/authors/ba109973-9c56-4e06-9e2e-9d4bef94f7c2",
                         "host": "https://socialdistcmput404.herokuapp.com/",
-                        "displayName": "1",
-                        "github":"http://github.com/laracroft",
-                        "profileImage": "https://i.imgur.com/k7XVwpB.jpeg",
+                        "displayName": "UUIDTest",
+                        "github": "https://sampleUser.github.com",
+                        "profileImage": "http://sampleUserImage.com/1.jpg",
                         "type": "author",
-                        "url": "https://socialdistcmput404.herokuapp.com/authors/1"
+                        "url": "https://socialdistcmput404.herokuapp.com/authors/ba109973-9c56-4e06-9e2e-9d4bef94f7c2"
                     },
-                    "published": "2023-03-22T19:15:07Z",
-                    "visibility": "VISIBLE",
-                    "categories": "test",
+                    "published": "2023-03-31T04:21:01.583364Z",
+                    "visibility": "FRIENDS",
+                    "categories": "hellooo",
                     "unlisted": False,
                     "type": "post",
-                    "count": 2,
-                    "comments": "https://socialdistcmput404.herokuapp.com/authors/1/posts/1/comments/"
-                }
+                    "count": 0,
+                    "comments": "https://socialdistcmput404.herokuapp.com/authors/2/posts/ef29e6f2-8302-4f5d-901c-cc47ae2daca6/comments/"
+                },
+                
             ]
         }
         }

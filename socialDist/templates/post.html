@@ -59,7 +59,7 @@
                     <label for="Visibility" class="form-label">Visibility*:</label>
                     <select class="form-select" style="width:80%" id="Visibility">
                         <option selected value="VISIBLE"> Visible</option>
-                        <option value="PRIVATE">Private</option>
+                        <option value="FRIENDS">Private</option>
                     </select>
                 </div>
                 <div class id="target-author" class="mb-3" hidden>
@@ -85,7 +85,12 @@
 </main>
 
 <script>
-    fetch("/api/authors/{{user.id}}/followers/", {
+    var author = JSON.parse('{{author|escapejs}}');
+    var followers;
+    var connections = JSON.parse('{{connections|escapejs}}');
+    let author_url = new URL(author.id)
+    let author_relative_path = author_url.pathname
+    fetch("/api" +  author_relative_path + "/followers/", {
             headers: {
                 "Content-Type": "application/json",
                 "X-CSRFToken": "{{ csrf_token }}",
@@ -93,14 +98,16 @@
             }})
     .then((response) => response.json())
     .then((data) => {
-        let followers = data.items;
+        followers = data.items;
+        console.log(followers);
         let targetSelect = document.getElementById("target");
-        for (let follower in followers) {
+        for (let follower of followers) {
             let option = document.createElement("option")
             option.value = follower.id;
             option.innerHTML = follower.displayName;
             targetSelect.appendChild(option);
         }
+        followers.push(author);
     })
     .catch((error) => {
         console.error("Fetch error:", error);
@@ -121,7 +128,7 @@
         const visType = document.getElementById("Visibility").value;
         if (visType == "VISIBLE") {
             document.getElementById("target-author").hidden = true;
-        } else if (visType == "PRIVATE") {
+        } else if (visType == "FRIENDS") {
             document.getElementById("target-author").hidden = false;
         }
     });
@@ -136,7 +143,6 @@
     }
 
     async function toBase64() {
-        console.log("base64")
         return new Promise((resolve, reject) => {
             const input = document.getElementById("ImagePost");
             const file = input.files[0];
@@ -156,7 +162,9 @@
     }
 
     async function postData() {
-        const url = "/api/authors/{{user.id}}/posts/"
+        let author_url = new URL(author.id);
+        author_relative_path = author_url.pathname
+        const url = "/api" + author_relative_path + "/posts/"
         let postContent, contentType;
         if (document.getElementById("ImagePost").value) { // if post is an image
             const base64String = await toBase64();
@@ -190,11 +198,60 @@
             },
             body: JSON.stringify(data),
         });
+        const response_txt = await response.text();
+        if (document.getElementById("Visibility").value == "FRIENDS" 
+        && document.getElementById("target").value != "ALL") {
+            await sendToInbox(document.getElementById("target").value, JSON.parse(response_txt));
+            await sendToInbox(author.id, JSON.parse(response_txt));
+        }
+        else {
+            for (follower of followers) {
+                // Send post to all followers of the user
+                await sendToInbox(follower.id, JSON.parse(response_txt));
+            }
+        }
         if (response.status == 201) {
             displayAlert("alert-success", "Post created successfully!");
             window.location.href = "/";
         } else {
             displayAlert("alert-danger", "Post creation failed!");
+        }
+    }
+    async function sendToInbox(id, data) {
+        // Send post to a user's inbox
+        let url = new URL(id);
+        let author_relative_path = url.pathname + "/"
+        for (connection of connections) {
+            if ("https://" + url.hostname == connection.hostName) {
+                author_relative_path = author_relative_path.replace("/api","");
+                author_relative_path = author_relative_path.replace("/main","");
+                let inbox_url = connection.apiAddress + author_relative_path + "inbox/";
+                if (connection.hostName == "https://social-distribution-w23-t17.herokuapp.com") {
+                    inbox_url = connection.apiAddress + "/authors/" + id + "/inbox/"
+                }
+                fetch(inbox_url, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRFToken": "{{ csrf_token }}",
+                        "Authorization": connection.apiCreds
+                    },
+                    body: JSON.stringify(data),
+                });
+                break;
+            }
+            else if ("https://" + url.hostname == "https://socialdistcmput404.herokuapp.com") {
+                fetch("/api" + author_relative_path + "inbox/", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRFToken": "{{ csrf_token }}",
+                        "Authorization": "Token 516e5c3d636f46228edb8f09b9613d5b4b166816"
+                    },
+                    body: JSON.stringify(data),
+                });
+                break;
+            }
         }
     }
 
