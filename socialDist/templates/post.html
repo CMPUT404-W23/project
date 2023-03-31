@@ -88,7 +88,9 @@
     var author = JSON.parse('{{author|escapejs}}');
     var followers;
     var connections = JSON.parse('{{connections|escapejs}}');
-    fetch("/api/authors/{{user.id}}/followers/", {
+    let author_url = new URL(author.id)
+    let author_relative_path = author_url.pathname
+    fetch("/api" +  author_relative_path + "/followers/", {
             headers: {
                 "Content-Type": "application/json",
                 "X-CSRFToken": "{{ csrf_token }}",
@@ -226,7 +228,7 @@
                     headers: {
                         "Content-Type": "application/json",
                         "X-CSRFToken": "{{ csrf_token }}",
-                        "Authorization": connections.apiCreds
+                        "Authorization": connection.apiCreds
                     },
                     body: JSON.stringify(data),
                 });
