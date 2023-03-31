@@ -68,6 +68,7 @@
     const current_author = JSON.parse('{{current_author|escapejs}}');
     let current_author_url = new URL(current_author.id)
     let current_author_relative_path = current_author_url.pathname
+    const listOfConnections = JSON.parse('{{connections|escapejs}}'); // list of all connected nodes
     // Get inbox data
     fetch("/api" + current_author_relative_path + "/inbox/", {
         headers: new Headers({
@@ -186,6 +187,11 @@
         const authorID = author.id.split("/").pop();
         const hostname = new URL(author.id).hostname;
         const url = hostname === window.location.hostname ? `/api/authors/${authorID}/inbox/` : `https://${hostname}/api/authors/${authorID}/inbox/`;
+        let authorization = "Token 516e5c3d636f46228edb8f09b9613d5b4b166816";
+        if (hostname != window.location.hostname) {
+            const remoteConnection = listOfConnections.find(connection => connection.hostName === hostname);
+            authorization = connection.apiCreds
+        }
         const data = {
             "@context": "Post Like",
             "summary": "{{ user.username }} Likes your post",
