@@ -20,6 +20,8 @@
 </main>
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 <script>
+    const listOfConnections = JSON.parse('{{connections|escapejs}}');
+
     function deletePost(id) {
         // DELETE a post
         url = new URL(id)
@@ -105,6 +107,11 @@
         const authorID = post.author.id.split("/").pop();
         const hostname = type === "external" ? "https://" + new URL(post.author.id).hostname : "";
         const url = `${hostname}/api/authors/${authorID}/inbox/`;
+        let authorization = "Token 516e5c3d636f46228edb8f09b9613d5b4b166816";
+        if (type === "external") {
+            const remoteConnection = listOfConnections.find(connection => connection.hostName === hostname);
+            authorization = connection.apiCreds
+        }
         const data = {
             "@context": "Post Like",
             "summary": "{{ user.username }} Likes your post",
@@ -118,7 +125,7 @@
             headers: {
                 "Content-Type": "application/json",
                 "X-CSRFToken": "{{ csrf_token }}",
-                "Authorization": "Token 516e5c3d636f46228edb8f09b9613d5b4b166816"
+                "Authorization": authorization
             },
             body: JSON.stringify(data),
         });
@@ -176,7 +183,6 @@
     async function fetchExternalPosts() {
         // fetch foreign posts and render
         //Source: https://stackoverflow.com/questions/43305020/how-to-use-the-context-variables-passed-from-django-in-javascript
-      
         for (connection of listOfConnections) {
             try {
                 let returnedData;
