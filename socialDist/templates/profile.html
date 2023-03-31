@@ -16,9 +16,11 @@
             <div class="card-body">
                <p>{{follower.user_id.displayName}} 
                 <span>
+                    {% if isOwner %}
                     <button class="btn btn-dark" onclick="deleteFollower('{{follower.user_id.id}}')">
                         Remove follower
                     </button>
+                    {% endif %}
                 </span>
             </p>
             </div>
