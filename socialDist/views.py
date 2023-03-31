@@ -890,16 +890,16 @@ class APIInbox(APIView):
 
         # {
         #     "@context": "https://www.w3.org/ns/activitystreams",
-        #     "summary": "2 Likes your post",         
+        #     "summary": "UUIDauthor Likes your post",         
         #     "type": "Like",
         #     "author": {
-        #     "id": "https://socialdistcmput404.herokuapp.com/authors/2",
-        #     "host": "https://socialdistcmput404.herokuapp.com/",
-        #     "displayName": "2",
-        #     "github": null,
-        #     "profileImage": null,
-        #     "type": "author",
-        #     "url": "https://socialdistcmput404.herokuapp.com/authors/2"
+        #         "id": "https://socialdistcmput404.herokuapp.com/authors/1641802d-c565-45b2-b4f7-ec08504038c8",
+        #         "host": "https://socialdistcmput404.herokuapp.com/",
+        #         "displayName": "UUIDauthor",
+        #         "github": "",
+        #         "profileImage": "",
+        #         "type": "author",
+        #         "url": "https://socialdistcmput404.herokuapp.com/authors/1641802d-c565-45b2-b4f7-ec08504038c8"
         #     },
         #     "object":"https://socialdistcmput404.herokuapp.com/authors/1/posts/1"
         # }
@@ -918,7 +918,7 @@ class APIInbox(APIView):
                 like_author = Author.objects.get(pk=request.data["author"]["id"])
             except Author.DoesNotExist:
                 if request.data["author"]["host"] == HOST:
-                    return Response(status=404)
+                    return Response(status=404, data="same host")
                 new_author_serial = AuthorSerializer(data=request.data["author"], partial=True)
                 if not new_author_serial.is_valid():
                     return Response(status=400, data=new_author_serial.errors)
