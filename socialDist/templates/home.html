@@ -36,6 +36,7 @@
         window.location.href = url.pathname + "/edit/"
     }
     var current_author = JSON.parse('{{current_author|escapejs}}');
+    var listOfConnections = JSON.parse('{{connections|escapejs}}');
     let posts, externalPosts;
     // GET all public posts and display them
     fetch("/api/posts/", { headers: new Headers({ "Authorization": "Token 516e5c3d636f46228edb8f09b9613d5b4b166816" }) })
@@ -88,7 +89,6 @@
                                         <i class="fa-solid fa-trash"></i>
                                     </button>
                                     `
-
                 }
                 isLiked(index, 'internal'); // check if post is liked by user
                 return (display_posts + '</div></div>')
@@ -105,7 +105,7 @@
         const source = type === "internal" ? posts : externalPosts;
         const post = source[i];
         const authorID = post.author.id.split("/").pop();
-        const hostname = type === "external" ? new URL(post.author.id).hostname : "";
+        const hostname = type === "external" ? "https://" + new URL(post.author.id).hostname : "";
         const url = `${hostname}/api/authors/${authorID}/inbox/`;
         let authorization = "Token 516e5c3d636f46228edb8f09b9613d5b4b166816";
         if (type === "external") {
