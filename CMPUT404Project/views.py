@@ -92,6 +92,8 @@ def postPage(request, author_id, post_id):
 
 # URL to author profile page, will contain inbox if owner
 def authorPage(request, author_id):
+    connections = Connection.objects.all()
+    connections_serial = ConnectionSerializer(connections, many=True) 
     try:
         author =  Author.objects.get(id=HOST+"authors/"+author_id)
     except Author.DoesNotExist:
@@ -115,9 +117,9 @@ def authorPage(request, author_id):
         'isOwner': request.user.is_authenticated and (request.user.is_staff or request.user.author == author),
         'follower_list':follower_list,
         'following_list':following_list,
-        'current_author': current_author_context
+        'current_author': current_author_context,
+        'connections': json.dumps(connections_serial.data),
     }
-    #TODO: create a page for the author, if the requester is the author, add inbox here!
     return render(request, 'profile.html', context)
 
 @login_required

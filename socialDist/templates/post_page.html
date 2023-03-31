@@ -68,10 +68,15 @@
                                 <button type="button" class="btn btn-secondary btn-sm" id="like-btn">
                                     <i class="fa-regular fa-heart"></i>   
                                 </button>`
+<<<<<<< HEAD
 
             if (author_id == "{{user.id}}") {
                 display_post += 
                             `
+=======
+            if (post.author.id == current_author.id) {
+                display_post += `
+>>>>>>> 6c6259db0a16d58814b6dc9791447f4335157216
                             <button type="button" class="btn btn-secondary btn-sm" onclick="editPost('${post.id}')">
                                 Edit
                             </button>
@@ -127,7 +132,7 @@
         }).then(response => response.json())
             .then(data => {
                 for (like of data.items) {
-                    if (like.author.id.split('/').pop() == "{{user.id}}") {
+                    if (like.author.id = current_author.id) {
                         document.getElementById('like-btn').innerHTML = '<i class="fa-solid fa-heart"></i>';
                         document.getElementById('like-btn').disabled = true;
                     }

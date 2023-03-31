@@ -9,12 +9,21 @@
 </head>
 <div class="container-md mt-2">
     <h1>{{author.displayName}} Profile Page </h1>
+    <p>Github: {{author.Github}}</p>
     <h6>Followers: {{follower_list | length}}</h6>
     <div class="grid">
         {% for follower in follower_list %}
         <div class="card my-3">
             <div class="card-body">
-                {{follower.user_id.displayName}}
+               <p>{{follower.user_id.displayName}} 
+                <span>
+                    {% if isOwner %}
+                    <button class="btn btn-dark" onclick="deleteFollower('{{follower.user_id.id}}')">
+                        Remove follower
+                    </button>
+                    {% endif %}
+                </span>
+            </p>
             </div>
         </div>
         {% endfor %}
@@ -58,8 +67,11 @@
     var followIndex = 0;
     let inboxData;
     const current_author = JSON.parse('{{current_author|escapejs}}');
+    let current_author_url = new URL(current_author.id)
+    let current_author_relative_path = current_author_url.pathname
+    const listOfConnections = JSON.parse('{{connections|escapejs}}'); // list of all connected nodes
     // Get inbox data
-    fetch("/api/authors/" + "{{user.id}}" + "/inbox/", {
+    fetch("/api" + current_author_relative_path + "/inbox/", {
         headers: new Headers({
             "Authorization": "Token 516e5c3d636f46228edb8f09b9613d5b4b166816",
             "X-CSRFToken": "{{ csrf_token }}"
@@ -126,8 +138,7 @@
                     var htmlElement = htmlToElement(`
                 <div class="card my-3">
                     <div class="card-body">
-                        <a href="${item.author.url}">${item.author.displayName}</a> liked
-                        <a href="${item.object}">this</a>
+                        <p>${item.summary}</p>
                     </div>
                 </div>
                 `);
@@ -140,8 +151,8 @@
                     <div class="card-body">
                         <a href="${item.actor.url}">${item.actor.displayName}</a> wants to follow you!
                     </div>
-                    <button onclick="accept('${item.actor.id}')">Accept</button>
-                    <button onclick="reject('${item.actor.id}', ${followIndex})">Reject</button>
+                    <button class="btn btn-dark" onclick="accept('${item.actor.id}')">Accept</button>
+                    <button class="btn btn-dark" onclick="reject('${item.actor.id}', ${followIndex})">Reject</button>
                 </div>
                 `);
                     followReqActors.push(item.actor);
@@ -154,7 +165,9 @@
         });
     async function accept(id, target) {
         // accept a follow request
-        let path = "/api/authors/{{user.id}}/followers/" + id + "/";
+        let current_author_url = new URL(current_author.id)
+        let current_author_relative_path = current_author_url.pathname
+        let path = "/api" + current_author_relative_path + "/followers/" + id + "/";
         console.log(path);
         await fetch(path,
             {
@@ -173,7 +186,16 @@
         const post = inboxData[i]; // we got a list of all inbox items from fetch; like button passes the index of which post to like
         const author = post.author;
         const authorID = author.id.split("/").pop();
-        const url = `/api/authors/${authorID}/inbox/`
+        const hostname = new URL(author.id).hostname;
+        let url = hostname === window.location.hostname ? `/api/authors/${authorID}/inbox/` : `https://${hostname}/api/authors/${authorID}/inbox/`;
+        if (hostname === "https://social-distribution-w23-t17.herokuapp.com") {
+            url = `https://${hostname}/authors/${authorID}/inbox/`;
+        }
+        let authorization = "Token 516e5c3d636f46228edb8f09b9613d5b4b166816";
+        if (hostname != window.location.hostname) {
+            const remoteConnection = listOfConnections.find(connection => connection.hostName === hostname);
+            authorization = remoteConnection.apiCreds
+        }
         const data = {
             "@context": "Post Like",
             "summary": "{{ user.username }} Likes your post",
@@ -187,7 +209,7 @@
             headers: {
                 "Content-Type": "application/json",
                 "X-CSRFToken": "{{ csrf_token }}",
-                "Authorization": "Token 516e5c3d636f46228edb8f09b9613d5b4b166816"
+                "Authorization": authorization,
             },
             body: JSON.stringify(data),
         });
@@ -199,24 +221,49 @@
         }
     }
 
+    async function deleteFollower(id) {
+        let current_author_url = new URL(current_author.id)
+        let current_author_relative_path = current_author_url.pathname
+        let path = "/api" + current_author_relative_path + "/followers/" + id + "/";
+        await fetch(path,
+            {
+                method: "DELETE",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": "{{ csrf_token }}",
+                    "Authorization": "Token 516e5c3d636f46228edb8f09b9613d5b4b166816"
+                }
+            });
+        window.location.reload();
+    }
+
     async function isLiked(i) {
         // checks if current user liked the post
         const post = inboxData[i];
         const author = post.author;
         const authorID = author.id.split("/").pop();
-        const url = `/api/authors/${authorID}/posts/${post.id.split('/').pop()}/likes/`
+        const hostname = new URL(author.id).hostname;
+        let url = hostname === window.location.hostname ? `/api/authors/${authorID}/posts/${post.id.split('/').pop()}/likes/` : `https://${hostname}/api/authors/${authorID}/posts/${post.id.split('/').pop()}/likes/`;
+        if (hostname === "https://social-distribution-w23-t17.herokuapp.com") {
+            url = `https://${hostname}/authors/${authorID}/posts/${post.id.split('/').pop()}/likes/`;
+        }
+        let authorization = "Token 516e5c3d636f46228edb8f09b9613d5b4b166816";
+        if (hostname != window.location.hostname) {
+            const remoteConnection = listOfConnections.find(connection => connection.hostName === hostname);
+            authorization = remoteConnection.apiCreds
+        }
         // GET all likes for the post
         const response = await fetch(url, {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",
                 "X-CSRFToken": "{{ csrf_token }}",
-                "Authorization": "Token 516e5c3d636f46228edb8f09b9613d5b4b166816"
+                "Authorization": authorization,
             },
         }).then(response => response.json())
             .then(data => {
                 for (like of data.items) {
-                    if (like.author.id.split('/').pop() == "{{user.id}}") {
+                    if (like.author.id == current_author.id) {
                         document.getElementById(`like-btn-${i}`).innerHTML = `<i class="fa-solid fa-heart"></i>`;
                         document.getElementById(`like-btn-${i}`).disabled = true;
                     }
