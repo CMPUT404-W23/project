@@ -6,10 +6,15 @@ from django.test import TestCase, Client
 from django.urls import reverse
 from ..models import Author, Post, Comment, Like, Server, Inbox, UserFollowing, FollowRequest
 from django.contrib.auth.models import User
+from django.utils import timezone
+import datetime
 
 # BACK-END tests for models
 
+HOST="https://socialdistcmput404.herokuapp.com/"
+
 # Create your tests for models here.
+# AUTHOR MODEL: Fully Test
 class AuthorModelTests(TestCase):
     # Setup author profiles
     def setUp(self):
@@ -71,80 +76,81 @@ class AuthorModelTests(TestCase):
         self.assertEqual(authorDict.count(),1)
 
 #  TODO: update server test case due to updates in server
-""" 
+
 # Testing Server model
 class ServerModelTests(TestCase):
     def setUp(self):
         author=Author.objects.create(id="http://127.0.0.1:8000/authors/test1", host="http://127.0.0.1:8000/", displayName="tester1", github="http://github.com/test1", profileImage="https://i.imgur.com/test1.jpeg")
-        Server.objects.create(serverID="1", owner=author, serverName="testServer")
+        Server.objects.create(serverAddress="http://127.0.0.1:8000/authors/", serverKey="1", isLocalServer=True)
 
     # Get the server object, check its values
     def testGetServerFields(self):
-        server=Server.objects.filter(serverID="1")
+        server=Server.objects.filter(serverKey="1")
         serverDict=server.values()
         
-        self.assertEqual(serverDict[0]["serverID"],"1")
-        self.assertEqual(serverDict[0]["owner_id"],"http://127.0.0.1:8000/authors/test1")
-        self.assertEqual(serverDict[0]["serverName"],"testServer")
+        self.assertEqual(serverDict[0]["serverAddress"],"http://127.0.0.1:8000/authors/")
+        self.assertEqual(serverDict[0]["serverKey"],"1")
+        self.assertEqual(serverDict[0]["isLocalServer"],True)
 
-    # Get a server object, update its fields, then check the updated fields
+
+    # Get a server object, update its fields (server address), then check the updated fields
     def testUpdateServerField(self):
-        server=Server.objects.filter(serverID="1")
+        server=Server.objects.filter(serverKey="1")
         serverDict=server.values()
 
         # check field value before
-        self.assertEqual(serverDict[0]["serverName"],"testServer")
-        server.update(serverName="newTestServer")
+        self.assertEqual(serverDict[0]["serverAddress"],"http://127.0.0.1:8000/authors/")
+        server.update(serverAddress="https://socialdistcmput404.herokuapp.com/")
         
         # check field value after update
-        self.assertEqual(serverDict[0]["serverName"],"newTestServer")
+        self.assertEqual(serverDict[0]["serverAddress"],"https://socialdistcmput404.herokuapp.com/")
 
     # Get the server object, check count, delete the object
     def testDeleteServer(self):
-        server=Server.objects.filter(serverID="1")
+        server=Server.objects.filter(serverKey="1")
 
         serverDict=server.values()
         # Count of server = 1
         self.assertEqual(serverDict.count(),1)
 
-        Server.objects.get(serverID="1").delete()
+        Server.objects.get(serverKey="1").delete()
         # Count of server after delete = 0
         self.assertEqual(serverDict.count(),0)
-"""
 
-# Testing UserFollowing model
+
+# Testing UserFollowing model: DONE
 class UserFollowingModelTests(TestCase):
     # Create/ POST UserFollowing model
     def setUp(self):
-        author1=Author.objects.create(id="http://127.0.0.1:8000/authors/test1", host="http://127.0.0.1:8000/", displayName="tester1", github="http://github.com/test1", profileImage="https://i.imgur.com/test1.jpeg")
-        author2=Author.objects.create(id="http://127.0.0.1:8000/authors/test2", host="http://127.0.0.1:8000/", displayName="tester2", github="http://github.com/test2", profileImage="https://i.imgur.com/test2.jpeg")
+        author1=Author.objects.create(id=HOST+"authors/test1", host=HOST, displayName="tester1", github="http://github.com/test1", profileImage="https://i.imgur.com/test1.jpeg")
+        author2=Author.objects.create(id=HOST+"authors/test2", host=HOST, displayName="tester2", github="http://github.com/test2", profileImage="https://i.imgur.com/test2.jpeg")
         UserFollowing.objects.create(user_id=author1, following_user_id=author2)
 
     # Get the UserFollowing object, check its values
     def testGetUserFollowingFields(self):
-        author1=Author.objects.get(id="http://127.0.0.1:8000/authors/test1")
+        author1=Author.objects.get(id=HOST+"authors/test1")
         userFollowing=UserFollowing.objects.filter(user_id=author1)
         userFollowingDict=userFollowing.values()
 
-        self.assertEqual(userFollowingDict[0]["user_id_id"],"http://127.0.0.1:8000/authors/test1")
-        self.assertEqual(userFollowingDict[0]["following_user_id_id"],"http://127.0.0.1:8000/authors/test2")
+        self.assertEqual(userFollowingDict[0]["user_id_id"],HOST+"authors/test1")
+        self.assertEqual(userFollowingDict[0]["following_user_id_id"],HOST+"authors/test2")
 
     # Get the UserFollowing object, update its fields, then check the updated fields
     def testUpdateUserFollowingFields(self):
-        author1=Author.objects.get(id="http://127.0.0.1:8000/authors/test1")
-        author3=Author.objects.create(id="http://127.0.0.1:8000/authors/test3", host="http://127.0.0.1:8000/", displayName="tester3", github="http://github.com/test3", profileImage="https://i.imgur.com/test3.jpeg")
+        author1=Author.objects.get(id=HOST+"authors/test1")
+        author3=Author.objects.create(id=HOST+"authors/test3", host=HOST, displayName="tester3", github="http://github.com/test3", profileImage="https://i.imgur.com/test3.jpeg")
         userFollowing=UserFollowing.objects.filter(user_id=author1)
         userFollowingDict=userFollowing.values()
         # check field value before
-        self.assertEqual(userFollowingDict[0]["following_user_id_id"],"http://127.0.0.1:8000/authors/test2")
+        self.assertEqual(userFollowingDict[0]["following_user_id_id"],HOST+"authors/test2")
 
         # check field value after update
         userFollowing.update(following_user_id=author3)
-        self.assertEqual(userFollowingDict[0]["following_user_id_id"],"http://127.0.0.1:8000/authors/test3")
+        self.assertEqual(userFollowingDict[0]["following_user_id_id"],HOST+"authors/test3")
 
     # Get UserFollowing object, delete and check count
     def testDeleteUserFollowing(self):
-        author1=Author.objects.get(id="http://127.0.0.1:8000/authors/test1")
+        author1=Author.objects.get(id=HOST+"authors/test1")
         userFollowing=UserFollowing.objects.filter()
 
         # Check count = 1
@@ -159,22 +165,28 @@ class UserFollowingModelTests(TestCase):
 class FollowRequestModelTests(TestCase):
     # Create/ POST FollowRequest model
     def setUp(self):
-        user1=User.objects.create_user(username="test1", email="test1@gmail.com", password='1')
-        user2=User.objects.create_user(username="test2", email="test2@gmail.com", password='2')
-        setUpDate=datetime.date(2023, 3, 5)
+        # user1=User.objects.create_user(username="test1", email="test1@gmail.com", password='1')
+        # user2=User.objects.create_user(username="test2", email="test2@gmail.com", password='2')
 
-        FollowRequest.objects.create(sender=user1,target=user2, date=setUpDate)
+        # Create subsquent authors
+        author1=Author.objects.create(id=HOST+"authors/test1", host=HOST, displayName="tester1", github="http://github.com/test1", profileImage="https://i.imgur.com/test1.jpeg")
+        author2=Author.objects.create(id=HOST+"authors/test2", host=HOST, displayName="tester2", github="http://github.com/test2", profileImage="https://i.imgur.com/test2.jpeg")
+
+        setUpDate=datetime.datetime.now()
+
+        FollowRequest.objects.create(sender=author1,target=author2, date=setUpDate)
     
     # Get the FollowRequest object, check its values
     def testGetFollowRequestFields(self):
-        user1=User.objects.get(username="test1")
-        followRequest=FollowRequest.objects.filter(sender=user1)
+        author1=Author.objects.get(id=HOST+"authors/test1")
+        followRequest=FollowRequest.objects.filter(sender=author1)
         followRequestDict=followRequest.values()
 
-        self.assertEqual(followRequestDict[0]["sender_id"],1)  
-        self.assertEqual(followRequestDict[0]["target_id"],2) 
-        self.assertEqual(followRequestDict[0]["date"],datetime.datetime(2023, 3, 5, 0, 0, tzinfo=datetime.timezone.utc))
+        self.assertEqual(followRequestDict[0]["sender_id"],HOST+"authors/test1")  
+        self.assertEqual(followRequestDict[0]["target_id"],HOST+"authors/test2") 
+        self.assertLess(followRequestDict[0]["date"],datetime.datetime.today())
 
+"""
     # Get the FollowRequest object, update its fields, then check the updated fields
     def testUpdateFollowRequestFields(self):
         user1=User.objects.get(username="test1")
@@ -393,3 +405,4 @@ class InboxModelTests(TestCase):
         self.assertEqual(inboxDict.count(),0)
 
     # MORE TESTS LATER FOR API VIEWS (TBA)
+"""

@@ -26,11 +26,15 @@
       for (connection of connections) {
         try {
             let returnedData;
+            let queryString = "";
+            if (connection.hostName == "https://social-distribution-w23-t17.herokuapp.com") {
+                queryString = "?page=1&size=1000"
+            }
             if (connection.apiCreds === "") {
-                returnedData = await fetch(connection.apiAddress + "/authors/");
+                returnedData = await fetch(connection.apiAddress + "/authors/" + queryString);
             }
             else {
-                returnedData = await fetch(connection.apiAddress + "/authors/", 
+                returnedData = await fetch(connection.apiAddress + "/authors/" + queryString, 
                                             {headers: new Headers({"Authorization": connection.apiCreds })});
             }
             let returnedDatatext = await returnedData.text();

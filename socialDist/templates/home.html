@@ -105,7 +105,10 @@
         const post = source[i];
         const authorID = post.author.id.split("/").pop();
         const hostname = type === "external" ? "https://" + new URL(post.author.id).hostname : "";
-        const url = `${hostname}/api/authors/${authorID}/inbox/`;
+        let url = `${hostname}/api/authors/${authorID}/inbox/`;
+        if (hostname === "https://social-distribution-w23-t17.herokuapp.com"){
+            url = `${hostname}/authors/${post.author.id}/inbox`;
+        }
         let authorization = "Token 516e5c3d636f46228edb8f09b9613d5b4b166816";
         if (type === "external") {
             const remoteConnection = listOfConnections.find(connection => connection.hostName === hostname);
@@ -181,17 +184,22 @@
     }
 
     async function fetchExternalPosts() {
+        var listOfConnections = JSON.parse('{{connections|escapejs}}');
         // fetch foreign posts and render
         //Source: https://stackoverflow.com/questions/43305020/how-to-use-the-context-variables-passed-from-django-in-javascript
         for (connection of listOfConnections) {
             try {
                 let returnedData;
+                let queryString = "";
+                if (connection.hostName == "https://social-distribution-w23-t17.herokuapp.com") {
+                queryString = "?page=1&size=1000"
+                }
                 if (connection.apiCreds === "") {
-                    returnedData = await fetch(connection.apiAddress + "/authors/", 
+                    returnedData = await fetch(connection.apiAddress + "/authors/" + queryString, 
                     {headers: new Headers({"Accept": "application/json"})});
                 }
                 else {
-                    returnedData = await fetch(connection.apiAddress + "/authors/",
+                    returnedData = await fetch(connection.apiAddress + "/authors/" + queryString,
                         { headers: new Headers({ "Authorization": connection.apiCreds, 
                         "Accept": "application/json"}) });
                 }

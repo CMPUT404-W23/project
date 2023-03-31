@@ -162,7 +162,9 @@
     }
 
     async function postData() {
-        const url = "/api/authors/{{user.id}}/posts/"
+        let author_url = new URL(author.id);
+        author_relative_path = author_url.pathname
+        const url = "/api" + author_relative_path + "/posts/"
         let postContent, contentType;
         if (document.getElementById("ImagePost").value) { // if post is an image
             const base64String = await toBase64();
@@ -223,7 +225,11 @@
             if ("https://" + url.hostname == connection.hostName) {
                 author_relative_path = author_relative_path.replace("/api","");
                 author_relative_path = author_relative_path.replace("/main","");
-                fetch(connection.apiAddress + author_relative_path + "inbox/", {
+                let inbox_url = connection.apiAddress + author_relative_path + "inbox/";
+                if (connection.hostName == "https://social-distribution-w23-t17.herokuapp.com") {
+                    inbox_url = connection.apiAddress + "/authors/" + id + "inbox/"
+                }
+                fetch(inbox_url, {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
