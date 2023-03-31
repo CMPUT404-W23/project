@@ -35,6 +35,8 @@
         url = new URL(id)
         window.location.href = url.pathname + "/edit/"
     }
+    // GET and display comments for a post
+    let commentsList;
     async function getComment(author_id, post_id) {
         const url = `/api/authors/${author_id}/posts/${post_id}/comments/`
         const response = await fetch(url, {
@@ -47,18 +49,49 @@
         }).then(response => response.json())
             .then(data => {
                 console.log(data)
+                commentsList = data.items;
+                let index = 0;
                 for (const comment of data.items){
                     
                     comment_html = 
                     `<h6 class="card-text" > 
                         <b class="ml-5">${comment.author.displayName}</b> ${comment.content} 
-                        <button id="likebutton"type="button" type="button" class="btn btn-light btn-sm ml-20">
+                        <button id="like-comment-${index}" type="button" class="btn btn-light btn-sm ml-20" onclick="likeComment(${index})">
                             <i class="fa-regular fa-heart"></i>
                         </button>
                     </h6>`
                     document.getElementById(`comment-${post_id}`).innerHTML += comment_html 
+                    index += 1;
                 }
             });
+    }
+    async function likeComment(i) {
+        const comment = commentsList[i];
+        const authorID = comment.author.id.split("/").pop();
+        let authorization = "Token 516e5c3d636f46228edb8f09b9613d5b4b166816";
+        const data = {
+            "@context": "Comment Like",
+            "summary": "{{ user.username }} Likes your comment",
+            "type": "Like",
+            "author": current_author,
+            "object": comment.id
+        }
+        // POST a like object to the author's inbox
+        const response = await fetch(url, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": "{{ csrf_token }}",
+                "Authorization": authorization
+            },
+            body: JSON.stringify(data),
+        });
+        if (response.status == 200) {
+            document.getElementById(`like-comment-${i}`).innerHTML = `<i class="fa-solid fa-heart"></i>`;
+            document.getElementById(`like-comment-${i}`).disabled = true;
+        } else {
+            console.log(response.status, response.statusText)
+        }
     }
     function postComment(id) {
         url = new URL(id)
