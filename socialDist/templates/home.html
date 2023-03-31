@@ -112,7 +112,7 @@
         let authorization = "Token 516e5c3d636f46228edb8f09b9613d5b4b166816";
         if (type === "external") {
             const remoteConnection = listOfConnections.find(connection => connection.hostName === hostname);
-            authorization = connection.apiCreds
+            authorization = remoteConnection.apiCreds;
         }
         const data = {
             "@context": "Post Like",
