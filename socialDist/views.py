@@ -276,7 +276,7 @@ class APIPost(APIView):
         except Post.DoesNotExist:
             return Response(status=404)
         # Check if request is from an authorized source (only user and admin can call this!), 401 if not
-        if not request.user.is_authenticated or (not request.user.is_staff and id != api_helper.extract_UUID(request.user.author.id )):
+        if not request.user.is_authenticated or (not request.user.is_staff and author_id != api_helper.extract_UUID(request.user.author.id )):
             return Response(status=401)
         postDict = dict(request.data)
         postDict["author"] = HOST+"authors/"+author_id
@@ -301,7 +301,7 @@ class APIPost(APIView):
         try:
             post = Post.objects.get(pk=HOST+"authors/"+author_id+"/posts/"+post_id)
             # Check if request is from an authorized source (only user and admin can call this!), 401 if not
-            if not request.user.is_authenticated or (not request.user.is_staff and id != api_helper.extract_UUID(request.user.author.id )):
+            if not request.user.is_authenticated or (not request.user.is_staff and author_id != api_helper.extract_UUID(request.user.author.id )):
                 return Response(status=401)
             if post.visibility == "PRIVATE":
                 return Response(status=404)
@@ -314,7 +314,7 @@ class APIPost(APIView):
             return Response(status=400, data=serializer.errors)
         except Post.DoesNotExist:
             # Check if request is from an authorized source (only user and admin can call this!), 401 if not
-            if not request.user.is_authenticated or (not request.user.is_staff and id != api_helper.extract_UUID(request.user.author.id )):
+            if not request.user.is_authenticated or (not request.user.is_staff and author_id != api_helper.extract_UUID(request.user.author.id )):
                 return Response(status=401)
             postDict = dict(request.data)
             postDict["author"] = HOST+"authors/"+author_id
@@ -337,7 +337,7 @@ class APIPost(APIView):
             author = Author.objects.get(pk=HOST+"authors/"+author_id)
         except Author.DoesNotExist:
             return Response(status=404)
-        if not request.user.is_authenticated or (not request.user.is_staff and id != api_helper.extract_UUID(request.user.author.id )):
+        if not request.user.is_authenticated or (not request.user.is_staff and author_id != api_helper.extract_UUID(request.user.author.id )):
             return Response(status=401)
         try:
             post = Post.objects.filter(visibility="VISIBLE").get(pk=HOST+"authors/"+author_id+"/posts/"+post_id)
@@ -403,7 +403,7 @@ class APIListPosts(APIView):
         except Author.DoesNotExist:
             print("Author does not exist")
             return Response(status=404)
-        if not request.user.is_authenticated or (not request.user.is_staff and id != api_helper.extract_UUID(request.user.author.id )):
+        if not request.user.is_authenticated or (not request.user.is_staff and author_id != api_helper.extract_UUID(request.user.author.id )):
             return Response(status=401)
         while True:
             # OLD start
@@ -717,7 +717,7 @@ class APIFollower(APIView):
             targetAuthor = Author.objects.get(pk=HOST+"authors/"+author_id)
         except Author.DoesNotExist:
             return Response(status=404)
-        if not request.user.is_authenticated or (not request.user.is_staff and id != api_helper.extract_UUID(request.user.author.id)):
+        if not request.user.is_authenticated or (not request.user.is_staff and author_id != api_helper.extract_UUID(request.user.author.id)):
             return Response(status=401)
         try: 
             decoded_foreign_author_id = urllib.parse.unquote(foreign_author_id, 'utf-8')
@@ -750,7 +750,7 @@ class APIFollower(APIView):
             targetAuthor = Author.objects.get(pk=HOST+"authors/"+author_id)
         except Author.DoesNotExist:
             return Response(status=404)
-        if not request.user.is_authenticated or (not request.user.is_staff and id != api_helper.extract_UUID(request.user.author.id )):
+        if not request.user.is_authenticated or (not request.user.is_staff and author_id != api_helper.extract_UUID(request.user.author.id )):
             return Response(status=401)
         try: 
             decoded_foreign_author_id = urllib.parse.unquote(foreign_author_id, 'utf-8')
@@ -770,7 +770,8 @@ class APIInbox(APIView):
     @swagger_auto_schema(operation_summary="Retrieve a list of objects(posts, follow requests, post likes, comment likes, comments) within an author's inbox", operation_description="Retrieve an inbox object based on:\n\n* The author's own id", tags=["Inbox"], responses=sample_dicts.sampleInboxDict)
     def get(self, request, author_id):
         # get the owner first in order to get the inbox
-        if not request.user.is_authenticated or (not request.user.is_staff and id != api_helper.extract_UUID(request.user.author.id)):
+        print()
+        if not request.user.is_authenticated or (not request.user.is_staff and author_id != api_helper.extract_UUID(request.user.author.id)):
             return Response(status=401)
         try:
             author = Author.objects.get(pk=HOST+"authors/"+author_id)
