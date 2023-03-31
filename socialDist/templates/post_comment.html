@@ -23,7 +23,11 @@
 
                 </div>
                 <div id="save-alert"></div>
-                <button type="button" class="btn btn-dark" onclick="postComment()">Post!</button>
+                {% if hostName %}
+                <button type="button" class="btn btn-dark" id="postForeign" onclick="postComment('external')">Post!</button>
+                {% else %}
+                <button type="button" class="btn btn-dark" id="postForeign" onclick="postComment('internal')">Post!</button>
+                {% endif %}
             </div>
         </form>
     </div>
@@ -43,28 +47,32 @@
             alertContainer.appendChild(saveAlert);
         }
 
-        async function postComment(){
-            const post_url = new URL("{{post.id}}");
-            const comment_url = "/api" + post_url.pathname + "/comments/";
-            const data = {
-                content : document.getElementById("Comment").value,
-                contentType : document.getElementById("ContentType").value,
-                author : JSON.parse('{{author|escapejs}}'),
-            };
+        async function postComment(type){
+            if (type == 'internal'){
+                const post_url = new URL("{{post.id}}");
+                const comment_url = "/api" + post_url.pathname + "/comments/";
+                const data = {
+                    content : document.getElementById("Comment").value,
+                    contentType : document.getElementById("ContentType").value,
+                    author : JSON.parse('{{author|escapejs}}'),
+                };
 
-
-            const response = await fetch(comment_url, {
-                method: "POST",
-                headers: commonHeaders,
-                body: JSON.stringify(data),
-            });
-            console.log(response);
-            if (response.status == 201) {
-                displayAlert("alert-success", "Comment posted successfully!");
-                window.location.href = post_url.origin
-            } else {
-                displayAlert("alert-danger", "Posting comment failed!");
+                const response = await fetch(comment_url, {
+                    method: "POST",
+                    headers: commonHeaders,
+                    body: JSON.stringify(data),
+                });
+                console.log(response);
+                if (response.status == 201) {
+                    displayAlert("alert-success", "Comment posted successfully!");
+                    window.location.href = post_url.origin
+                } else {
+                    displayAlert("alert-danger", "Posting comment failed!");
+                }
+            } else if (type == 'external'){
+                console.log("{{author}}")
             }
+            
         }
 
         async function sendToInbox(id, data) {

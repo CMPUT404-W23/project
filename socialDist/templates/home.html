@@ -48,7 +48,7 @@
             },
         }).then(response => response.json())
             .then(data => {
-                console.log(data)
+                // console.log(data)
                 commentsList = data.items;
                 let index = 0;
                 for (const comment of data.items){
@@ -93,10 +93,18 @@
             console.log(response.status, response.statusText)
         }
     }
-    function postComment(id) {
-        url = new URL(id)
-        window.location.href = url.pathname + "/comments/"
+    function postComment(id,type) {
+        if (type === 'internal'){
+            url = new URL(id)
+            window.location.href = url.pathname + "/comments/"
+        } else if (type === 'external'){
+            // "posts/foreign/<str:host_name>/posts/<str:post_id>/comments/"
+            url = new URL(id)
+            post_id = id.split("/").pop()
+            window.location.href = `https://socialdistcmput404.herokuapp.com/posts/foreign/${url.hostname}/posts/${post_id}/comments`
+        }
     }
+
     var current_author = JSON.parse('{{current_author|escapejs}}');
     let posts, externalPosts;
     // GET all public posts and display them
@@ -141,7 +149,7 @@
                                     <button type="button" class="btn btn-secondary btn-sm" id="like-btn-${index}" onclick="likePost(${index}, 'internal')">
                                         <i class="fa-regular fa-heart"></i>
                                     </button>
-                                    <button type="button" class="btn btn-secondary btn-sm" onclick="postComment('${post.id}')">
+                                    <button type="button" class="btn btn-secondary btn-sm" onclick="postComment('${post.id}','internal')">
                                     Comment
                                     </button>`
                 if (post.author.id == current_author.id) {
@@ -339,7 +347,7 @@
                                                     <button type="button" class="btn btn-secondary btn-sm" id="like-btn-${i}" onclick="likePost(${i}, 'external')">
                                                         <i class="fa-regular fa-heart"></i> 
                                                     </button>
-                                                    <button type="button" class="btn btn-secondary btn-sm" onclick="postComment('${post.id}')">
+                                                    <button type="button" class="btn btn-secondary btn-sm" onclick="postComment('${post.id}','external')">
                                                         Comment
                                                     </button>
                                                 </div>
