@@ -185,7 +185,7 @@
         const author = post.author;
         const authorID = author.id.split("/").pop();
         const hostname = new URL(author.id).hostname;
-        const url = hostname === "window.location.hostname" ? `/api/authors/${authorID}/inbox/` : `https://${hostname}/api/authors/${authorID}/inbox/`;
+        const url = hostname === window.location.hostname ? `/api/authors/${authorID}/inbox/` : `https://${hostname}/api/authors/${authorID}/inbox/`;
         const data = {
             "@context": "Post Like",
             "summary": "{{ user.username }} Likes your post",
