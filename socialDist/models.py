@@ -21,8 +21,9 @@
 # SOFTWARE.
 
 from django.db import models
-from django.contrib.auth.models import User
+from django.contrib.auth.models import AbstractUser
 import hashlib
+from uuid import uuid4
 
 # Added array field to handle categories in post
 # https://stackoverflow.com/questions/4294039/how-can-i-store-an-array-of-strings-in-a-django-model
@@ -37,6 +38,11 @@ from django.contrib.postgres.fields import ArrayField
 # https://stackoverflow.com/questions/2201598/how-to-define-two-fields-unique-as-coupl
 
 
+
+# https://stackoverflow.com/questions/59300041/how-can-i-change-user-id-in-django
+class User2(AbstractUser):
+    def uuidGenerator(): return str(uuid4())
+    id = models.CharField(primary_key=True, default=uuidGenerator, editable=False, max_length=36)
 # Changes towards Author (02/28)
 # - Added authorId, displayName
 # - Commented/ (later will delete): isServerAdmin, isAuthenticated
@@ -44,7 +50,7 @@ from django.contrib.postgres.fields import ArrayField
 # Current foreignkey fields: inServer, isFriendWith (nore sure to keep or not)
 class Author(models.Model):
     # user: one to one field 
-    user = models.OneToOneField(User, on_delete=models.CASCADE, null=True)
+    user = models.OneToOneField(User2, on_delete=models.CASCADE, null=True)
     # authorID: ID of the author
     id=models.CharField(primary_key=True, max_length=200)
     host=models.CharField(max_length=200)

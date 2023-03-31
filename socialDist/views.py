@@ -44,14 +44,15 @@ from rest_framework.decorators import permission_classes, authentication_classes
 from django.http import QueryDict
 from rest_framework import status
 from django.utils.crypto import get_random_string
-from django.contrib.auth.models import User
+# from django.contrib.auth.models import User
+from .models import User2
 from django.forms.models import model_to_dict
 from .serializers import AuthorSerializer, PostSerializer, CommentSerializer, LikeSerializer, ServerSerializer, InboxSerializer, FollowRequestSerializer
 import urllib.parse
 # from itertools import chain
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
-import uuid
+from uuid import uuid4
 
 # TODO: we need to support the following operations to connect with other nodes!
 # What is said below appiles to local node elements too!
@@ -209,20 +210,19 @@ class APIListAuthors(APIView):
         email = request.data.get("email", "") # if email is not provided, set it to empty string
         password = request.data["password1"]
         try:
-            user = User.objects.create_user(username, email, password)
-            # Generate a UUID
-            UUID=uuid.uuid4()
+            user = User2.objects.create_user(username, email, password)
             author = Author.objects.create(
                 user=user,
                 # id=HOST+"authors/" + str(user.pk),
-                id=HOST+"authors/"+str(UUID),
+                id=HOST+"authors/"+user.id,
                 host=HOST,
                 displayName=username,
                 github="",
                 profileImage="",
             )
             inbox = Inbox.objects.create(
-                inboxID=HOST+"authors/"+str(user.pk)+"/inbox",
+                # user.id == user.pk >>> True, you can use either
+                inboxID=HOST+"authors/"+ user.id +"/inbox", 
                 author=author
             )
             return Response(status=201)
@@ -403,7 +403,7 @@ class APIListPosts(APIView):
 
             # NEW start
             # generate new UUID
-            UUID=uuid.uuid4()
+            UUID=uuid4()
             post_id=str(UUID)
             # NEW end
 
@@ -558,7 +558,7 @@ class APIListComments(APIView):
 
             # NEW start
             # Generate a UUID
-            UUID=uuid.uuid4()
+            UUID=uuid4()
             comment_id=str(UUID)
             # NEW end
             
@@ -920,7 +920,7 @@ class APIInbox(APIView):
 
                 # New start
                 # Generate a UUID
-                UUID=uuid.uuid4()
+                UUID=uuid4()
                 like_id=str(UUID)
                 # New end
 

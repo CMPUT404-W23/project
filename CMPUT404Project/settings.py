@@ -178,9 +178,9 @@ CORS_ALLOWED_ORIGINS = [
 # Team 17
 "https://social-distribution-w23-t17.herokuapp.com", 
 # Team 4
-"https://www.distribution.social"
+"https://www.distribution.social",
 # Team 6
-"https://cmput404-group6-instatonne.herokuapp.com"    
+"https://cmput404-group6-instatonne.herokuapp.com",
 ]
 
 # Static files (CSS, JavaScript, Images)
@@ -192,6 +192,8 @@ DEFAULT_AUTO_FIELD='django.db.models.AutoField'
 
 LOGIN_REDIRECT_URL = "/"
 LOGOUT_REDIRECT_URL = "/accounts/login"
+
+AUTH_USER_MODEL = 'socialDist.User2'
 
 # SWAGGER_SETTINGS={
 #     "is_superuser":True,
