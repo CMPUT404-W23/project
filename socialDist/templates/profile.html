@@ -184,7 +184,8 @@
         const post = inboxData[i]; // we got a list of all inbox items from fetch; like button passes the index of which post to like
         const author = post.author;
         const authorID = author.id.split("/").pop();
-        const url = `/api/authors/${authorID}/inbox/`
+        const hostname = new URL(author.id).hostname;
+        const url = hostname === window.location.hostname ? `/api/authors/${authorID}/inbox/` : `https://${hostname}/api/authors/${authorID}/inbox/`;
         const data = {
             "@context": "Post Like",
             "summary": "{{ user.username }} Likes your post",
