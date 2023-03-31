@@ -69,6 +69,7 @@
         const comment = commentsList[i];
         const authorID = comment.author.id.split("/").pop();
         let authorization = "Token 516e5c3d636f46228edb8f09b9613d5b4b166816";
+        const url = `/api/authors/${authorID}/inbox/`
         const data = {
             "@context": "Comment Like",
             "summary": "{{ user.username }} Likes your comment",
