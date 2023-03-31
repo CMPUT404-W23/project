@@ -187,11 +187,14 @@
         const author = post.author;
         const authorID = author.id.split("/").pop();
         const hostname = new URL(author.id).hostname;
-        const url = hostname === window.location.hostname ? `/api/authors/${authorID}/inbox/` : `https://${hostname}/api/authors/${authorID}/inbox/`;
+        let url = hostname === window.location.hostname ? `/api/authors/${authorID}/inbox/` : `https://${hostname}/api/authors/${authorID}/inbox/`;
+        if (hostname === "https://social-distribution-w23-t17.herokuapp.com") {
+            url = `https://${hostname}/authors/${authorID}/inbox/`;
+        }
         let authorization = "Token 516e5c3d636f46228edb8f09b9613d5b4b166816";
         if (hostname != window.location.hostname) {
             const remoteConnection = listOfConnections.find(connection => connection.hostName === hostname);
-            authorization = connection.apiCreds
+            authorization = remoteConnection.apiCreds
         }
         const data = {
             "@context": "Post Like",
@@ -206,7 +209,7 @@
             headers: {
                 "Content-Type": "application/json",
                 "X-CSRFToken": "{{ csrf_token }}",
-                "Authorization": "Token 516e5c3d636f46228edb8f09b9613d5b4b166816"
+                "Authorization": authorization,
             },
             body: JSON.stringify(data),
         });
@@ -239,14 +242,23 @@
         const post = inboxData[i];
         const author = post.author;
         const authorID = author.id.split("/").pop();
-        const url = `/api/authors/${authorID}/posts/${post.id.split('/').pop()}/likes/`
+        const hostname = new URL(author.id).hostname;
+        let url = hostname === window.location.hostname ? `/api/authors/${authorID}/posts/${post.id.split('/').pop()}/likes/` : `https://${hostname}/api/authors/${authorID}/posts/${post.id.split('/').pop()}/likes/`;
+        if (hostname === "https://social-distribution-w23-t17.herokuapp.com") {
+            url = `https://${hostname}/authors/${authorID}/posts/${post.id.split('/').pop()}/likes/`;
+        }
+        let authorization = "Token 516e5c3d636f46228edb8f09b9613d5b4b166816";
+        if (hostname != window.location.hostname) {
+            const remoteConnection = listOfConnections.find(connection => connection.hostName === hostname);
+            authorization = remoteConnection.apiCreds
+        }
         // GET all likes for the post
         const response = await fetch(url, {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",
                 "X-CSRFToken": "{{ csrf_token }}",
-                "Authorization": "Token 516e5c3d636f46228edb8f09b9613d5b4b166816"
+                "Authorization": authorization,
             },
         }).then(response => response.json())
             .then(data => {
