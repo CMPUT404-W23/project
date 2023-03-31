@@ -32,6 +32,35 @@
         url = new URL(id)
         window.location.href = url.pathname + "/edit/"
     }
+    async function getComment(author_id, post_id) {
+        const url = `/api/authors/${author_id}/posts/${post_id}/comments/`
+        const response = await fetch(url, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": "{{ csrf_token }}",
+                "Authorization": "Token 516e5c3d636f46228edb8f09b9613d5b4b166816"
+            },
+        }).then(response => response.json())
+            .then(data => {
+                console.log(data)
+                for (const x of data.items){
+                    
+                    comment_html = 
+                    `<h6 class="card-text" > 
+                        <b class="ml-5">${x.author.displayName}</b> ${x.content} 
+                        <button id="likebutton"type="button" type="button" class="btn btn-light btn-sm ml-20">
+                            <i class="fa-regular fa-heart"></i>
+                        </button>
+                    </h6>`
+                    document.getElementById(`comment-${post_id}`).innerHTML += comment_html 
+                }
+            });
+    }
+    function postComment(id) {
+        url = new URL(id)
+        window.location.href = url.pathname + "/comments/"
+    }
     var current_author = JSON.parse('{{current_author|escapejs}}');
     let posts;
     // GET all public posts and display them
@@ -75,6 +104,9 @@
                                     ${content}
                                     <button type="button" class="btn btn-secondary btn-sm" id="like-btn-${index}" onclick="likePost(${index})">
                                         <i class="fa-regular fa-heart"></i>
+                                    </button>
+                                    <button type="button" class="btn btn-secondary btn-sm" onclick="postComment('${post.id}')">
+                                    Comment
                                     </button>`
                 if (author_id == "{{user.id}}") {
                     display_posts += `
@@ -88,6 +120,10 @@
                                     
                 }
                 isLiked(index); // check if post is liked by user
+                getComment(author_id,post_id)
+                likedby = `<h6 class="card-text my-3" id="liked-${post_id}"> Liked by <b>"random user"</b> and <b>"likes count"</b> others </h6> `
+                comment = `<div id="comment-${post_id}"></div>`
+                display_posts += likedby + comment
                 return (display_posts + '</div></div>')
             }).join('');
         })
@@ -227,6 +263,9 @@
                                                     ${content}
                                                     <button type="button" class="btn btn-secondary btn-sm">
                                                         <i class="fa-regular fa-heart"></i> 
+                                                    </button>
+                                                    <button type="button" class="btn btn-secondary btn-sm" onclick="postComment('${post.id}')">
+                                                        Comment
                                                     </button>
                                                 </div>
                                             </div>
