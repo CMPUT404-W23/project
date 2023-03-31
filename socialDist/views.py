@@ -898,7 +898,7 @@ class APIInbox(APIView):
                 if not new_post_serial.is_valid():
                     return Response(status=400, data=new_post_serial.errors)
                 new_post_serial.save()
-                post = Post.objects.get(pk=request.data["post"]["id"])
+                post = Post.objects.get(pk=request.data["id"])
             inbox.posts.add(post)
             return Response(status=200)
         

@@ -82,11 +82,12 @@
               author_relative_path = author_relative_path.replace("/api","");
               author_relative_path = author_relative_path.replace("/main","");
               try {
+                var response;
                 if (connection.apiCreds === "") {
-                  const response = await fetch(connection.apiAddress + author_relative_path + "followers/" + sender.id +"/");
+                  response = await fetch(connection.apiAddress + author_relative_path + "followers/" + sender.id +"/");
                 }
                 else {
-                  const response = await fetch(connection.apiAddress + author_relative_path + "followers/" + sender.id +"/", {
+                  response = await fetch(connection.apiAddress + author_relative_path + "followers/" + sender.id +"/", {
                     headers: {
                         "Authorization": connection.apiCreds
                     }
@@ -187,7 +188,7 @@
                     },
                     body: JSON.stringify(data),
                 })
-                if (response.status == 200 || response.status == 201) {
+                if (response.status == 200 || response.status == 201 || response.status == 203) {
                    document.getElementById(id).innerText = "Request sent!";
                 }
                 break;
