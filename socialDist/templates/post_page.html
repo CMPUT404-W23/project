@@ -92,7 +92,7 @@
                                 <button type="button" class="btn btn-secondary btn-sm" onclick="postComment('${post.id}')">
                                     Comment
                                 </button>`
-            if (author_id == "{{user.id}}") {
+            if (author_id == current_author.id) {
                 display_post += `
                             <button type="button" class="btn btn-secondary btn-sm" onclick="editPost('${post.id}')">
                                 Edit
@@ -156,7 +156,7 @@
         }).then(response => response.json())
             .then(data => {
                 for (like of data.items) {
-                    if (like.author.id.split('/').pop() == "{{user.id}}") {
+                    if (like.author.id = current_author.id) {
                         document.getElementById('like-btn').innerHTML = '<i class="fa-solid fa-heart"></i>';
                         document.getElementById('like-btn').disabled = true;
                     }

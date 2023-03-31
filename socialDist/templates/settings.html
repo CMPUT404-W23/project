@@ -111,10 +111,11 @@
       displayAlert("alert-danger", "Please fill out all fields.");
       return;
     }
-
+    let author_url = new URL("{{author.id}}")
+    let author_relative_path = author_url.pathname
     httpRequest.open(
       "POST",
-      "/api/authors/{{ user.id }}/"
+      "/api" + author_relative_path + "/"
     );
     httpRequest.setRequestHeader("X-CSRFToken", "{{ csrf_token }}");
     httpRequest.setRequestHeader("Content-Type", "application/json");
