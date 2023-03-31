@@ -25,6 +25,7 @@
 from .serializers import AuthorSerializer
 from .models import Comment, Author, Like
 from functools import reduce
+import urllib.parse
 
 # Constructs an author JSON object to be returned by the API
 # Parameters:
@@ -310,3 +311,7 @@ def is_follower(actor, target):
         return True
     except:
         return False
+    
+def extract_UUID(author_id):
+    path_name = urllib.parse.urlparse(author_id).path
+    return path_name.split("/")[-1]
