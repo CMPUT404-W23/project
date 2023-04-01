@@ -96,10 +96,14 @@
                     }
                 });
                 }
-                if (connection.hostName == "https://social-t30.herokuapp.com" 
-                && response.status == 200 
-                && response.exists == "true") {
+                if (connection.hostName == "https://social-t30.herokuapp.com") {
+                  if  (response.status == 200 
+                  && response.exists == "true") {
                    return true;
+                  }
+                  else {
+                    return false;
+                  }
                 }
                 if (response.status == 200) {
                    return true;
