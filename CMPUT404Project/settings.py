@@ -175,6 +175,7 @@ CORS_ALLOWED_ORIGINS = [
 "https://ultimate-teapot.herokuapp.com",
 # Team 18
 "https://distributed-social-net.herokuapp.com",
+"https://localhost:3000",
 # Team 17
 "https://social-distribution-w23-t17.herokuapp.com", 
 # Team 4
