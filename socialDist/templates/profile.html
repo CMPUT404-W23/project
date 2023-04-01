@@ -194,7 +194,7 @@
         const hostname = new URL(author.id).hostname;
         let url = hostname === window.location.hostname ? `/api/authors/${authorID}/inbox/` : `https://${hostname}/api/authors/${authorID}/inbox/`;
         if ("https://" + hostname === "https://social-distribution-w23-t17.herokuapp.com") {
-            url = `https://${hostname}/authors/${authorURL}}/inbox/`;
+            url = `https://${hostname}/authors/${authorURL}/inbox/`;
         }
         let authorization = "Token 516e5c3d636f46228edb8f09b9613d5b4b166816";
         if (hostname != window.location.hostname) {
