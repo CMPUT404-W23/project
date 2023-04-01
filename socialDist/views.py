@@ -1001,7 +1001,11 @@ class APIInbox(APIView):
             try:
                 comment = Comment.objects.get(pk=request.data["id"])
             except Comment.DoesNotExist:
-                return Response(status=404)
+                comment_serial = CommentSerializer(data=request.data, partial=True)
+                if not comment_serial.is_valid():
+                    return Response(status=400, data=new_author_serial.errors)
+                comment_serial.save()
+                comment = Comment.objects.get(pk=request.data["id"])
             inbox.comments.add(comment)
             return Response(status=200)
             
