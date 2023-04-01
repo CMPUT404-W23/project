@@ -125,17 +125,34 @@
         if (hostname === "https://social-distribution-w23-t17.herokuapp.com"){
             url = `${hostname}/authors/${authorURL}/inbox/`;
         }
+        if (hostname === "https://social-distribution-media.herokuapp.com") {
+            url = `${hostname}/authors/${authorID}/inbox`;
+        }
         let authorization = "Token 516e5c3d636f46228edb8f09b9613d5b4b166816";
         if (type === "external") {
             const remoteConnection = listOfConnections.find(connection => connection.hostName === hostname);
             authorization = remoteConnection.apiCreds;
         }
-        const data = {
+        let data = {
             "@context": "Post Like",
             "summary": "{{ user.username }} Likes your post",
             "type": "Like",
             "author": current_author,
             "object": post.id
+        }
+        if (hostname == "https://social-distribution-media.herokuapp.com") {
+            data = {
+                "@context": "Post Like",
+                "summary": "{{ user.username }} Likes your post",
+                "type": "like",
+                "author": current_author,
+                "object": {
+                    "type": "like",
+                    "summary": "{{ user.username }} Likes your post",
+                    "author": current_author,
+                    "object": post.id
+                }
+            };
         }
         // POST a like object to the author's inbox
         const response = await fetch(url, {
@@ -168,6 +185,9 @@
         let url = `${hostname}/api/authors/${authorID}/posts/${post.id.split('/').pop()}/likes/`;
         if (hostname === "https://social-distribution-w23-t17.herokuapp.com"){
             url = `${hostname}/authors/${authorURL}/posts/${postURL}/likes/`;
+        }
+        if (hostname === "https://social-distribution-media.herokuapp.com") {
+            url = `${hostname}/authors/${authorID}/posts/${post.id.split('/').pop()}/likes`
         }
         let authorization = "Token 516e5c3d636f46228edb8f09b9613d5b4b166816";
         if (type === "external") {
@@ -210,15 +230,19 @@
             try {
                 let returnedData;
                 let queryString = "";
+                let authorsPath = "/authors/"
                 if (connection.hostName == "https://social-distribution-w23-t17.herokuapp.com") {
-                queryString = "?page=1&size=1000"
+                    queryString = "?page=1&size=1000";  
+                }
+                if (connection.hostName == "https://social-distribution-media.herokuapp.com") {
+                    authorsPath = "/authors";
                 }
                 if (connection.apiCreds === "") {
-                    returnedData = await fetch(connection.apiAddress + "/authors/" + queryString, 
+                    returnedData = await fetch(connection.apiAddress + authorsPath + queryString, 
                     {headers: new Headers({"Accept": "application/json"})});
                 }
                 else {
-                    returnedData = await fetch(connection.apiAddress + "/authors/" + queryString,
+                    returnedData = await fetch(connection.apiAddress + authorsPath + queryString,
                         { headers: new Headers({ "Authorization": connection.apiCreds, 
                         "Accept": "application/json"}) });
                 }
@@ -232,18 +256,22 @@
                     try {
                         let data_url = new URL(data.id);
                         let data_path = data_url.pathname;
-                        let index = data_path.search("/api")
+                        let index = data_path.search("/api");
+                        let posts_path = "/posts/"
                         if (index != -1) {
                             data_path = data_path.substring(index + 4)
                         }
                         let posts_response;
+                        if (connection.hostName == "https://social-distribution-media.herokuapp.com") {
+                            posts_path = "/posts"
+                        }
                         if (connection.hostName == "https://social-distribution-w23-t17.herokuapp.com") {
-                            posts_response = await fetch(connection.apiAddress + "/authors/" + data.id + "/posts/",
+                            posts_response = await fetch(connection.apiAddress + "/authors/" + data.id + posts_path,
                             { headers: new Headers({ "Authorization": connection.apiCreds,
                             "Accept": "application/json", }) });
                         }
                         else {
-                            posts_response = await fetch(connection.apiAddress + data_path + "/posts/",
+                            posts_response = await fetch(connection.apiAddress + data_path + posts_path,
                             { headers: new Headers({ "Authorization": connection.apiCreds,
                             "Accept": "application/json", }) });
                         }

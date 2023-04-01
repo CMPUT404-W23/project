@@ -27,14 +27,19 @@
         try {
             let returnedData;
             let queryString = "";
+            let authorsPath = "/authors/";
             if (connection.hostName == "https://social-distribution-w23-t17.herokuapp.com") {
-                queryString = "?page=1&size=1000"
+                queryString = "?page=1&size=1000";
+            }
+            if (connection.hostName == "https://social-distribution-media.herokuapp.com") {
+              authorsPath = "/authors";
+              queryString = "?page=1&size=1000";
             }
             if (connection.apiCreds === "") {
-                returnedData = await fetch(connection.apiAddress + "/authors/" + queryString);
+                returnedData = await fetch(connection.apiAddress + authorsPath + queryString);
             }
             else {
-                returnedData = await fetch(connection.apiAddress + "/authors/" + queryString, 
+                returnedData = await fetch(connection.apiAddress + authorsPath + queryString, 
                                             {headers: new Headers({"Authorization": connection.apiCreds })});
             }
             let returnedDatatext = await returnedData.text();
@@ -83,14 +88,18 @@
               author_relative_path = author_relative_path.replace("/main","");
               try {
                 var response;
+                var trailer = "/";
                 if (connection.hostName == "https://social-distribution-w23-t17.herokuapp.com") {
-                    author_relative_path = "/" + id + "/";
+                    author_relative_path = "/authors/" + id + "/";
+                }
+                if (connection.hostName == "https://social-distribution-media.herokuapp.com") {
+                    trailer = "";
                 }
                 if (connection.apiCreds === "") {
-                  response = await fetch(connection.apiAddress + author_relative_path + "followers/" + sender.id +"/");
+                  response = await fetch(connection.apiAddress + author_relative_path + "followers/" + sender.id + trailer);
                 }
                 else {
-                  response = await fetch(connection.apiAddress + author_relative_path + "followers/" + sender.id +"/", {
+                  response = await fetch(connection.apiAddress + author_relative_path + "followers/" + sender.id + trailer, {
                     headers: {
                         "Authorization": connection.apiCreds
                     }
@@ -161,7 +170,20 @@
                 author_relative_path = author_relative_path.replace("/main","");
                 console.log(connection.hostName);
                 var response;
-                if (connection.hostName == "https://social-distribution-w23-t17.herokuapp.com") {
+                if (connection.hostname == "https://social-distribution-media.herokuapp.com") {
+                    data["@context"] = "follow request";
+                    response = await fetch(connection.apiAddress + "/authors/" + id + "/inbox", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRFToken": "{{ csrf_token }}",
+                        "Authorization": connection.apiCreds,
+                        "Referer": connection.hostName
+                    },
+                    body: JSON.stringify(data),
+                })
+                }
+                else if (connection.hostName == "https://social-distribution-w23-t17.herokuapp.com") {
                   response = await fetch(connection.apiAddress + "/authors/" + id + "/inbox/", {
                     method: "POST",
                     headers: {
