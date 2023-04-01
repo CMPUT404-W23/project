@@ -16,7 +16,7 @@ body {
 
 /* Relocate buttons */
 .btn.btn-danger.btn-sm {
-  margin-left: 2.5em;
+  margin-left: 2em;
 }
 
 /* If we have time, let's try make navbar fixed */
@@ -27,7 +27,8 @@ body {
 }
 /* Delete button hover */
 .btn.btn-danger.btn-sm:hover {
-  color: #B22222;
+  color: #FFFFE0;
+
 }
 
 
