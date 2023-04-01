@@ -27,8 +27,12 @@
         try {
             let returnedData;
             let queryString = "";
+            let authorsPath = "/authors/";
             if (connection.hostName == "https://social-distribution-w23-t17.herokuapp.com") {
                 queryString = "?page=1&size=1000"
+            }
+            if (connection.hostName == "https://social-distribution-media.herokuapp.com") {
+              authorsPath = "/authors"
             }
             if (connection.apiCreds === "") {
                 returnedData = await fetch(connection.apiAddress + "/authors/" + queryString);
@@ -85,7 +89,7 @@
                 var response;
                 var trailer = "/";
                 if (connection.hostName == "https://social-distribution-w23-t17.herokuapp.com") {
-                    author_relative_path = "/" + id + "/";
+                    author_relative_path = "/authors/" + id + "/";
                 }
                 if (connection.hostName == "https://social-distribution-media.herokuapp.com") {
                     trailer = "";
