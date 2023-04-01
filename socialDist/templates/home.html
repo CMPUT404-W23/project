@@ -189,6 +189,7 @@
 
     async function fetchExternalPosts() {
         var listOfConnections = JSON.parse('{{connections|escapejs}}');
+        let i = 0;
         // fetch foreign posts and render
         //Source: https://stackoverflow.com/questions/43305020/how-to-use-the-context-variables-passed-from-django-in-javascript
         for (connection of listOfConnections) {
@@ -212,7 +213,6 @@
                 if (returnedDataList.items.length == 0) {
                     continue
                 }
-                let i = 0;
                 for (data of returnedDataList.items) {
                     // https://dmitripavlutin.com/parse-url-javascript/
                     try {
