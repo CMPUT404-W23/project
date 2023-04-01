@@ -172,6 +172,7 @@
                 var response;
                 if (connection.hostName == "https://social-distribution-media.herokuapp.com") {
                     data["@context"] = "follow request";
+                    data["type"] = "follow";
                     response = await fetch(connection.apiAddress + author_relative_path + "inbox", {
                     method: "POST",
                     headers: {
