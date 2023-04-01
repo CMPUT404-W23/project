@@ -148,10 +148,11 @@
         const post = source[i];
         const authorURL = post.author.id;
         const authorID = post.author.id.split("/").pop();
+        const postURL = post.id;
         const hostname = type === "external" ? "https://" + new URL(post.author.id).hostname : "";
         let url = `${hostname}/api/authors/${authorID}/posts/${post.id.split('/').pop()}/likes/`;
         if (hostname === "https://social-distribution-w23-t17.herokuapp.com"){
-            url = `${hostname}/authors/${authorURL}/posts/${post.id.split('/').pop()}/likes/`;
+            url = `${hostname}/authors/${authorURL}/posts/${postURL}/likes/`;
         }
         let authorization = "Token 516e5c3d636f46228edb8f09b9613d5b4b166816";
         if (type === "external") {
