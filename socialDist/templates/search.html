@@ -83,14 +83,18 @@
               author_relative_path = author_relative_path.replace("/main","");
               try {
                 var response;
+                var trailer = "/";
                 if (connection.hostName == "https://social-distribution-w23-t17.herokuapp.com") {
                     author_relative_path = "/" + id + "/";
                 }
+                if (connection.hostName == "https://social-distribution-media.herokuapp.com") {
+                    trailer = "";
+                }
                 if (connection.apiCreds === "") {
-                  response = await fetch(connection.apiAddress + author_relative_path + "followers/" + sender.id +"/");
+                  response = await fetch(connection.apiAddress + author_relative_path + "followers/" + sender.id + trailer);
                 }
                 else {
-                  response = await fetch(connection.apiAddress + author_relative_path + "followers/" + sender.id +"/", {
+                  response = await fetch(connection.apiAddress + author_relative_path + "followers/" + sender.id + trailer, {
                     headers: {
                         "Authorization": connection.apiCreds
                     }
@@ -154,9 +158,6 @@
           "actor": sender,
           "object": authorList[target]
         };
-        if (hostname == "https://social-distribution-media.herokuapp.com") {
-          data["@context"] = "follow request";
-        }
         console.log(data);
         for (connection of connections) {
             if ("https://" + url.hostname == connection.hostName) {
@@ -164,7 +165,20 @@
                 author_relative_path = author_relative_path.replace("/main","");
                 console.log(connection.hostName);
                 var response;
-                if (connection.hostName == "https://social-distribution-w23-t17.herokuapp.com") {
+                if (connection.hostname == "https://social-distribution-media.herokuapp.com") {
+                    data["@context"] = "follow request";
+                    response = await fetch(connection.apiAddress + "/authors/" + id + "/inbox", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRFToken": "{{ csrf_token }}",
+                        "Authorization": connection.apiCreds,
+                        "Referer": connection.hostName
+                    },
+                    body: JSON.stringify(data),
+                })
+                }
+                else if (connection.hostName == "https://social-distribution-w23-t17.herokuapp.com") {
                   response = await fetch(connection.apiAddress + "/authors/" + id + "/inbox/", {
                     method: "POST",
                     headers: {

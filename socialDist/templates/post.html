@@ -237,6 +237,7 @@
                         "author": data.author,
                         "object":data
                     }
+                    inbox_url = connection.apiAddress + author_relative_path + "inbox";
                 }
                 fetch(inbox_url, {
                     method: "POST",
