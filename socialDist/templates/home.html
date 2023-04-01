@@ -170,7 +170,7 @@
         }).then(response => response.json())
             .then(data => {
                 for (like of data.items) {
-                    if (like.author.id == current_author.id) {
+                    if (like.author.url == current_author.id) {
                         document.getElementById(`like-btn-${i}`).innerHTML = `<i class="fa-solid fa-heart"></i>`;
                         document.getElementById(`like-btn-${i}`).disabled = true;
                     }
