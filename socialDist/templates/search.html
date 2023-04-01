@@ -29,10 +29,11 @@
             let queryString = "";
             let authorsPath = "/authors/";
             if (connection.hostName == "https://social-distribution-w23-t17.herokuapp.com") {
-                queryString = "?page=1&size=1000"
+                queryString = "?page=1&size=1000";
             }
             if (connection.hostName == "https://social-distribution-media.herokuapp.com") {
-              authorsPath = "/authors"
+              authorsPath = "/authors";
+              queryString = "?page=1&size=1000";
             }
             if (connection.apiCreds === "") {
                 returnedData = await fetch(connection.apiAddress + authorsPath + queryString);
