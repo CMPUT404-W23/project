@@ -322,9 +322,9 @@
                                 var htmlElement = htmlToElement(`
                                             <div class="card my-3">
                                                 <div class="card-body">
-                                                    <h4 class="card-title"><a href="${post_relative_path}">${post.title}</a></h4>
+                                                    <h4 class="card-title"><a href="${post.id}">${post.title}</a></h4>
                                                     <br>
-                                                    <h5 class="card-subtitle mb-2 text-muted">Author: <a href="${author_relative_path}">${post.author.displayName}</a></h5>
+                                                    <h5 class="card-subtitle mb-2 text-muted">Author: <a href="${post.author.url}">${post.author.displayName}</a></h5>
                                                     <h5 class="card-subtitle mb-2 text-muted">${post.description}</h5>
                                                     <span class="badge bg-secondary">${post.categories}</span>
                                                     <br><br><br>
