@@ -99,6 +99,7 @@
             for (let item of data.items) {
                 if (item.type === "post") {
                     let content;
+                    let editAndDeleteButtons = "";
                     if (item.contentType.startsWith("image")) {
                         content = `<img class="img-fluid mx-auto d-block" style="max-width: 50%" src="data:${item.contentType}, ${item.content}"/><br>`;
                     } else if (item.contentType === "text/markdown") {
@@ -107,6 +108,14 @@
                         content = `<p class="card-text">${marked.parse(item.content)}</p>`;
                     } else {
                         content = `<p class="card-text">${item.content}</p>`;
+                    }
+                    if (item.author.id == current_author.id && item.visibility == "VISIBLE") {
+                        editAndDeleteButtons = `<button type="button" class="btn btn-secondary btn-sm" onclick="editPost('${item.id}')">
+                                    Edit
+                                    </button>
+                                    <button type="button" class="btn btn-danger btn-sm" onclick="deletePost('${item.id}')">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </button>`
                     }
                     var htmlElement = htmlToElement(`
                 <div class="card my-3">
@@ -118,6 +127,7 @@
                         <button type="button" class="btn btn-secondary btn-sm" id="like-btn-${index}" onclick="likePost(${index})">
                             <i class="fa-regular fa-heart"></i>  
                         </button>
+                        ${editAndDeleteButtons}
                     </div>
                 </div>
                 `);
@@ -309,6 +319,20 @@
                     }
                 }
             });
+    }
+    
+    function editPost(id) {
+            url = new URL(id)
+            window.location.href = url.pathname + "/edit/"
+    }
+
+    function deletePost(id) {
+        // DELETE a post
+        url = new URL(id)
+        fetch_url = "/api" + url.pathname + "/"
+        fetch(fetch_url, { headers: new Headers({ "X-CSRFToken": "{{ csrf_token }}", "Authorization": "Token 516e5c3d636f46228edb8f09b9613d5b4b166816" }), method: 'DELETE' })
+            .then((response) => response.status())
+            .then(window.location.reload())
     }
 </script>
 {% endif %}
