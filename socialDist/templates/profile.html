@@ -218,7 +218,7 @@
             },
             body: JSON.stringify(data),
         });
-        if (response.status == 200) {
+        if (response.status == 200 || response.status == 201 || response.status == 202) {
             document.getElementById(`like-btn-${i}`).innerHTML = `<i class="fa-solid fa-heart"></i>`;
             document.getElementById(`like-btn-${i}`).disabled = true;
         } else {
