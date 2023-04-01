@@ -13,14 +13,24 @@ body {
 /* specific elements */
 
 /* For Alex Testing */
+
+/* Relocate buttons */
+.btn.btn-danger.btn-sm {
+  margin-left: 2.5em;
+}
+
+/* If we have time, let's try make navbar fixed */
+
 /* Like and edit Button Hover when*/
 .btn.btn-secondary.btn-sm:hover{
   color: #F08080;
 }
 /* Delete button hover */
 .btn.btn-danger.btn-sm:hover {
-  color: red;
+  color: #B22222;
 }
+
+
 
 /* editing post content */
 .card-subtitle.mb-2.text-muted, .post-content, .btn.btn-secondary.btn-sm{
