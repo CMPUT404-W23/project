@@ -893,6 +893,9 @@ class APIInbox(APIView):
                         return Response(status=400, data=new_author_serial.errors)
                     new_author_serial.save()
                 postDict = dict(request.data)
+                # Source: https://www.programiz.com/python-programming/methods/string/join
+                if type(postDict["categories"]) is list:
+                        postDict["categories"] = ' '.join(postDict["categories"])
                 postDict["author"] = request.data["author"]["id"]
                 new_post_serial = PostSerializer(data=postDict, partial=True)
                 if not new_post_serial.is_valid():
