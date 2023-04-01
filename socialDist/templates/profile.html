@@ -16,15 +16,15 @@
         {% for follower in follower_list %}
         <div class="card my-3">
             <div class="card-body">
-               <p>{{follower.user_id.displayName}} 
-                <span>
-                    {% if isOwner %}
-                    <button class="btn btn-dark" onclick="deleteFollower('{{follower.user_id.id}}')">
-                        Remove follower
-                    </button>
-                    {% endif %}
-                </span>
-            </p>
+                <p>{{follower.user_id.displayName}}
+                    <span>
+                        {% if isOwner %}
+                        <button class="btn btn-dark" onclick="deleteFollower('{{follower.user_id.id}}')">
+                            Remove follower
+                        </button>
+                        {% endif %}
+                    </span>
+                </p>
             </div>
         </div>
         {% endfor %}
@@ -35,9 +35,11 @@
         <div class="card my-3">
             <div class="card-body">
                 {{following.following_user_id.displayName}}
+            </div>
         </div>
         {% endfor %}
     </div>
+
     <h6>Friends</h6>
     <div class="grid">
         {% for following in following_list %}
@@ -320,10 +322,10 @@
                 }
             });
     }
-    
+
     function editPost(id) {
-            url = new URL(id)
-            window.location.href = url.pathname + "/edit/"
+        url = new URL(id)
+        window.location.href = url.pathname + "/edit/"
     }
 
     function deletePost(id) {
