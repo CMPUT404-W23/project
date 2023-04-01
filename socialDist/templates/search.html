@@ -96,7 +96,12 @@
                     }
                 });
                 }
-                if (response.status == 200 || response.exists == "true") {
+                if (connection.hostName == "https://social-t30.herokuapp.com" 
+                && response.status == 200 
+                && response.exists == "true") {
+                   return true;
+                }
+                if (response.status == 200) {
                    return true;
                 }
                 else {
