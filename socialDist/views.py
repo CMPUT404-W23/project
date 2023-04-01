@@ -1004,6 +1004,7 @@ class APIInbox(APIView):
                 comment_dict = dict(request.data)
                 comment_dict["parentPost"] = request.data["id"].split("/comments")[0]
                 comment_dict["published"] =  datetime.datetime.now().isoformat()
+                comment_dict["author"] = request.data["author"]["id"]
                 comment_serial = CommentSerializer(data=comment_dict, partial=True)
                 if not comment_serial.is_valid():
                     return Response(status=400, data=comment_serial.errors)
