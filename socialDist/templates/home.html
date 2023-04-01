@@ -37,34 +37,67 @@
     }
     // GET and display comments for a post
     let commentsList;
-    async function getComment(author_id, post_id) {
-        const url = `/api/authors/${author_id}/posts/${post_id}/comments/`
-        const response = await fetch(url, {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-                "X-CSRFToken": "{{ csrf_token }}",
-                "Authorization": "Token 516e5c3d636f46228edb8f09b9613d5b4b166816"
-            },
-        }).then(response => response.json())
-            .then(data => {
-                // console.log(data)
-                commentsList = data.items;
-                let index = 0;
-                for (const comment of data.items){
-                    
-                    comment_html = 
-                    `<h6 class="card-text" > 
-                        <b class="ml-5">${comment.author.displayName}</b> ${comment.content} 
-                        <button id="like-comment-${index}" type="button" class="btn btn-light btn-sm ml-20" onclick="likeComment(${index})">
-                            <i class="fa-regular fa-heart"></i>
-                        </button>
-                    </h6>`
-                    document.getElementById(`comment-${post_id}`).innerHTML += comment_html 
-                    isCommentLiked(index);
-                    index += 1;
-                }
-            });
+    async function getComment(author_id, post_id,host_name,type) {
+        if (type == 'internal'){
+            const url = `/api/authors/${author_id}/posts/${post_id}/comments/`
+            const response = await fetch(url, {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": "{{ csrf_token }}",
+                    "Authorization": "Token 516e5c3d636f46228edb8f09b9613d5b4b166816"
+                },
+            }).then(response => response.json())
+                .then(data => {
+                    commentsList = data.items;
+                    let index = 0;
+                    for (const comment of data.items){
+                        
+                        comment_html = 
+                        `<h6 class="card-text" > 
+                            <b class="ml-5">${comment.author.displayName}</b> ${comment.content} 
+                            <button id="like-comment-${index}" type="button" class="btn btn-light btn-sm ml-20" onclick="likeComment(${index})">
+                                <i class="fa-regular fa-heart"></i>
+                            </button>
+                        </h6>`
+                        document.getElementById(`comment-${post_id}`).innerHTML += comment_html 
+                        isCommentLiked(index);
+                        index += 1;
+                    }
+                });
+        } else if (type === 'external'){
+            const hostname = "https://" + "{{hostName}}"
+            const url = `${hostname}/api/authors/${author_id}/posts/${post_id}/comments`
+            const remoteConnection = listOfConnections.find(connection => connection.hostName === hostname);
+            let authorization = remoteConnection.apiCreds;
+            const response = await fetch(url, {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": "{{ csrf_token }}",
+                    "Authorization": authorization
+                },
+            }).then(response => response.json())
+                .then(data => {
+                    // console.log(data)
+                    commentsList = data.items;
+                    let index = 0;
+                    for (const comment of data.items){
+                        
+                        comment_html = 
+                        `<h6 class="card-text" > 
+                            <b class="ml-5">${comment.author.displayName}</b> ${comment.content} 
+                            <button id="like-comment-${index}" type="button" class="btn btn-light btn-sm ml-20" onclick="likeComment(${index})">
+                                <i class="fa-regular fa-heart"></i>
+                            </button>
+                        </h6>`
+                        document.getElementById(`comment-${post_id}`).innerHTML += comment_html 
+                        isCommentLiked(index);
+                        index += 1;
+                    }
+                });
+        }
+        
     }
     async function likeComment(i) {
         // POST a like object to the author's inbox
@@ -98,6 +131,7 @@
     }
     function postComment(post_id,foreignauthor_id,type) {
         if (type === 'internal'){
+            console.log(post_id)
             url = new URL(post_id)
             window.location.href = url.pathname + "/comments/"
         } else if (type === 'external'){
@@ -177,7 +211,7 @@
                                     <button type="button" class="btn btn-secondary btn-sm" id="like-btn-${index}" onclick="likePost(${index}, 'internal')">
                                         <i class="fa-regular fa-heart"></i>
                                     </button>
-                                    <button type="button" class="btn btn-secondary btn-sm" onclick="postComment('${post.id}','${author.id}',internal')">
+                                    <button type="button" class="btn btn-secondary btn-sm" onclick="postComment('${post.id}','${author_id}','internal')">
                                     Comment
                                     </button>`
                 if (post.author.id == current_author.id) {
@@ -190,7 +224,7 @@
                                     </button>
                                     `
                 }
-                getComment(author_id,post_id)
+                getComment(author_id,post_id,'','internal')
                 likedby = `<h6 class="card-text my-3" id="liked-${post_id}"> Liked by <b>"random user"</b> and <b>"likes count"</b> others </h6> `
                 comment = `<div id="comment-${post_id}"></div>`
                 display_posts += likedby + comment
@@ -366,6 +400,9 @@
                                 }
                                 const post_id = post.id.split("/").pop()
                                 const author_id = post.author.id.split("/").pop()
+                                const post_url = new URL(post.id)
+                                const host_name = post_url.hostname
+                                getComment(author_id,post_id,host_name,'internal')
                                 var htmlElement = htmlToElement(`
                                             <div class="card my-3">
                                                 <div class="card-body">
@@ -377,9 +414,11 @@
                                                     <button type="button" class="btn btn-secondary btn-sm" id="like-btn-${i}" onclick="likePost(${i}, 'external')">
                                                         <i class="fa-regular fa-heart"></i> 
                                                     </button>
-                                                    <button type="button" class="btn btn-secondary btn-sm" onclick="postComment('${post_id}','${author_id},'external')">
+                                                    <button type="button" class="btn btn-secondary btn-sm" onclick="postComment(${post_id},${author_id},'external')">
                                                         Comment
                                                     </button>
+                                                    <h6 class="card-text my-3" id="liked-${post_id}"> Liked by <b>"random user"</b> and <b>"likes count"</b> others </h6> 
+                                                    <div id="comment-${post_id}"></div>
                                                 </div>
                                             </div>
                                         `);
