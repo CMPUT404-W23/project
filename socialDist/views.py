@@ -98,7 +98,7 @@ from .models import Author, Post, Comment, Like, Server, Inbox, UserFollowing, F
 from . import api_helper, sample_dicts
 import base64 
 
-HOST = "http://127.0.0.1:8000/"
+HOST = "https://socialdistcmput404.herokuapp.com/"
 
 # Swagger: DONE!!!
 
