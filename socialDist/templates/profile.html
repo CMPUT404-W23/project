@@ -10,7 +10,7 @@
 <div class="container-md mt-2">
     <h1>{{author.displayName}} Profile Page </h1>
     <p>Github: {{author.Github}}</p>
-    <h4>Connections</h4>
+    <h4 class="border-bottom py-2">Connections</h4>
     <h6>Followers: {{follower_list | length}}</h6>
     <div class="grid">
         {% for follower in follower_list %}
@@ -40,34 +40,46 @@
         {% endfor %}
     </div>
 
-    <h6>Friends</h6>
+    <h6>Friends (you follow each other!)</h6>
     <div class="grid">
         {% for following in following_list %}
-            {% for follower in follower_list %}
-                {% if following.following_user_id == follower.user_id %}
-                    <div class="card my-3">
-                        <div class="card-body">
-                            {{following.following_user_id.displayName}}
-                        </div>
-                    </div>
-                {% endif %}
-            {% endfor %}
+        {% for follower in follower_list %}
+        {% if following.following_user_id == follower.user_id %}
+        <div class="card my-3">
+            <div class="card-body">
+                {{following.following_user_id.displayName}}
+            </div>
+        </div>
+        {% endif %}
+        {% endfor %}
         {% endfor %}
     </div>
 
     {% if isOwner %}
     <div class="grid">
-        <h4>Posts</h4>
+        <h4 class="border-bottom py-2">Posts</h4>
         <div class="grid" id="posts">
+            <div class="card my-3" id="placeholder">
+                <div class="card-body"> No posts to show</div>
+            </div>
         </div>
-        <h4>Likes</h4>
+        <h4 class="border-bottom py-2">Likes</h4>
         <div class="grid" id="likes">
+            <div class="card my-3" id="placeholder">
+                <div class="card-body"> No likes to show</div>
+            </div>
         </div>
-        <h4>Comments</h4>
+        <h4 class="border-bottom py-2">Comments</h4>
         <div class="grid" id="comments">
+            <div class="card my-3" id="placeholder">
+                <div class="card-body"> No comments to show</div>
+            </div>
         </div>
-        <h4>Follow Requests</h4>
+        <h4 class="border-bottom py-2">Follow Requests</h4>
         <div class="grid" id="requests">
+            <div class="card my-3" id="placeholder">
+                <div class="card-body"> No follow requests to show</div>
+            </div>
         </div>
     </div>
 </div>
@@ -133,8 +145,11 @@
                     </div>
                 </div>
                 `);
-                    console.log(htmlElement);
-                    document.getElementById("posts").appendChild(htmlElement);
+                    likesSection = document.getElementById("likes");
+                    if (likesSection.children[0].id === "placeholder") {
+                        likesSection.removeChild(likesSection.children[0]);
+                    }
+                    likesSection.appendChild(htmlElement);
                     isLiked(index); // check if post is liked by user
                 }
                 else if (item.type === "comment") {
@@ -159,8 +174,11 @@
                     </div>
                 </div>
                 `);
-                    console.log(htmlElement);
-                    document.getElementById("comments").appendChild(htmlElement);
+                    commentSection = document.getElementById("comments");
+                    if (commentSection.children[0].id === "placeholder") {
+                        commentSection.removeChild(commentSection.children[0]);
+                    }
+                    commentSection.appendChild(htmlElement);
                 }
                 else if (item.type === "Like") {
                     var htmlElement = htmlToElement(`
@@ -171,8 +189,11 @@
                     </div>
                 </div>
                 `);
-                    console.log(htmlElement);
-                    document.getElementById("likes").appendChild(htmlElement);
+                    likesSection = document.getElementById("likes");
+                    if (likesSection.children[0].id === "placeholder") {
+                        likesSection.removeChild(likesSection.children[0]);
+                    }
+                    likesSection.appendChild(htmlElement);
                 }
                 else if (item.type === "Follow") {
                     var htmlElement = htmlToElement(`
@@ -186,8 +207,11 @@
                 `);
                     followReqActors.push(item.actor);
                     followIndex++;
-                    console.log(htmlElement);
-                    document.getElementById("requests").appendChild(htmlElement);
+                    requestsSection = document.getElementById("requests");
+                    if (requestsSection.children[0].id === "placeholder") {
+                        requestsSection.removeChild(requestsSection.children[0]);
+                    }
+                    requestsSection.appendChild(htmlElement);
                 }
                 index += 1;
             }
