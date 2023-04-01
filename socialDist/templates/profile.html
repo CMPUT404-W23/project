@@ -9,22 +9,21 @@
 </head>
 <div class="container-md mt-2">
     <h1>{{author.displayName}} Profile Page </h1>
-    <p>Github: {{author.Github}}</p>
-    <h4>Connections</h4>
+    <p>GitHub: {{author.Github}}</p>
     <h6>Followers: {{follower_list | length}}</h6>
     <div class="grid">
         {% for follower in follower_list %}
         <div class="card my-3">
             <div class="card-body">
-               <p>{{follower.user_id.displayName}} 
-                <span>
-                    {% if isOwner %}
-                    <button class="btn btn-dark" onclick="deleteFollower('{{follower.user_id.id}}')">
-                        Remove follower
-                    </button>
-                    {% endif %}
-                </span>
-            </p>
+                <p>{{follower.user_id.displayName}}
+                    <span>
+                        {% if isOwner %}
+                        <button class="btn btn-dark" onclick="deleteFollower('{{follower.user_id.id}}')">
+                            Remove follower
+                        </button>
+                        {% endif %}
+                    </span>
+                </p>
             </div>
         </div>
         {% endfor %}
@@ -35,9 +34,11 @@
         <div class="card my-3">
             <div class="card-body">
                 {{following.following_user_id.displayName}}
+            </div>
         </div>
         {% endfor %}
     </div>
+
     <h6>Friends</h6>
     <div class="grid">
         {% for following in following_list %}
@@ -148,12 +149,11 @@
                     <div class="card-body">
                         <h6 class="card-subtitle mb-2 text-muted"><a href="${item.author.url}">${item.author.displayName}</a>
                             commented on your <a href="${parentPost}">post</a></h6>
-                        ${content}
-                        <button type="button" class="btn btn-secondary btn-sm" id="likeButton">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-heart" viewBox="0 0 16 16">
-                                <path d="m8 2.748-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385.92 1.815 2.834 3.989 6.286 6.357 3.452-2.368 5.365-4.542 6.286-6.357.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01L8 2.748zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143c.06.055.119.112.176.171a3.12 3.12 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15z"/>
-                            </svg>   
-                        </button>
+                        <div class="card my-3">
+                            <div class="card-body">
+                            ${content}
+                            </div>
+                        </div>
                     </div>
                 </div>
                 `);
@@ -320,10 +320,10 @@
                 }
             });
     }
-    
+
     function editPost(id) {
-            url = new URL(id)
-            window.location.href = url.pathname + "/edit/"
+        url = new URL(id)
+        window.location.href = url.pathname + "/edit/"
     }
 
     function deletePost(id) {
