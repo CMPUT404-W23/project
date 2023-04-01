@@ -70,37 +70,71 @@
                     displayAlert("alert-danger", "Posting comment failed!");
                 }
             } else if (type == 'external'){
-                console.log("{{author}}")
+                console.log("{{foreignauthor_id}}","{{hostName}}")
+                const foreignauthor_id = "{{foreignauthor_id}}"
+                const post_id = "{{post_id}}"
+                const hostname = "https://" + "{{hostName}}"
+                let url = `${hostname}/api/authors/${foreignauthor_id}/posts/${post_id}/comments`;
+                if (hostname === "https://social-distribution-w23-t17.herokuapp.com"){
+                    url = `${hostname}/authors/${foreignauthor_id}/posts/${post_id}/comments`;
+                }
+                let authorization = "Token 516e5c3d636f46228edb8f09b9613d5b4b166816";
+                //Authorization
+                var listOfConnections = JSON.parse('{{connections|escapejs}}');
+                const remoteConnection = listOfConnections.find(connection => connection.hostName === hostname);
+                authorization = remoteConnection.apiCreds;
+                const data = {
+                    "@context": "Post Comment",
+                    "type": "comment",
+                    "author": JSON.parse('{{author|escapejs}}'),
+                    "comment": document.getElementById("Comment").value,
+                    "contentType" : document.getElementById("ContentType").value,
+                }
+                // POST a like object to the author's inbox
+                const response = await fetch(url, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRFToken": "{{ csrf_token }}",
+                        "Authorization": authorization
+                    },
+                    body: JSON.stringify(data),
+                });
+                if (response.status == 200) {
+                    displayAlert("alert-success", "Comment posted successfully!");
+                } else {
+                    displayAlert("alert-danger", "Posting comment failed!");
+                }
             }
             
         }
 
-        async function sendToInbox(id, data) {
-            let url = new URL(id);
-            let author_relative_path = url.pathname + "/"
-            for (connection of connections) {
-                if ("https://" + url.hostname == connection.hostName) {
-                    fetch(connection.apiAddress + author_relative_path + "inbox/", {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json",
-                            "X-CSRFToken": "{{ csrf_token }}",
-                            "Authorization": connection.apiCreds
-                        },
-                        body: JSON.stringify(data),
-                    });
-                    break;
-                }
-                else if ("https://" + url.hostname == "https://socialdistcmput404.herokuapp.com") {
-                    fetch("/api" + author_relative_path + "inbox/", {
-                        method: "POST",
-                        headers: commonHeaders,
-                        body: JSON.stringify(data),
-                    });
-                    break;
-                }
-            }
-        }
+        // async function sendToInbox(id, data) {
+        //     let url = new URL(id);
+        //     let author_relative_path = url.pathname + "/"
+        //     for (connection of connections) {
+        //         if ("https://" + url.hostname == connection.hostName) {
+        //             fetch(connection.apiAddress + author_relative_path + "inbox/", {
+        //                 method: "POST",
+        //                 headers: {
+        //                     "Content-Type": "application/json",
+        //                     "X-CSRFToken": "{{ csrf_token }}",
+        //                     "Authorization": connection.apiCreds
+        //                 },
+        //                 body: JSON.stringify(data),
+        //             });
+        //             break;
+        //         }
+        //         else if ("https://" + url.hostname == "https://socialdistcmput404.herokuapp.com") {
+        //             fetch("/api" + author_relative_path + "inbox/", {
+        //                 method: "POST",
+        //                 headers: commonHeaders,
+        //                 body: JSON.stringify(data),
+        //             });
+        //             break;
+        //         }
+        //     }
+        // }
     </script>
 </main>
 {% endblock content %}

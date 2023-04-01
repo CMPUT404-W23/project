@@ -93,15 +93,14 @@
             console.log(response.status, response.statusText)
         }
     }
-    function postComment(id,type) {
+    function postComment(post_id,foreignauthor_id,type) {
         if (type === 'internal'){
-            url = new URL(id)
+            url = new URL(post_id)
             window.location.href = url.pathname + "/comments/"
         } else if (type === 'external'){
-            // "posts/foreign/<str:host_name>/posts/<str:post_id>/comments/"
-            url = new URL(id)
-            post_id = id.split("/").pop()
-            window.location.href = `https://socialdistcmput404.herokuapp.com/posts/foreign/${url.hostname}/posts/${post_id}/comments`
+            url = new URL(post_id)
+            post_id = post_id.split("/").pop()
+            window.location.href = `https://socialdistcmput404.herokuapp.com/posts/foreign/${url.hostname}/authors/${foreignauthor_id}/posts/${post_id}/comments`
         }
     }
 
@@ -149,7 +148,7 @@
                                     <button type="button" class="btn btn-secondary btn-sm" id="like-btn-${index}" onclick="likePost(${index}, 'internal')">
                                         <i class="fa-regular fa-heart"></i>
                                     </button>
-                                    <button type="button" class="btn btn-secondary btn-sm" onclick="postComment('${post.id}','internal')">
+                                    <button type="button" class="btn btn-secondary btn-sm" onclick="postComment('${post.id}','${author.id}',internal')">
                                     Comment
                                     </button>`
                 if (post.author.id == current_author.id) {
@@ -347,7 +346,7 @@
                                                     <button type="button" class="btn btn-secondary btn-sm" id="like-btn-${i}" onclick="likePost(${i}, 'external')">
                                                         <i class="fa-regular fa-heart"></i> 
                                                     </button>
-                                                    <button type="button" class="btn btn-secondary btn-sm" onclick="postComment('${post.id}','external')">
+                                                    <button type="button" class="btn btn-secondary btn-sm" onclick="postComment('${post.id}','${author.id},'external')">
                                                         Comment
                                                     </button>
                                                 </div>

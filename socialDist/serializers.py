@@ -33,7 +33,7 @@ class AuthorSerializer(serializers.ModelSerializer):
                   'profileImage')
 
         # Update added fields (if it doesn't work just uncomment the line above)
-        # fields = ('id', 'user', 'github', 'profileImg','isServerAdmin', 'isAuthenticated', 'isFriendWith', 'inServer')
+        # fields = ('id', 'user', 'github', 'profileImage','isServerAdmin', 'isAuthenticated', 'isFriendWith', 'inServer')
 
 
 class PostSerializer(serializers.ModelSerializer):
