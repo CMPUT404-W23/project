@@ -31,6 +31,9 @@ body {
 
 }
 
+.create-post-sub-title{
+  font-style: italic;
+}
 
 
 /* editing post content */
