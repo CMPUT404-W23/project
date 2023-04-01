@@ -13,6 +13,17 @@ body {
 /* specific elements */
 
 /* For Alex Testing */
+
+/* Relocate buttons */
+.btn.btn-edit.btn-sm{
+  margin-left: 2.5em;
+}
+
+.btn.btn-danger.btn-sm {
+  margin-left: 3.5em;
+}
+
+
 /* Like and edit Button Hover when*/
 .btn.btn-secondary.btn-sm:hover{
   color: #F08080;
@@ -21,6 +32,8 @@ body {
 .btn.btn-danger.btn-sm:hover {
   color: red;
 }
+
+
 
 /* editing post content */
 .card-subtitle.mb-2.text-muted, .post-content, .btn.btn-secondary.btn-sm{
