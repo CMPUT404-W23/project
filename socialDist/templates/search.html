@@ -84,7 +84,7 @@
               try {
                 var response;
                 if (connection.hostName == "https://social-distribution-w23-t17.herokuapp.com") {
-                    author_relative_path = id + "/";
+                    author_relative_path = "/" + id + "/";
                 }
                 if (connection.apiCreds === "") {
                   response = await fetch(connection.apiAddress + author_relative_path + "followers/" + sender.id +"/");
