@@ -180,7 +180,7 @@ CORS_ALLOWED_ORIGINS = [
 # Team 4
 "https://www.distribution.social",
 # Team 6
-"https://cmput404-group6-instatonne.herokuapp.com"    
+"https://cmput404-group6-instatonne.herokuapp.com",    
 # Team 2
 "https://social-distribution-media.herokuapp.com"
 ]
