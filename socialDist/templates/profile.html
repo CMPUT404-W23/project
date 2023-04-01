@@ -186,10 +186,11 @@
         const post = inboxData[i]; // we got a list of all inbox items from fetch; like button passes the index of which post to like
         const author = post.author;
         const authorID = author.id.split("/").pop();
+        const authorURL = post.author.id;
         const hostname = new URL(author.id).hostname;
         let url = hostname === window.location.hostname ? `/api/authors/${authorID}/inbox/` : `https://${hostname}/api/authors/${authorID}/inbox/`;
         if (hostname === "https://social-distribution-w23-t17.herokuapp.com") {
-            url = `https://${hostname}/authors/${post.author.id}/inbox/`;
+            url = `https://${hostname}/authors/${authorURL}}/inbox/`;
         }
         let authorization = "Token 516e5c3d636f46228edb8f09b9613d5b4b166816";
         if (hostname != window.location.hostname) {
@@ -241,11 +242,12 @@
         // checks if current user liked the post
         const post = inboxData[i];
         const author = post.author;
+        const authorURL = author.id;
         const authorID = author.id.split("/").pop();
         const hostname = new URL(author.id).hostname;
         let url = hostname === window.location.hostname ? `/api/authors/${authorID}/posts/${post.id.split('/').pop()}/likes/` : `https://${hostname}/api/authors/${authorID}/posts/${post.id.split('/').pop()}/likes/`;
         if (hostname === "https://social-distribution-w23-t17.herokuapp.com") {
-            url = `https://${hostname}/authors/${author.id}/posts/${post.id.split('/').pop()}/likes/`;
+            url = `https://${hostname}/authors/${authorURL}/posts/${post.id.split('/').pop()}/likes/`;
         }
         let authorization = "Token 516e5c3d636f46228edb8f09b9613d5b4b166816";
         if (hostname != window.location.hostname) {
