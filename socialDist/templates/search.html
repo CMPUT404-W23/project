@@ -154,6 +154,9 @@
           "actor": sender,
           "object": authorList[target]
         };
+        if (hostname == "https://social-distribution-media.herokuapp.com") {
+          data["@context"] = "follow request";
+        }
         console.log(data);
         for (connection of connections) {
             if ("https://" + url.hostname == connection.hostName) {
