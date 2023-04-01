@@ -193,8 +193,8 @@
         }
         let authorization = "Token 516e5c3d636f46228edb8f09b9613d5b4b166816";
         if (hostname != window.location.hostname) {
-            const remoteConnection = listOfConnections.find(connection => connection.hostName === hostname);
-            authorization = remoteConnection.apiCreds
+            const remoteConnection = listOfConnections.find(connection => connection.hostName === "https://" + hostname);
+            authorization = connection.apiCreds
         }
         const data = {
             "@context": "Post Like",
