@@ -364,6 +364,8 @@
                                 } else {
                                     content = `<p class="card-text">${post.content}</p>`;
                                 }
+                                const post_id = post.id.split("/").pop()
+                                const author_id = post.author.id.split("/").pop()
                                 var htmlElement = htmlToElement(`
                                             <div class="card my-3">
                                                 <div class="card-body">
@@ -375,7 +377,7 @@
                                                     <button type="button" class="btn btn-secondary btn-sm" id="like-btn-${i}" onclick="likePost(${i}, 'external')">
                                                         <i class="fa-regular fa-heart"></i> 
                                                     </button>
-                                                    <button type="button" class="btn btn-secondary btn-sm" onclick="postComment('${post.id}','${author.id},'external')">
+                                                    <button type="button" class="btn btn-secondary btn-sm" onclick="postComment('${post_id}','${author_id},'external')">
                                                         Comment
                                                     </button>
                                                 </div>
