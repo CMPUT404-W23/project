@@ -69,14 +69,28 @@
                 post_arr = post_url.pathname.split("/");
                 post_id = post_arr[post_arr.length - 1];
                 author_id = author_arr[author_arr.length - 1];
+
+                // OLD CODE under card-body
+                // <h5 class="card-title"><a href="${post_relative_path}">${post.title}</a></h5>
+                // <h6 class="card-subtitle mb-2 text-muted"><a href="${author_relative_path}">${post.author.displayName}</a></h6>
+                // <h6 class="card-subtitle mb-2 text-muted">${post.description}</h6>
+                // <span class="badge bg-secondary">${post.categories}</span>
+                // ${content}
+                // <button type="button" class="btn btn-secondary btn-sm" id="like-btn-${index}-internal" onclick="likePost(${index}, 'internal')">
+                //     <i class="fa-regular fa-heart"></i>
+                // </button>`
                 display_posts = `
                             <div class="card my-3" id="post-${post_id}">
                                 <div class="card-body">
-                                    <h5 class="card-title"><a href="${post_relative_path}">${post.title}</a></h5>
-                                    <h6 class="card-subtitle mb-2 text-muted"><a href="${author_relative_path}">${post.author.displayName}</a></h6>
-                                    <h6 class="card-subtitle mb-2 text-muted">${post.description}</h6>
+                                    <h4 class="card-title"><a href="${post_relative_path}">${post.title}</a></h4>
+                                    <br>
+                                    <h5 class="card-subtitle mb-2 text-muted">Author: <a href="${author_relative_path}">${post.author.displayName}</a></h5>
+                                    <h5 class="card-subtitle mb-2 text-muted">${post.description}</h5>
                                     <span class="badge bg-secondary">${post.categories}</span>
-                                    ${content}
+                                    <br><br><br>
+                                    <h6 class="card-subtitle mb-2 text-muted">Content:</h6>
+                                    <h6 class="post-content">${content}</h6>
+                                    <br>
                                     <button type="button" class="btn btn-secondary btn-sm" id="like-btn-${index}-internal" onclick="likePost(${index}, 'internal')">
                                         <i class="fa-regular fa-heart"></i>
                                     </button>`
@@ -292,14 +306,32 @@
                                 } else {
                                     content = `<p class="card-text">${post.content}</p>`;
                                 }
+                                // OLD htmlElement:
+                                // <div class="card my-3">
+                                //     <div class="card-body">
+                                //         <h5 class="card-title"><a href="${post.id}">${post.title}</a></h5>
+                                //         <h6 class="card-subtitle mb-2 text-muted"><a href="${post.author.url}">${post.author.displayName}</a></h6>
+                                //         <h6 class="card-subtitle mb-2 text-muted">${post.description}</h6>
+                                //         <span class="badge bg-secondary">${post.categories}</span>
+                                //         ${content}
+                                //         <button type="button" class="btn btn-secondary btn-sm" id="like-btn-${i}-external" onclick="likePost(${i}, 'external')">
+                                //             <i class="fa-regular fa-heart"></i>
+                                //         </button>
+                                //     </div>
+                                // </div>
+
                                 var htmlElement = htmlToElement(`
                                             <div class="card my-3">
                                                 <div class="card-body">
-                                                    <h5 class="card-title"><a href="${post.id}">${post.title}</a></h5>
-                                                    <h6 class="card-subtitle mb-2 text-muted"><a href="${post.author.url}">${post.author.displayName}</a></h6>
-                                                    <h6 class="card-subtitle mb-2 text-muted">${post.description}</h6>
+                                                    <h4 class="card-title"><a href="${post_relative_path}">${post.title}</a></h4>
+                                                    <br>
+                                                    <h5 class="card-subtitle mb-2 text-muted">Author: <a href="${author_relative_path}">${post.author.displayName}</a></h5>
+                                                    <h5 class="card-subtitle mb-2 text-muted">${post.description}</h5>
                                                     <span class="badge bg-secondary">${post.categories}</span>
-                                                    ${content}
+                                                    <br><br><br>
+                                                    <h6 class="card-subtitle mb-2 text-muted">Content:</h6>
+                                                    <h6 class="post-content">${content}</h6>
+                                                    <br>
                                                     <button type="button" class="btn btn-secondary btn-sm" id="like-btn-${i}-external" onclick="likePost(${i}, 'external')">
                                                         <i class="fa-regular fa-heart"></i> 
                                                     </button>

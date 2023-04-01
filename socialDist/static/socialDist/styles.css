@@ -1,5 +1,6 @@
 :root {
   --primary-color: #007bff;
+  /* --primary-color: red; */
   --border-color: #e4e4e4;
   --dark-blue: #242936;
   --default-font: 'Roboto', sans-serif;
@@ -10,6 +11,32 @@ body {
 }
 
 /* specific elements */
+
+/* For Alex Testing */
+/* Like and edit Button Hover when*/
+.btn.btn-secondary.btn-sm:hover{
+  color: #F08080;
+}
+/* Delete button hover */
+.btn.btn-danger.btn-sm:hover {
+  color: red;
+}
+
+/* editing post content */
+.card-subtitle.mb-2.text-muted, .post-content, .btn.btn-secondary.btn-sm{
+  margin-left: 1.5em;
+}
+
+/* editing category icon */
+.badge.bg-secondary{
+  margin-left: 2.5em;
+}
+
+/* Post titile */
+.card-title{
+  font-weight: bold;
+  margin-left: 0.5em;
+}
 
 #settings_save_changes {
   margin-bottom: 1em;
