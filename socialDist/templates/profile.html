@@ -145,9 +145,9 @@
                     </div>
                 </div>
                 `);
-                    likesSection = document.getElementById("likes");
-                    if (likesSection.children[0].id === "placeholder") {
-                        likesSection.removeChild(likesSection.children[0]);
+                    postsSection = document.getElementById("posts");
+                    if (postsSection.children[0].id === "placeholder") {
+                        postsSection.removeChild(postsSection.children[0]);
                     }
                     likesSection.appendChild(htmlElement);
                     isLiked(index); // check if post is liked by user
