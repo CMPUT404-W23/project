@@ -36,7 +36,8 @@
         window.location.href = url.pathname + "/edit/"
     }
     var current_author = JSON.parse('{{current_author|escapejs}}');
-    let posts, externalPosts;
+    var posts = [];
+    var externalPosts = [];
     // GET all public posts and display them
     fetch("/api/posts/", { headers: new Headers({ "Authorization": "Token 516e5c3d636f46228edb8f09b9613d5b4b166816" }) })
         .then((response) => response.json())
@@ -211,6 +212,7 @@
                 if (returnedDataList.items.length == 0) {
                     continue
                 }
+                let i = 0;
                 for (data of returnedDataList.items) {
                     // https://dmitripavlutin.com/parse-url-javascript/
                     try {
@@ -244,8 +246,7 @@
                         if (posts.length == 0) {
                             continue;
                         }
-                        externalPosts = posts
-                        let i = 0;
+                        externalPosts = externalPosts.concat(posts);
                         for (post of posts) {
                             try {
                                 let content;
@@ -278,6 +279,7 @@
                                         `);
                                 document.getElementById("posts").appendChild(htmlElement);
                                 isLiked(i, 'external');
+                                i++;
                             }
                             catch {
                                 continue;
