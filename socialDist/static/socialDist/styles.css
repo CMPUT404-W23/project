@@ -27,7 +27,8 @@ body {
 }
 /* Delete button hover */
 .btn.btn-danger.btn-sm:hover {
-  color: #B22222;
+  color: #FFFFE0;
+
 }
 
 
