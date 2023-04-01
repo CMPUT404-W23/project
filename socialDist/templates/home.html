@@ -88,7 +88,6 @@
                                     <h5 class="card-subtitle mb-2 text-muted">${post.description}</h5>
                                     <span class="badge bg-secondary">${post.categories}</span>
                                     <br><br><br>
-                                    <h6 class="card-subtitle mb-2 text-muted">Content:</h6>
                                     <h6 class="post-content">${content}</h6>
                                     <br>
                                     <button type="button" class="btn btn-secondary btn-sm" id="like-btn-${index}-internal" onclick="likePost(${index}, 'internal')">
@@ -96,7 +95,7 @@
                                     </button>`
                 if (post.author.id == current_author.id) {
                     display_posts += `
-                                    <button type="button" class="btn btn-secondary btn-sm" onclick="editPost('${post.id}')">
+                                    <button type="button" class="btn btn-edit btn-sm" onclick="editPost('${post.id}')">
                                     Edit
                                     </button>
                                     <button type="button" class="btn btn-danger btn-sm" onclick="deletePost('${post.id}')">
@@ -329,7 +328,6 @@
                                                     <h5 class="card-subtitle mb-2 text-muted">${post.description}</h5>
                                                     <span class="badge bg-secondary">${post.categories}</span>
                                                     <br><br><br>
-                                                    <h6 class="card-subtitle mb-2 text-muted">Content:</h6>
                                                     <h6 class="post-content">${content}</h6>
                                                     <br>
                                                     <button type="button" class="btn btn-secondary btn-sm" id="like-btn-${i}-external" onclick="likePost(${i}, 'external')">
