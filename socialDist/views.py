@@ -796,18 +796,18 @@ class APIInbox(APIView):
             inbox=Inbox.objects.filter(author=author).get(pk=HOST+"authors/"+author_id+"/inbox")
             serializer=InboxSerializer(inbox)
             itemList = []
-            for post in inbox.posts.all():
+            for post in inbox.posts.all().order_by("published"):
                 post_serial = PostSerializer(post, partial=True)
                 post_author = Author.objects.get(pk=post_serial.data["author"])
                 itemList.append(api_helper.construct_post_object(post_serial.data, post_author))
-            for follow_request in inbox.requests.all():
+            for follow_request in inbox.requests.all().order_by("date"):
                 request_serial = FollowRequestSerializer(follow_request, partial=True)
                 target = Author.objects.get(pk=request_serial.data["target"])
                 sender = Author.objects.get(pk=request_serial.data["sender"])
                 itemList.append(api_helper.construct_follow_request_object(request_serial.data,
                                                                            target,
                                                                            sender))
-            for like in inbox.likes.all():
+            for like in inbox.likes.all().order_by("published"):
                 like_serial = LikeSerializer(like, partial=True)
                 like_author = Author.objects.get(pk=like_serial.data["author"])
                 if like.likeType == "Post":
@@ -820,7 +820,7 @@ class APIInbox(APIView):
                                                                      like.parentComment.id, 
                                                                      "comment",
                                                                      like_author))
-            for comment in inbox.comments.all():
+            for comment in inbox.comments.all().order_by("published"):
                 comment_serial = CommentSerializer(comment, partial=True)
                 comment_author = Author.objects.get(pk=comment_serial.data["author"])
                 itemList.append(api_helper.construct_comment_object(comment_serial.data, comment_author))
