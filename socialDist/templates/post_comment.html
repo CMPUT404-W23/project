@@ -90,6 +90,7 @@
                     "comment": document.getElementById("Comment").value,
                     "contentType" : document.getElementById("ContentType").value,
                 }
+                console.log("post obj:",JSON.stringify(data))
                 // POST a like object to the author's inbox
                 const response = await fetch(url, {
                     method: "POST",
