@@ -167,6 +167,8 @@ CORS_ALLOWED_ORIGINS = [
 "http://localhost:8000",
 # Local Host
 "http://127.0.0.1:8000",
+# Team 1
+"https://p2psd.herokuapp.com",
 # Team 5
 "https://social-t30.herokuapp.com",
 # Team 7
