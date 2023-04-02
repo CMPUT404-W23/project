@@ -221,7 +221,7 @@
             url = `https://${hostname}/authors/${authorURL}/inbox/`;
         }
         if ("https://" + hostname === "https://social-distribution-media.herokuapp.com") {
-            url = `https://${hostname}/authors/${authorID}/inbox`;
+            url = `https://${hostname}/api/authors/${authorID}/inbox`;
         }
         let authorization = "Token 516e5c3d636f46228edb8f09b9613d5b4b166816";
         if (hostname != window.location.hostname) {
@@ -296,7 +296,7 @@
             url = `https://${hostname}/authors/${authorURL}/posts/${postURL}/likes/`;
         }
         if ("https://" + hostname === "https://social-distribution-media.herokuapp.com") {
-            url = `https://${hostname}/authors/${authorID}/posts/${post.id.split('/').pop()}/likes`
+            url = `https://${hostname}/api/authors/${authorID}/posts/${post.id.split('/').pop()}/likes`
         }
         let authorization = "Token 516e5c3d636f46228edb8f09b9613d5b4b166816";
         if (hostname != window.location.hostname) {
