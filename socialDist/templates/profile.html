@@ -481,6 +481,33 @@
         }
         
     }
+    async function isCommentLiked(i) {
+        // checks if current user liked the comment
+        // i is index of comment in commentsList
+        const comment = commentsList[i];
+        const authorID = comment.author.id.split("/").pop();
+        let authorization = "Token 516e5c3d636f46228edb8f09b9613d5b4b166816";
+        const url = `/api${new URL(comment.id).pathname}/likes`
+        // GET list of likes for the post
+        const response = await fetch(url, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": "{{ csrf_token }}",
+                "Authorization": authorization,
+            },
+        }).then(response => response.json())
+            .then(data => {
+                for (like of data.items) {
+                    console.log(like.author.id, current_author.id)
+                    if (like.author.id == current_author.id) {
+                        document.getElementById(`like-comment-${i}`).innerHTML = `<i class="fa-solid fa-heart"></i>`;
+                        document.getElementById(`like-comment-${i}`).disabled = true;
+                    }
+                }
+            });
+
+    }
 </script>
 {% endif %}
 {% endblock content %}
