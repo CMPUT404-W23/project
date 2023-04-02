@@ -41,7 +41,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import include, path
 from django.views.generic.base import TemplateView, RedirectView
-from .views import settings, home, postPage, authorPage, create_post, editPost, search, postComment
+from .views import settings, home, postPage, authorPage, create_post, editPost, search, localComment, foreignComment
 
 urlpatterns = [
     
@@ -60,7 +60,8 @@ urlpatterns = [
     path("authors/<str:author_id>/", view=authorPage, name="page_author"),
     path("authors/<str:author_id>/posts/<str:post_id>/", view=postPage, name="page_post"),
     path("authors/<str:author_id>/posts/<str:post_id>/edit/", view=editPost, name="edit_post"),
-    path("authors/<str:author_id>/posts/<str:post_id>/comments/",view=postComment, name="post_comment" )
+    path("authors/<str:author_id>/posts/<str:post_id>/comments/",view=localComment, name="local_comment" ),
+    path("posts/foreign/<str:hostName>/authors/<str:foreignauthor_id>/posts/<str:post_id>/comments/",view=foreignComment, name="foreign_comment" )
 ]
 # Automatically add redirections
 # set number of items to add to itself from the beginning

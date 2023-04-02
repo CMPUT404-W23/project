@@ -152,7 +152,7 @@ def create_post(request):
     return render(request, 'post.html', context)
 
 @login_required
-def postComment(request, author_id, post_id):
+def localComment(request, author_id, post_id):
     author = Author.objects.get(user=request.user)
     author_serial = AuthorSerializer(author)
     try:
@@ -162,3 +162,12 @@ def postComment(request, author_id, post_id):
         return render(request, 'post_comment.html', context)
     except Post.DoesNotExist:
         return HttpResponse(status=404, content="Post does not exist")
+    
+@login_required
+def foreignComment(request, hostName, post_id, foreignauthor_id):
+    author = Author.objects.get(user=request.user)
+    author_serial = AuthorSerializer(author)
+    connections = Connection.objects.all()
+    connections_serial = ConnectionSerializer(connections, many=True) 
+    context = {'hostName':hostName, 'post_id':post_id, 'author':json.dumps(author_serial.data), 'foreignauthor_id': foreignauthor_id, 'connections': json.dumps(connections_serial.data)}
+    return render(request, 'post_comment.html',context)

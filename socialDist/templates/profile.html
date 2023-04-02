@@ -19,8 +19,8 @@
         {% endif %}
         {{author.displayName}} Profile Page
     </h1>
-    {% if author.Github == "" %}
-    <p>GitHub: {{author.Github}}</p>
+    {% if author.github %}
+    <p>GitHub: {{author.github}}</p>
     {% endif %}
     <h4 class="border-bottom py-2">Connections</h4>
     <h6>Followers: {{follower_list | length}}</h6>
