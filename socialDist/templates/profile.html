@@ -7,8 +7,8 @@
         integrity="sha512-KfkfwYDsLkIlwQp6LFnl8zNdLGxu9YAA1QvwINks4PhcElQSvqcyVLLD9aMhXd13uQjoXtEKNosOWaZqXgel0g=="
         crossorigin="anonymous" referrerpolicy="no-referrer" />
 </head>
-<div class="container-md mt-2">
-    <h1>{{author.displayName}} Profile Page </h1>
+<div class="container-md mt-3">
+    <h1 class="fw-bold">{{author.displayName}} Profile Page </h1>
     <p>Github: {{author.Github}}</p>
     <h4 class="border-bottom py-2">Connections</h4>
     <h6>Followers: {{follower_list | length}}</h6>
@@ -16,15 +16,18 @@
         {% for follower in follower_list %}
         <div class="card my-3">
             <div class="card-body">
-                <p>{{follower.user_id.displayName}}
-                    <span>
+                <div class="row align-items-center">
+                    <div class="col-8">
+                        {{follower.user_id.displayName}}
+                    </div>
+                    <div class="col-4 text-end">
                         {% if isOwner %}
-                        <button class="btn btn-dark" onclick="deleteFollower('{{follower.user_id.id}}')">
-                            Remove follower
+                        <button class="btn btn-outline-danger" onclick="deleteFollower('{{follower.user_id.id}}')">
+                            Remove
                         </button>
                         {% endif %}
-                    </span>
-                </p>
+                    </div>
+                </div>
             </div>
         </div>
         {% endfor %}
@@ -134,15 +137,15 @@
                     var htmlElement = htmlToElement(`
                 <div class="card my-3">
                     <div class="card-body">
-                        <h5 class="card-title mx-0"><a class="link-secondary" href="${item.id}">${item.title}</a></h5>
-                        <h6 class="card-subtitle my-3 mx-0 text-muted">
+                        <h5 class="card-title"><a class="link-secondary" href="${item.id}">${item.title}</a></h5>
+                        <h6 class="card-subtitle my-3 text-muted">
                             <img src="${item.author.profileImage || `https://ui-avatars.com/api/?name=${item.author.displayName}`}" class="rounded-circle" style="width: 30px; height: 30px; object-fit: cover;">
                             <a class="link-secondary mx-1" href="${item.author.url}">${item.author.displayName}</a>
-                            <h6 class="card-subtitle mt-2 mx-0 mb-2 text-muted">${item.description}</h6>
-                        </h6>
-                        <span class="badge bg-secondary mx-0 mb-2">${item.categories}</span>
+                            </h6>
+                        <h6 class="card-subtitle mt-2 mb-2 text-muted">${item.description}</h6>
+                        <span class="badge bg-secondary mb-2">${item.categories}</span>
                         ${content}
-                        <button type="button" class="btn btn-secondary btn-sm mx-0" id="like-btn-${index}" onclick="likePost(${index})">
+                        <button type="button" class="btn btn-secondary btn-sm" id="like-btn-${index}" onclick="likePost(${index})">
                             <i class="fa-regular fa-heart"> Like</i>  
                         </button>
                         ${editAndDeleteButtons}
