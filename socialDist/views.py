@@ -1007,3 +1007,36 @@ class APIPosts(APIView):
             author_posts_pair.append([each_author, posts.data])
             
         return Response(status=200, data=api_helper.construct_list_of_all_posts(author_posts_pair))
+
+class APIAuthorPrivatePosts(APIView):
+    permission_classes = [auth.RemotePermission]
+    # TODO: add @swagger_auto_schema later
+    # Copy from GET in APIListPosts, except changing public to private
+
+    def get(self, request, author_id):
+        try:
+            author = Author.objects.get(pk=HOST+"authors/"+author_id)
+        except Author.DoesNotExist:
+            return Response(status=404)
+        # ONLY CHANGE: from visible to private
+        posts = Post.objects.filter(author=author).filter(visibility="FRIENDS").order_by('-published') | Post.objects.filter(author=author).filter(unlisted=True).order_by('-published')
+        serializer = PostSerializer(posts, many=True)
+        if (request.META["QUERY_STRING"] == ""):
+            return Response(status=200, data=api_helper.construct_list_of_posts(serializer.data, author))
+        queryDict = QueryDict(request.META["QUERY_STRING"])
+        pageNum = 0
+        sizeNum = 0
+        if "page" in queryDict:
+            try:
+                pageNum = int(queryDict["page"])
+            except ValueError:
+                return Response(status=404)
+        if "size" in queryDict:
+            try:
+                sizeNum= int(queryDict["size"])
+            except ValueError:
+                return Response(status=404)
+        return Response(status=200, data=api_helper.construct_list_of_paginated_posts(serializer.data,
+                                                                                    pageNum,
+                                                                                    sizeNum,
+                                                                                    author))
