@@ -109,7 +109,7 @@
     var followReqActors = [];
     var followIndex = 0;
     let inboxData;
-    const current_author = JSON.parse('{{current_author|escapejs}}');
+    const current_author = JSON.parse('{{author|escapejs}}');
     let current_author_url = new URL(current_author.id)
     let current_author_relative_path = current_author_url.pathname
     const listOfConnections = JSON.parse('{{connections|escapejs}}'); // list of all connected nodes
@@ -411,7 +411,6 @@
             window.location.href = `https://socialdistcmput404.herokuapp.com/posts/foreign/${url.hostname}/authors/${foreignauthor_id}/posts/${post_id}/comments`
         }
     }
-
     // GET and display comments for a post
     let commentsList = [];
     async function getComment(author_id, post_id,host_name,type) {
