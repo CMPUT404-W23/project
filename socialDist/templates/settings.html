@@ -2,22 +2,33 @@
 <div class="container my-4">
   <div id="save-alert"></div>
   <form>
-    <h2 class="border-bottom py-3">Settings</h2>
+    <h2 class="border-bottom py-3">Settings: </h2>
+    <h4>Please Edit and Update Your Profile Here</h4>
+    <i>*Only Edited Fields Will Be Changed, So Feel Free To Leave Fields Blank/Unedited If You Don't Want Them to be Changed</i>
+    <br><br>
     {% load tz %}
     <i>Last login: {{ user.last_login|timezone:"America/Edmonton" }} MST</i>
     <div class="my-3">
       <label for="username" class="form-label">Username</label>
-      <input type="text" class="form-control" id="username" value="{{author.displayName}}" required>
+      <!-- OLD code -->
+      <!-- <input type="text" class="form-control" id="username" value="{{author.displayName}}" required> -->
+      <input type="text" class="form-control" id="username" value="{{author.displayName}}" placeholder="Maximum 40 characters">
     </div>
     <div class="mb-3">
       <label for="github" class="form-label">GitHub</label>
-      <input type="url" class="form-control" id="github" value="{{author.github}}" required>
+      <!-- OLD code -->
+      <!-- <input type="url" class="form-control" id="github" value="{{author.github}}" required> -->
+      <input type="url" class="form-control" id="github" value="{{author.github}}" placeholder="ex. https://github.com/sampleUserAccount">
     </div>
     <div class="mb-3">
       <label for="pfp-link" class="form-label">Profile Image Link</label>
-      <input type="url" class="form-control" id="pfp-link" value="{{author.profileImage}}" required>
+      <!-- OLD Code -->
+      <!-- <input type="url" class="form-control" id="pfp-link" value="{{author.profileImage}}" required> -->
+      <input type="url" class="form-control" id="pfp-link" value="{{author.profileImage}}" placeholder="ex. https://i.imgur.com/sampleUserImage.jpeg">
     </div>
-    <h3 class="mt-5">Change Password (Coming soon)</h3>
+
+    <!-- Commented password in case we need it again -->
+    <!-- <h3 class="mt-5">Change Password (Coming soon)</h3>
     <div class="mb-3">
       <label for="current-password" class="form-label">Current Password</label>
       <input
@@ -47,7 +58,7 @@
         placeholder="Re-enter new password"
         disabled
       />
-    </div>
+    </div> -->
     <button
       type="submit"
       class="btn btn-primary"
@@ -92,7 +103,7 @@
       profileImage: document.getElementById("pfp-link").value,
     };
 
-    // if no fields changed
+    // if no fields changed at all
     if (
       "{{author.displayName}}" === data.displayName &&
       "{{author.github}}" === data.github &&
@@ -102,7 +113,22 @@
       return;
     }
 
+    // FIX 
+    // IF changes are NOTmade in displayName, sub the original value back in
+    if (data.displayName === ""){
+      data.displayName="{{author.displayName}}";
+    }
+    if (data.github === "") {
+      data.github = "{{author.github}}";
+    }
+    if (data.profileImage === "") {
+      data.profileImage = "{{author.profileImage}}";
+    }
+
+    
+    // Comment it out for now
     // if any fields are empty
+    /*
     if (
       data.displayName === "" ||
       data.github === "" ||
@@ -111,6 +137,8 @@
       displayAlert("alert-danger", "Please fill out all fields.");
       return;
     }
+    */
+
     let author_url = new URL("{{author.id}}")
     let author_relative_path = author_url.pathname
     httpRequest.open(
