@@ -132,8 +132,8 @@ class APIListAuthors(APIView):
     def get(self, request):
         if (request.META["QUERY_STRING"] != ""):
             queryDict = QueryDict(request.META["QUERY_STRING"])
-            pageNum = 0
-            sizeNum = 0
+            pageNum = 1 # default page
+            sizeNum = 5 # default page size
             if "page" in queryDict:
                 try:
                     pageNum = int(queryDict["page"])
@@ -328,8 +328,8 @@ class APIListPosts(APIView):
         if (request.META["QUERY_STRING"] == ""):
             return Response(status=200, data=api_helper.construct_list_of_posts(serializer.data, author))
         queryDict = QueryDict(request.META["QUERY_STRING"])
-        pageNum = 0
-        sizeNum = 0
+        pageNum = 1 # default page
+        sizeNum = 5 # default page size
         if "page" in queryDict:
             try:
                 pageNum = int(queryDict["page"])
@@ -477,8 +477,8 @@ class APIListComments(APIView):
             return Response(status=200, data=api_helper.construct_list_of_comments(serializer.data,
                                                                                post))
         queryDict = QueryDict(request.META["QUERY_STRING"])
-        pageNum = 0
-        sizeNum = 0
+        pageNum = 1 # default page
+        sizeNum = 5 # default page size
         if "page" in queryDict:
             try:
                 pageNum = int(queryDict["page"])
