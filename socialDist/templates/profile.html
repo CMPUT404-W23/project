@@ -7,25 +7,29 @@
         integrity="sha512-KfkfwYDsLkIlwQp6LFnl8zNdLGxu9YAA1QvwINks4PhcElQSvqcyVLLD9aMhXd13uQjoXtEKNosOWaZqXgel0g=="
         crossorigin="anonymous" referrerpolicy="no-referrer" />
 </head>
-<div class="container-md mt-2">
-    <h1>{{author.displayName}} Profile Page </h1>
+<div class="container-md mt-3">
+    <h1 class="fw-bold">{{author.displayName}} Profile Page </h1>
     {% if author.Github == "" %}
     <p>GitHub: {{author.Github}}</p>
     {% endif %}
+    <h4 class="border-bottom py-2">Connections</h4>
     <h6>Followers: {{follower_list | length}}</h6>
     <div class="grid">
         {% for follower in follower_list %}
         <div class="card my-3">
             <div class="card-body">
-                <p>{{follower.user_id.displayName}}
-                    <span>
+                <div class="row align-items-center">
+                    <div class="col-8">
+                        {{follower.user_id.displayName}}
+                    </div>
+                    <div class="col-4 text-end">
                         {% if isOwner %}
-                        <button class="btn btn-dark" onclick="deleteFollower('{{follower.user_id.id}}')">
-                            Remove follower
+                        <button class="btn btn-outline-danger" onclick="deleteFollower('{{follower.user_id.id}}')">
+                            Remove
                         </button>
                         {% endif %}
-                    </span>
-                </p>
+                    </div>
+                </div>
             </div>
         </div>
         {% endfor %}
@@ -40,34 +44,47 @@
         </div>
         {% endfor %}
     </div>
-    <h6>Friends</h6>
+
+    <h6>Friends (you follow each other!)</h6>
     <div class="grid">
         {% for following in following_list %}
-            {% for follower in follower_list %}
-                {% if following.following_user_id == follower.user_id %}
-                    <div class="card my-3">
-                        <div class="card-body">
-                            {{following.following_user_id.displayName}}
-                        </div>
-                    </div>
-                {% endif %}
-            {% endfor %}
+        {% for follower in follower_list %}
+        {% if following.following_user_id == follower.user_id %}
+        <div class="card my-3">
+            <div class="card-body">
+                {{following.following_user_id.displayName}}
+            </div>
+        </div>
+        {% endif %}
+        {% endfor %}
         {% endfor %}
     </div>
 
     {% if isOwner %}
     <div class="grid">
-        <h4>Posts</h4>
+        <h4 class="border-bottom py-2">Posts</h4>
         <div class="grid" id="posts">
+            <div class="card my-3" id="placeholder">
+                <div class="card-body"> No posts to show</div>
+            </div>
         </div>
-        <h4>Likes</h4>
+        <h4 class="border-bottom py-2">Likes</h4>
         <div class="grid" id="likes">
+            <div class="card my-3" id="placeholder">
+                <div class="card-body"> No likes to show</div>
+            </div>
         </div>
-        <h4>Comments</h4>
+        <h4 class="border-bottom py-2">Comments</h4>
         <div class="grid" id="comments">
+            <div class="card my-3" id="placeholder">
+                <div class="card-body"> No comments to show</div>
+            </div>
         </div>
-        <h4>Follow Requests</h4>
+        <h4 class="border-bottom py-2">Follow Requests</h4>
         <div class="grid" id="requests">
+            <div class="card my-3" id="placeholder">
+                <div class="card-body"> No follow requests to show</div>
+            </div>
         </div>
     </div>
 </div>
@@ -112,8 +129,8 @@
                         content = `<p class="card-text">${item.content}</p>`;
                     }
                     if (item.author.id == current_author.id && item.visibility == "VISIBLE") {
-                        editAndDeleteButtons = `<button type="button" class="btn btn-secondary btn-sm" onclick="editPost('${item.id}')">
-                                    Edit
+                        editAndDeleteButtons = `<button type="button" id="edit-btn" class="btn btn-secondary btn-sm" onclick="editPost('${item.id}')">
+                                        <i class="fa-solid fa-pen"> Edit</i>
                                     </button>
                                     <button type="button" class="btn btn-danger btn-sm" onclick="deletePost('${item.id}')">
                                         <i class="fa-solid fa-trash"></i>
@@ -122,19 +139,26 @@
                     var htmlElement = htmlToElement(`
                 <div class="card my-3">
                     <div class="card-body">
-                        <h5 class="card-title"><a href="${item.id}">${item.title}</a></h5>
-                        <h6 class="card-subtitle mb-2 text-muted"><a href="${item.author.url}">${item.author.displayName}</a></h6>
-                        <h6 class="card-subtitle mb-2 text-muted">${item.description} <span class="badge bg-secondary">${item.categories}</span></h6>
+                        <h5 class="card-title"><a class="link-secondary" href="${item.id}">${item.title}</a></h5>
+                        <h6 class="card-subtitle my-3 text-muted">
+                            <img src="${item.author.profileImage || `https://ui-avatars.com/api/?name=${item.author.displayName}`}" class="rounded-circle" style="width: 30px; height: 30px; object-fit: cover;">
+                            <a class="link-secondary mx-1" href="${item.author.url}">${item.author.displayName}</a>
+                            </h6>
+                        <h6 class="card-subtitle mt-2 mb-2 text-muted">${item.description}</h6>
+                        <span class="badge bg-secondary mb-2">${item.categories}</span>
                         ${content}
                         <button type="button" class="btn btn-secondary btn-sm" id="like-btn-${index}" onclick="likePost(${index})">
-                            <i class="fa-regular fa-heart"></i>  
+                            <i class="fa-regular fa-heart"> Like</i>  
                         </button>
                         ${editAndDeleteButtons}
                     </div>
                 </div>
                 `);
-                    console.log(htmlElement);
-                    document.getElementById("posts").appendChild(htmlElement);
+                    postsSection = document.getElementById("posts");
+                    if (postsSection.children[0].id === "placeholder") {
+                        postsSection.removeChild(postsSection.children[0]);
+                    }
+                    postsSection.appendChild(htmlElement);
                     isLiked(index); // check if post is liked by user
                 }
                 else if (item.type === "comment") {
@@ -158,20 +182,26 @@
                     </div>
                 </div>
                 `);
-                    console.log(htmlElement);
-                    document.getElementById("comments").appendChild(htmlElement);
+                    commentSection = document.getElementById("comments");
+                    if (commentSection.children[0].id === "placeholder") {
+                        commentSection.removeChild(commentSection.children[0]);
+                    }
+                    commentSection.appendChild(htmlElement);
                 }
                 else if (item.type === "Like") {
                     var htmlElement = htmlToElement(`
                 <div class="card my-3">
                     <div class="card-body">
                         <p>${item.summary}</p>
-                        <a href=${item.object}>Link</a>
+                        <a href=${item.object}>View</a>
                     </div>
                 </div>
                 `);
-                    console.log(htmlElement);
-                    document.getElementById("likes").appendChild(htmlElement);
+                    likesSection = document.getElementById("likes");
+                    if (likesSection.children[0].id === "placeholder") {
+                        likesSection.removeChild(likesSection.children[0]);
+                    }
+                    likesSection.appendChild(htmlElement);
                 }
                 else if (item.type === "Follow") {
                     var htmlElement = htmlToElement(`
@@ -185,8 +215,11 @@
                 `);
                     followReqActors.push(item.actor);
                     followIndex++;
-                    console.log(htmlElement);
-                    document.getElementById("requests").appendChild(htmlElement);
+                    requestsSection = document.getElementById("requests");
+                    if (requestsSection.children[0].id === "placeholder") {
+                        requestsSection.removeChild(requestsSection.children[0]);
+                    }
+                    requestsSection.appendChild(htmlElement);
                 }
                 index += 1;
             }

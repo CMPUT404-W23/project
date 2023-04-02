@@ -66,8 +66,19 @@
           let listElement = document.createElement("div");
           let isFollower = await checkIfFollower(author.id);
           if (!isFollower) {
-            listElement.innerHTML = `<p>${author.displayName}</p>
-          <button class="btn btn-dark" id='${author.id}' onclick="sendToInbox('${author.id}', ${index})">Follow</button>`
+            listElement.innerHTML = `
+              <div class="card">
+                <div class="card-body">
+                  <div class="row align-items-center">
+                    <div class="col-8">
+                      ${author.displayName}
+                    </div>
+                    <div class="col-4 text-end">
+                      <button class="btn btn-dark" id='${author.id}' onclick="sendToInbox('${author.id}', ${index})">Follow</button>
+                    </div>
+                  </div>
+                </div>
+              </div>`
           }
           else {
             listElement.innerHTML =  `<p>${author.displayName}</p>
