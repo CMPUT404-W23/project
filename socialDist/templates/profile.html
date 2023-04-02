@@ -145,6 +145,15 @@
                                     <button type="button" class="btn btn-danger btn-sm" onclick="deletePost('${item.id}')">
                                         <i class="fa-solid fa-trash"></i>
                                     </button>`
+                        commentButton = 
+                        `<button type="button" class="btn btn-secondary btn-sm" onclick="postComment('${item.id}','internal')">
+                            Comment
+                        </button>`
+                    } else {
+                        commentButton = 
+                        `<button type="button" class="btn btn-secondary btn-sm" onclick="postComment('${item.id}','${item.author.id.split("/").pop()}','external')">
+                            Comment
+                        </button>`
                     }
                     var htmlElement = htmlToElement(`
                 <div class="card my-3">
@@ -161,6 +170,7 @@
                             <i class="fa-regular fa-heart"> Like</i>  
                         </button>
                         ${editAndDeleteButtons}
+                        ${commentButton}
                     </div>
                 </div>
                 `);
@@ -383,6 +393,18 @@
         fetch(fetch_url, { headers: new Headers({ "X-CSRFToken": "{{ csrf_token }}", "Authorization": "Token 516e5c3d636f46228edb8f09b9613d5b4b166816" }), method: 'DELETE' })
             .then((response) => response.status())
             .then(window.location.reload())
+    }
+    function postComment(post_id,foreignauthor_id,type) {
+        if (type === 'internal'){
+            console.log(post_id)
+            url = new URL(post_id)
+            window.location.href = url.pathname + "/comments/"
+        } else if (type === 'external'){
+            console.log(post_id,foreignauthor_id,type)
+            url = new URL(post_id)
+            post_id = post_id.split("/").pop()
+            window.location.href = `https://socialdistcmput404.herokuapp.com/posts/foreign/${url.hostname}/authors/${foreignauthor_id}/posts/${post_id}/comments`
+        }
     }
 </script>
 {% endif %}
