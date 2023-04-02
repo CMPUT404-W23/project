@@ -164,7 +164,7 @@ class Comment(models.Model):
     id = models.CharField(primary_key=True, max_length=200)
     author = models.ForeignKey(Author, on_delete=models.CASCADE, related_name="comments")
   
-    content = models.TextField()
+    comment = models.TextField()
     contentType = models.TextField(choices=[
         ("text/plain", "plaintext"),
         ("text/markdown", "markdown")
