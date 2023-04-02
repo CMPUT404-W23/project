@@ -9,6 +9,7 @@
 </head>
 <div class="container-md mt-3">
     <h1 class="fw-bold">
+        <!-- Show profile image if author has, otherwise show default image -->
         {% if author.profileImage %}
             <img src="{{author.profileImage}}" class="rounded-circle" style="width: 100px; height: 100px; object-fit: cover;">
             {% else %}
