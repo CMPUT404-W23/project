@@ -135,6 +135,7 @@
             url = new URL(post_id)
             window.location.href = url.pathname + "/comments/"
         } else if (type === 'external'){
+            console.log(post_id,foreignauthor_id,type)
             url = new URL(post_id)
             post_id = post_id.split("/").pop()
             window.location.href = `https://socialdistcmput404.herokuapp.com/posts/foreign/${url.hostname}/authors/${foreignauthor_id}/posts/${post_id}/comments`
@@ -478,7 +479,7 @@
                                                     <button type="button" class="btn btn-secondary btn-sm" id="like-btn-${i}-external" onclick="likePost(${i}, 'external')">
                                                         <i class="fa-regular fa-heart"></i> 
                                                     </button>
-                                                    <button type="button" class="btn btn-secondary btn-sm" onclick="postComment(${post.id},${author_id},'external')">
+                                                    <button type="button" class="btn btn-secondary btn-sm" onclick="postComment('${post.id}','${author_id}','external')">
                                                         Comment
                                                     </button>
                                                     <h6 class="card-text my-3" id="liked-${post_id}"> Liked by <b>"random user"</b> and <b>"likes count"</b> others </h6> 
