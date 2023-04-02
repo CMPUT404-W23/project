@@ -6,8 +6,12 @@
             {% csrf_token %}
             <div class="m-3">
                 <h1>
-                    Create a Post!
+                    Create a Post & Share it With Others
                 </h1>
+                <br>
+                <h5 class="create-post-sub-title">Fields With Asterisk(*) are Required to be Filled Out</h5>
+                <br>
+
                 <!--Post Type-->
                 <div class="mb-3">
                     <label for="PostType" class="form-label">Post Type:</label>
@@ -228,6 +232,17 @@
                 let inbox_url = connection.apiAddress + author_relative_path + "inbox/";
                 if (connection.hostName == "https://social-distribution-w23-t17.herokuapp.com") {
                     inbox_url = connection.apiAddress + "/authors/" + id + "/inbox/"
+                }
+                if (connection.hostName == "https://social-distribution-media.herokuapp.com") {
+                    data["categories"] = data["categories"].split()
+                    data = {
+                        "@context": "sending to inbox",
+                        "summary": data.author.displayName + " created a post!",
+                        "type": "post",
+                        "author": data.author,
+                        "object":data
+                    }
+                    inbox_url = connection.apiAddress + author_relative_path + "inbox";
                 }
                 fetch(inbox_url, {
                     method: "POST",

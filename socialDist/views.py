@@ -364,7 +364,7 @@ class APIListPosts(APIView):
             author = Author.objects.get(pk=HOST+"authors/"+author_id)
         except Author.DoesNotExist:
             return Response(status=404)
-        posts = Post.objects.filter(author=author).filter(visibility="VISIBLE").order_by('published')
+        posts = Post.objects.filter(author=author).filter(visibility="VISIBLE").order_by('-published')
         serializer = PostSerializer(posts, many=True)
         if (request.META["QUERY_STRING"] == ""):
             return Response(status=200, data=api_helper.construct_list_of_posts(serializer.data, author))
@@ -796,18 +796,18 @@ class APIInbox(APIView):
             inbox=Inbox.objects.filter(author=author).get(pk=HOST+"authors/"+author_id+"/inbox")
             serializer=InboxSerializer(inbox)
             itemList = []
-            for post in inbox.posts.all():
+            for post in inbox.posts.order_by("-published"):
                 post_serial = PostSerializer(post, partial=True)
                 post_author = Author.objects.get(pk=post_serial.data["author"])
                 itemList.append(api_helper.construct_post_object(post_serial.data, post_author))
-            for follow_request in inbox.requests.all():
+            for follow_request in inbox.requests.order_by("-date"):
                 request_serial = FollowRequestSerializer(follow_request, partial=True)
                 target = Author.objects.get(pk=request_serial.data["target"])
                 sender = Author.objects.get(pk=request_serial.data["sender"])
                 itemList.append(api_helper.construct_follow_request_object(request_serial.data,
                                                                            target,
                                                                            sender))
-            for like in inbox.likes.all():
+            for like in inbox.likes.order_by("-published"):
                 like_serial = LikeSerializer(like, partial=True)
                 like_author = Author.objects.get(pk=like_serial.data["author"])
                 if like.likeType == "Post":
@@ -820,7 +820,7 @@ class APIInbox(APIView):
                                                                      like.parentComment.id, 
                                                                      "comment",
                                                                      like_author))
-            for comment in inbox.comments.all():
+            for comment in inbox.comments.order_by("-published"):
                 comment_serial = CommentSerializer(comment, partial=True)
                 comment_author = Author.objects.get(pk=comment_serial.data["author"])
                 itemList.append(api_helper.construct_comment_object(comment_serial.data, comment_author))
@@ -893,6 +893,9 @@ class APIInbox(APIView):
                         return Response(status=400, data=new_author_serial.errors)
                     new_author_serial.save()
                 postDict = dict(request.data)
+                # Source: https://www.programiz.com/python-programming/methods/string/join
+                if type(postDict["categories"]) is list:
+                        postDict["categories"] = ' '.join(postDict["categories"])
                 postDict["author"] = request.data["author"]["id"]
                 new_post_serial = PostSerializer(data=postDict, partial=True)
                 if not new_post_serial.is_valid():
@@ -1001,7 +1004,15 @@ class APIInbox(APIView):
             try:
                 comment = Comment.objects.get(pk=request.data["id"])
             except Comment.DoesNotExist:
-                return Response(status=404)
+                comment_dict = dict(request.data)
+                comment_dict["parentPost"] = request.data["id"].split("/comments")[0]
+                comment_dict["published"] =  datetime.datetime.now().isoformat()
+                comment_dict["author"] = request.data["author"]["id"]
+                comment_serial = CommentSerializer(data=comment_dict, partial=True)
+                if not comment_serial.is_valid():
+                    return Response(status=400, data=comment_serial.errors)
+                comment_serial.save()
+                comment = Comment.objects.get(pk=request.data["id"])
             inbox.comments.add(comment)
             return Response(status=200)
             
@@ -1033,7 +1044,7 @@ class APIPosts(APIView):
         for each_author in Author.objects.filter(host=HOST):
             if not Post.objects.filter(author=each_author).count():
                 continue
-            posts = PostSerializer(Post.objects.filter(author=each_author).filter(visibility="VISIBLE").filter(unlisted=False), many=True)
+            posts = PostSerializer(Post.objects.filter(author=each_author).filter(visibility="VISIBLE").filter(unlisted=False).order_by("-published"), many=True)
             author_posts_pair.append([each_author, posts.data])
             
         return Response(status=200, data=api_helper.construct_list_of_all_posts(author_posts_pair))

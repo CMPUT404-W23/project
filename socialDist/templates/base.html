@@ -23,11 +23,13 @@
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
           <li class="nav-item">
-            <a class="nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}" aria-current="page" href="/">Home</a>
+            <a class="nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}" aria-current="page"
+              href="/">Home</a>
           </li>
           {% if user.is_authenticated %}
           <li class="nav-item">
-            <a class="nav-link {% if request.resolver_match.url_name == 'post' %}active{% endif %}" aria-current="page" href="/post">Create Post</a>
+            <a class="nav-link {% if request.resolver_match.url_name == 'post' %}active{% endif %}" aria-current="page"
+              href="/post">Create Post</a>
           </li>
           {% endif %}
           {% if user.is_authenticated and not user.is_staff %}
@@ -37,7 +39,8 @@
           {% endif %}
           {% if user.is_authenticated %}
           <li class="nav-item">
-            <a class="nav-link {% if request.resolver_match.url_name == 'search' %}active{% endif %}" aria-current="page" href="/search">Search</a>
+            <a class="nav-link {% if request.resolver_match.url_name == 'search' %}active{% endif %}"
+              aria-current="page" href="/search">Search</a>
           </li>
           {% endif %}
         </ul>

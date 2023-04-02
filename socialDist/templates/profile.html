@@ -7,23 +7,39 @@
         integrity="sha512-KfkfwYDsLkIlwQp6LFnl8zNdLGxu9YAA1QvwINks4PhcElQSvqcyVLLD9aMhXd13uQjoXtEKNosOWaZqXgel0g=="
         crossorigin="anonymous" referrerpolicy="no-referrer" />
 </head>
-<div class="container-md mt-2">
-    <h1>{{author.displayName}} Profile Page </h1>
-    <p>Github: {{author.Github}}</p>
+<div class="container-md mt-3">
+    <h1 class="fw-bold">
+        <!-- Show profile image if author has, otherwise show default image -->
+        {% if author.profileImage %}
+        <img src="{{author.profileImage}}" class="rounded-circle"
+            style="width: 100px; height: 100px; object-fit: cover;">
+        {% else %}
+        <img src="https://ui-avatars.com/api/?name={{author.displayName}}&size=100" class="rounded-circle"
+            style="width: 100px; height: 100px; object-fit: cover;">
+        {% endif %}
+        {{author.displayName}} Profile Page
+    </h1>
+    {% if author.github %}
+    <p>GitHub: {{author.github}}</p>
+    {% endif %}
+    <h4 class="border-bottom py-2">Connections</h4>
     <h6>Followers: {{follower_list | length}}</h6>
     <div class="grid">
         {% for follower in follower_list %}
         <div class="card my-3">
             <div class="card-body">
-               <p>{{follower.user_id.displayName}} 
-                <span>
-                    {% if isOwner %}
-                    <button class="btn btn-dark" onclick="deleteFollower('{{follower.user_id.id}}')">
-                        Remove follower
-                    </button>
-                    {% endif %}
-                </span>
-            </p>
+                <div class="row align-items-center">
+                    <div class="col-8">
+                        {{follower.user_id.displayName}}
+                    </div>
+                    <div class="col-4 text-end">
+                        {% if isOwner %}
+                        <button class="btn btn-outline-danger" onclick="deleteFollower('{{follower.user_id.id}}')">
+                            Remove
+                        </button>
+                        {% endif %}
+                    </div>
+                </div>
             </div>
         </div>
         {% endfor %}
@@ -33,25 +49,52 @@
         {% for following in following_list %}
         <div class="card my-3">
             <div class="card-body">
-                {{following.user_id.displayName}}
+                {{following.following_user_id.displayName}}
             </div>
         </div>
         {% endfor %}
     </div>
 
+    <h6>Friends (you follow each other!)</h6>
+    <div class="grid">
+        {% for following in following_list %}
+        {% for follower in follower_list %}
+        {% if following.following_user_id == follower.user_id %}
+        <div class="card my-3">
+            <div class="card-body">
+                {{following.following_user_id.displayName}}
+            </div>
+        </div>
+        {% endif %}
+        {% endfor %}
+        {% endfor %}
+    </div>
+
     {% if isOwner %}
     <div class="grid">
-        <h4>Posts</h4>
+        <h4 class="border-bottom py-2">Posts</h4>
         <div class="grid" id="posts">
+            <div class="card my-3" id="placeholder">
+                <div class="card-body"> No posts to show</div>
+            </div>
         </div>
-        <h4>Likes</h4>
+        <h4 class="border-bottom py-2">Likes</h4>
         <div class="grid" id="likes">
+            <div class="card my-3" id="placeholder">
+                <div class="card-body"> No likes to show</div>
+            </div>
         </div>
-        <h4>Comments</h4>
+        <h4 class="border-bottom py-2">Comments</h4>
         <div class="grid" id="comments">
+            <div class="card my-3" id="placeholder">
+                <div class="card-body"> No comments to show</div>
+            </div>
         </div>
-        <h4>Follow Requests</h4>
+        <h4 class="border-bottom py-2">Follow Requests</h4>
         <div class="grid" id="requests">
+            <div class="card my-3" id="placeholder">
+                <div class="card-body"> No follow requests to show</div>
+            </div>
         </div>
     </div>
 </div>
@@ -85,6 +128,7 @@
             for (let item of data.items) {
                 if (item.type === "post") {
                     let content;
+                    let editAndDeleteButtons = "";
                     if (item.contentType.startsWith("image")) {
                         content = `<img class="img-fluid mx-auto d-block" style="max-width: 50%" src="data:${item.contentType}, ${item.content}"/><br>`;
                     } else if (item.contentType === "text/markdown") {
@@ -94,21 +138,37 @@
                     } else {
                         content = `<p class="card-text">${item.content}</p>`;
                     }
+                    if (item.author.id == current_author.id && item.visibility == "VISIBLE") {
+                        editAndDeleteButtons = `<button type="button" id="edit-btn" class="btn btn-secondary btn-sm" onclick="editPost('${item.id}')">
+                                        <i class="fa-solid fa-pen"> Edit</i>
+                                    </button>
+                                    <button type="button" class="btn btn-danger btn-sm" onclick="deletePost('${item.id}')">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </button>`
+                    }
                     var htmlElement = htmlToElement(`
                 <div class="card my-3">
                     <div class="card-body">
-                        <h5 class="card-title"><a href="${item.id}">${item.title}</a></h5>
-                        <h6 class="card-subtitle mb-2 text-muted"><a href="${item.author.url}">${item.author.displayName}</a></h6>
-                        <h6 class="card-subtitle mb-2 text-muted">${item.description} <span class="badge bg-secondary">${item.categories}</span></h6>
+                        <h5 class="card-title"><a class="link-secondary" href="${item.id}">${item.title}</a></h5>
+                        <h6 class="card-subtitle my-3 text-muted">
+                            <img src="${item.author.profileImage || `https://ui-avatars.com/api/?name=${item.author.displayName}`}" class="rounded-circle" style="width: 30px; height: 30px; object-fit: cover;">
+                            <a class="link-secondary mx-1" href="${item.author.url}">${item.author.displayName}</a>
+                            </h6>
+                        <h6 class="card-subtitle mt-2 mb-2 text-muted">${item.description}</h6>
+                        <span class="badge bg-secondary mb-2">${item.categories}</span>
                         ${content}
                         <button type="button" class="btn btn-secondary btn-sm" id="like-btn-${index}" onclick="likePost(${index})">
-                            <i class="fa-regular fa-heart"></i>  
+                            <i class="fa-regular fa-heart"> Like</i>  
                         </button>
+                        ${editAndDeleteButtons}
                     </div>
                 </div>
                 `);
-                    console.log(htmlElement);
-                    document.getElementById("posts").appendChild(htmlElement);
+                    postsSection = document.getElementById("posts");
+                    if (postsSection.children[0].id === "placeholder") {
+                        postsSection.removeChild(postsSection.children[0]);
+                    }
+                    postsSection.appendChild(htmlElement);
                     isLiked(index); // check if post is liked by user
                 }
                 else if (item.type === "comment") {
@@ -118,47 +178,64 @@
                     } else {
                         content = `<p class="card-text">${item.content}</p>`;
                     }
+                    let parentPost = item.id.split("/comments")[0];
                     var htmlElement = htmlToElement(`
                 <div class="card my-3">
                     <div class="card-body">
-                        <h6 class="card-subtitle mb-2 text-muted"><a href="${item.author.url}">${item.author.displayName}</a></h6>
-                        ${content}
-                        <button type="button" class="btn btn-secondary btn-sm" id="likeButton">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-heart" viewBox="0 0 16 16">
-                                <path d="m8 2.748-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385.92 1.815 2.834 3.989 6.286 6.357 3.452-2.368 5.365-4.542 6.286-6.357.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01L8 2.748zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143c.06.055.119.112.176.171a3.12 3.12 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15z"/>
-                            </svg>   
-                        </button>
+                        <h6 class="card-subtitle mb-2 text-muted"><a href="${item.author.url}">${item.author.displayName}</a>
+                            commented on your <a href="${parentPost}">post</a></h6>
+                        <div class="card my-3">
+                            <div class="card-body">
+                            ${content}
+                            </div>
+                        </div>
                     </div>
                 </div>
                 `);
-                    console.log(htmlElement);
-                    document.getElementById("comments").appendChild(htmlElement);
+                    commentSection = document.getElementById("comments");
+                    if (commentSection.children[0].id === "placeholder") {
+                        commentSection.removeChild(commentSection.children[0]);
+                    }
+                    commentSection.appendChild(htmlElement);
                 }
                 else if (item.type === "Like") {
                     var htmlElement = htmlToElement(`
                 <div class="card my-3">
                     <div class="card-body">
                         <p>${item.summary}</p>
+                        <a href=${item.object}>View</a>
                     </div>
                 </div>
                 `);
-                    console.log(htmlElement);
-                    document.getElementById("likes").appendChild(htmlElement);
+                    likesSection = document.getElementById("likes");
+                    if (likesSection.children[0].id === "placeholder") {
+                        likesSection.removeChild(likesSection.children[0]);
+                    }
+                    likesSection.appendChild(htmlElement);
                 }
                 else if (item.type === "Follow") {
                     var htmlElement = htmlToElement(`
-                <div class="card my-3">
-                    <div class="card-body">
-                        <a href="${item.actor.url}">${item.actor.displayName}</a> wants to follow you!
-                    </div>
-                    <button class="btn btn-dark" onclick="accept('${item.actor.id}')">Accept</button>
-                    <button class="btn btn-dark" onclick="reject('${item.actor.id}', ${followIndex})">Reject</button>
-                </div>
-                `);
+                        <div class="card my-3">
+                            <div class="card-body">
+                                <div class="row align-items-center">
+                                    <div class="col-8">
+                                        <a href="${item.actor.url}">${item.actor.displayName}</a> wants to follow you!
+                                    </div>
+                                    <div class="col-4 text-end">
+                                        <button class="btn btn-dark" onclick="accept('${item.actor.id}')">Accept</button>
+                                        <button class="btn btn-outline-dark" onclick="reject('${item.actor.id}', ${followIndex})">Reject</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `);
                     followReqActors.push(item.actor);
                     followIndex++;
-                    console.log(htmlElement);
-                    document.getElementById("requests").appendChild(htmlElement);
+                    requestsSection = document.getElementById("requests");
+                    if (requestsSection.children[0].id === "placeholder") {
+                        requestsSection.removeChild(requestsSection.children[0]);
+                    }
+                    requestsSection.appendChild(htmlElement);
                 }
                 index += 1;
             }
@@ -186,22 +263,40 @@
         const post = inboxData[i]; // we got a list of all inbox items from fetch; like button passes the index of which post to like
         const author = post.author;
         const authorID = author.id.split("/").pop();
+        const authorURL = post.author.id;
         const hostname = new URL(author.id).hostname;
         let url = hostname === window.location.hostname ? `/api/authors/${authorID}/inbox/` : `https://${hostname}/api/authors/${authorID}/inbox/`;
-        if (hostname === "https://social-distribution-w23-t17.herokuapp.com") {
-            url = `https://${hostname}/authors/${authorID}/inbox/`;
+        if ("https://" + hostname === "https://social-distribution-w23-t17.herokuapp.com") {
+            url = `https://${hostname}/authors/${authorURL}/inbox/`;
+        }
+        if ("https://" + hostname === "https://social-distribution-media.herokuapp.com") {
+            url = `https://${hostname}/api/authors/${authorID}/inbox`;
         }
         let authorization = "Token 516e5c3d636f46228edb8f09b9613d5b4b166816";
         if (hostname != window.location.hostname) {
-            const remoteConnection = listOfConnections.find(connection => connection.hostName === hostname);
+            const remoteConnection = listOfConnections.find(connection => connection.hostName === "https://" + hostname);
             authorization = remoteConnection.apiCreds
         }
-        const data = {
+        let data = {
             "@context": "Post Like",
             "summary": "{{ user.username }} Likes your post",
             "type": "Like",
             "author": current_author,
             "object": post.id
+        }
+        if ("https://" + hostname == "https://social-distribution-media.herokuapp.com") {
+            data = {
+                "@context": "Post Like",
+                "summary": "{{ user.username }} Likes your post",
+                "type": "like",
+                "author": current_author,
+                "object": {
+                    "type": "like",
+                    "summary": "{{ user.username }} Likes your post",
+                    "author": current_author,
+                    "object": post.id
+                }
+            };
         }
         // POST a like object to the author's inbox
         const response = await fetch(url, {
@@ -213,7 +308,7 @@
             },
             body: JSON.stringify(data),
         });
-        if (response.status == 200) {
+        if (response.status == 200 || response.status == 201 || response.status == 202) {
             document.getElementById(`like-btn-${i}`).innerHTML = `<i class="fa-solid fa-heart"></i>`;
             document.getElementById(`like-btn-${i}`).disabled = true;
         } else {
@@ -241,15 +336,20 @@
         // checks if current user liked the post
         const post = inboxData[i];
         const author = post.author;
+        const authorURL = author.id;
         const authorID = author.id.split("/").pop();
         const hostname = new URL(author.id).hostname;
+        const postURL = post.id;
         let url = hostname === window.location.hostname ? `/api/authors/${authorID}/posts/${post.id.split('/').pop()}/likes/` : `https://${hostname}/api/authors/${authorID}/posts/${post.id.split('/').pop()}/likes/`;
-        if (hostname === "https://social-distribution-w23-t17.herokuapp.com") {
-            url = `https://${hostname}/authors/${authorID}/posts/${post.id.split('/').pop()}/likes/`;
+        if ("https://" + hostname === "https://social-distribution-w23-t17.herokuapp.com") {
+            url = `https://${hostname}/authors/${authorURL}/posts/${postURL}/likes/`;
+        }
+        if ("https://" + hostname === "https://social-distribution-media.herokuapp.com") {
+            url = `https://${hostname}/api/authors/${authorID}/posts/${post.id.split('/').pop()}/likes`
         }
         let authorization = "Token 516e5c3d636f46228edb8f09b9613d5b4b166816";
         if (hostname != window.location.hostname) {
-            const remoteConnection = listOfConnections.find(connection => connection.hostName === hostname);
+            const remoteConnection = listOfConnections.find(connection => connection.hostName === "https://" + hostname);
             authorization = remoteConnection.apiCreds
         }
         // GET all likes for the post
@@ -263,12 +363,26 @@
         }).then(response => response.json())
             .then(data => {
                 for (like of data.items) {
-                    if (like.author.id == current_author.id) {
+                    if (like.author.url == current_author.id) {
                         document.getElementById(`like-btn-${i}`).innerHTML = `<i class="fa-solid fa-heart"></i>`;
                         document.getElementById(`like-btn-${i}`).disabled = true;
                     }
                 }
             });
+    }
+
+    function editPost(id) {
+        url = new URL(id)
+        window.location.href = url.pathname + "/edit/"
+    }
+
+    function deletePost(id) {
+        // DELETE a post
+        url = new URL(id)
+        fetch_url = "/api" + url.pathname + "/"
+        fetch(fetch_url, { headers: new Headers({ "X-CSRFToken": "{{ csrf_token }}", "Authorization": "Token 516e5c3d636f46228edb8f09b9613d5b4b166816" }), method: 'DELETE' })
+            .then((response) => response.status())
+            .then(window.location.reload())
     }
 </script>
 {% endif %}
