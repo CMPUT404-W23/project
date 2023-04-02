@@ -140,7 +140,7 @@
                     }
                     if (item.author.id == current_author.id && item.visibility == "VISIBLE") {
                         editAndDeleteButtons = `<button type="button" id="edit-btn" class="btn btn-secondary btn-sm" onclick="editPost('${item.id}')">
-                                        <i class="fa-solid fa-pen"> Edit</i>
+                                        <i class="fa-solid fa-pen"></i>
                                     </button>
                                     <button type="button" class="btn btn-danger btn-sm" onclick="deletePost('${item.id}')">
                                         <i class="fa-solid fa-trash"></i>
@@ -153,7 +153,7 @@
                     } else {
                         commentButton = 
                         `<button type="button" class="btn btn-secondary btn-sm" onclick="postComment('${item.id}','${item.author.id.split("/").pop()}','external')">
-                            Comment
+                            <i class="fa-regular fa-comment"></i>
                         </button>`
                         const post_url = new URL(item.id)
                         const host_name = post_url.hostname
@@ -171,7 +171,7 @@
                         <span class="badge bg-secondary mb-2">${item.categories}</span>
                         ${content}
                         <button type="button" class="btn btn-secondary btn-sm" id="like-btn-${index}" onclick="likePost(${index})">
-                            <i class="fa-regular fa-heart"> Like</i>  
+                            <i class="fa-regular fa-heart"></i>  
                         </button>
                         ${commentButton}
                         ${editAndDeleteButtons}
