@@ -74,24 +74,45 @@
                 const foreignauthor_id = "{{foreignauthor_id}}"
                 const post_id = "{{post_id}}"
                 const hostname = "https://" + "{{hostName}}"
-                let url = `${hostname}/api/authors/${foreignauthor_id}/posts/${post_id}/comments`;
+                const author = JSON.parse('{{author|escapejs}}')
+                let url = `${hostname}/api/authors/${foreignauthor_id}/inbox`;
                 if (hostname === "https://social-distribution-w23-t17.herokuapp.com"){
                     url = `${hostname}/authors/${foreignauthor_id}/posts/${post_id}/comments`;
                 }
                 let authorization = "Token 516e5c3d636f46228edb8f09b9613d5b4b166816";
+                //Creating object 
+                const author_foreign = {
+                        "type": "author",
+                        "id": author.id,
+                        "host": author.host,
+                        "displayName": author.displayName,
+                        "url": author.url,
+                        "github": author.github,
+                        "profileImage": author.profileImage
+                }
+                const obj = {
+                    "type": "comment",
+                    "summary": `${author.displayName} commented on your post!`,
+                    "author": author_foreign,
+                    "id": `${hostname}/api/authors/${foreignauthor_id}/posts/${post_id}/comments/${crypto.randomUUID()}`,
+                    "comment": document.getElementById("Comment").value,
+                    "contentType": document.getElementById("ContentType").value,
+                    "object": `${hostname}/api/authors/${foreignauthor_id}/posts/${post_id}`
+                } 
+
                 //Authorization
                 var listOfConnections = JSON.parse('{{connections|escapejs}}');
                 const remoteConnection = listOfConnections.find(connection => connection.hostName === hostname);
                 authorization = remoteConnection.apiCreds;
                 const data = {
                     "@context": "Post Comment",
+                    "summary": `${author.displayName} posted a comment!`,
                     "type": "comment",
-                    "author": JSON.parse('{{author|escapejs}}'),
-                    "comment": document.getElementById("Comment").value,
-                    "contentType" : document.getElementById("ContentType").value,
+                    "actor": author_foreign,
+                    "object": obj,
                 }
                 console.log("post obj:",JSON.stringify(data))
-                // POST a like object to the author's inbox
+                // POST a comment object to the author's inbox
                 const response = await fetch(url, {
                     method: "POST",
                     headers: {
