@@ -21,26 +21,18 @@ body {
 
 /* If we have time, let's try make navbar fixed */
 
-/* Like and edit Button Hover when*/
-.btn.btn-secondary.btn-sm:hover{
+/* Like Button Hover when*/
+[id^="like-btn"]:hover{
   color: #F08080;
+}
+/* Edit Button Hover when*/
+[id^="edit-btn"]:hover{
+  color: #80baf0;
 }
 /* Delete button hover */
 .btn.btn-danger.btn-sm:hover {
   color: #FFFFE0;
 
-}
-
-
-
-/* editing post content */
-.card-subtitle.mb-2.text-muted, .post-content, .btn.btn-secondary.btn-sm{
-  margin-left: 1.5em;
-}
-
-/* editing category icon */
-.badge.bg-secondary{
-  margin-left: 2.5em;
 }
 
 /* Post titile */
