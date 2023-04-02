@@ -50,20 +50,26 @@
         async function postComment(type){
             if (type == 'internal'){
                 const post_url = new URL("{{post.id}}");
+                const author_url = new URL("{{post.author.id}}");
+                const author_relative_path = author_url.pathname;
                 const comment_url = "/api" + post_url.pathname + "/comments/";
                 const data = {
                     content : document.getElementById("Comment").value,
                     contentType : document.getElementById("ContentType").value,
                     author : JSON.parse('{{author|escapejs}}'),
                 };
-
-                const response = await fetch(comment_url, {
+                const comment_response = await fetch(comment_url, {
                     method: "POST",
                     headers: commonHeaders,
                     body: JSON.stringify(data),
                 });
-                console.log(response);
-                if (response.status == 201) {
+                const inbox_url = "/api" + author_relative_path + "/inbox/";
+                const inbox_response = await fetch(inbox_url, {
+                    method: "POST",
+                    headers: commonHeaders,
+                    body:  comment_response.text
+                });
+                if (comment_response.status == 201) {
                     displayAlert("alert-success", "Comment posted successfully!");
                     window.location.href = post_url.origin
                 } else {
@@ -74,40 +80,58 @@
                 const foreignauthor_id = "{{foreignauthor_id}}"
                 const post_id = "{{post_id}}"
                 const hostname = "https://" + "{{hostName}}"
-                let url = `${hostname}/api/authors/${foreignauthor_id}/posts/${post_id}/comments`;
-                if (hostname === "https://social-distribution-w23-t17.herokuapp.com"){
-                    url = `${hostname}/authors/${foreignauthor_id}/posts/${post_id}/comments`;
+                let comments_url = `${hostname}/authors/${foreignauthor_id}/posts/${post_id}/comments/`;
+                if (hostname === "https://social-distribution-media.herokuapp.com") {
+                    comments_url = `${hostname}/api/authors/${foreignauthor_id}/posts/${post_id}/comments/`;
                 }
                 let authorization = "Token 516e5c3d636f46228edb8f09b9613d5b4b166816";
                 //Authorization
                 var listOfConnections = JSON.parse('{{connections|escapejs}}');
                 const remoteConnection = listOfConnections.find(connection => connection.hostName === hostname);
                 authorization = remoteConnection.apiCreds;
-                const data = {
-                    "@context": "Post Comment",
+                let comment_author = JSON.parse('{{author|escapejs}}');
+                let uuid = crypto.randomUUID();
+                let comment_id = comments_url + uuid
+                let data = {
+                    "id": comment_id,
                     "type": "comment",
-                    "author": JSON.parse('{{author|escapejs}}'),
+                    "author": comment_author,
                     "comment": document.getElementById("Comment").value,
                     "contentType" : document.getElementById("ContentType").value,
                 }
-                console.log("post obj:",JSON.stringify(data))
+                if (hostname === "https://social-distribution-media.herokuapp.com") {
+                    data = {
+                        "@context": "Post Comment",
+                        "summary": comment_author.displayName + " commented on your post",
+                        "type": "comment",
+                        "actor": comment_author,
+                        "object": data,
+                    }
+                }
                 // POST a like object to the author's inbox
-                const response = await fetch(url, {
+                let inbox_url = `${remoteConnection.apiAddress}/authors/${foreignauthor_id}/inbox/`
+                let foreign_author_url = `${hostname}/authors/${foreignauthor_id}`;
+                if (hostname === "https://social-distribution-media.herokuapp.com") {
+                    inbox_url = `${remoteConnection.apiAddress}/authors/${foreignauthor_id}/inbox`
+                }
+                else if (hostname === "https://social-distribution-media.herokuapp.com") {
+                    inbox_url = `${remoteConnection.apiAddress}/authors/${foreign_author_url}/inbox/`
+                }
+                let repsonse = await fetch(inbox_url, {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
                         "X-CSRFToken": "{{ csrf_token }}",
                         "Authorization": authorization
                     },
-                    body: JSON.stringify(data),
-                });
-                if (response.status == 200) {
+                    body: JSON.stringify(data)
+                })
+                if (response.status == 200 || response.status == 201 || response.status == 202) {
                     displayAlert("alert-success", "Comment posted successfully!");
                 } else {
                     displayAlert("alert-danger", "Posting comment failed!");
                 }
-            }
-            
+            }    
         }
 
         // async function sendToInbox(id, data) {
