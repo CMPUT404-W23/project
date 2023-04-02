@@ -11,11 +11,13 @@
     <h1 class="fw-bold">
         <!-- Show profile image if author has, otherwise show default image -->
         {% if author.profileImage %}
-            <img src="{{author.profileImage}}" class="rounded-circle" style="width: 100px; height: 100px; object-fit: cover;">
-            {% else %}
-            <img src="https://ui-avatars.com/api/?name={{author.displayName}}&size=100" class="rounded-circle" style="width: 100px; height: 100px; object-fit: cover;">
+        <img src="{{author.profileImage}}" class="rounded-circle"
+            style="width: 100px; height: 100px; object-fit: cover;">
+        {% else %}
+        <img src="https://ui-avatars.com/api/?name={{author.displayName}}&size=100" class="rounded-circle"
+            style="width: 100px; height: 100px; object-fit: cover;">
         {% endif %}
-        {{author.displayName}} Profile Page 
+        {{author.displayName}} Profile Page
     </h1>
     {% if author.Github == "" %}
     <p>GitHub: {{author.Github}}</p>
@@ -213,14 +215,20 @@
                 }
                 else if (item.type === "Follow") {
                     var htmlElement = htmlToElement(`
-                <div class="card my-3">
-                    <div class="card-body">
-                        <a href="${item.actor.url}">${item.actor.displayName}</a> wants to follow you!
-                    </div>
-                    <button class="btn btn-dark" onclick="accept('${item.actor.id}')">Accept</button>
-                    <button class="btn btn-dark" onclick="reject('${item.actor.id}', ${followIndex})">Reject</button>
-                </div>
-                `);
+                        <div class="card my-3">
+                            <div class="card-body">
+                                <div class="row align-items-center">
+                                    <div class="col-8">
+                                        <a href="${item.actor.url}">${item.actor.displayName}</a> wants to follow you!
+                                    </div>
+                                    <div class="col-4 text-end">
+                                        <button class="btn btn-dark" onclick="accept('${item.actor.id}')">Accept</button>
+                                        <button class="btn btn-outline-dark" onclick="reject('${item.actor.id}', ${followIndex})">Reject</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `);
                     followReqActors.push(item.actor);
                     followIndex++;
                     requestsSection = document.getElementById("requests");
