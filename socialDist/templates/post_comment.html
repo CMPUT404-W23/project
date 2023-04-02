@@ -68,7 +68,7 @@
             const inbox_response = await fetch(inbox_url, {
                 method: "POST",
                 headers: commonHeaders,
-                body:  comment_response.text()
+                body:  await comment_response.text()
             });
             if (comment_response.status == 201) {
                 displayAlert("alert-success", "Comment posted successfully!");
