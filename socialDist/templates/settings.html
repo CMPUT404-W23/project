@@ -28,23 +28,27 @@
       {% endif %} -->
     </div>
 
-    <div class="fw-bold">
-      <h3>Your ID:</h3>
+      <!-- set a temp class name -->
+    <div class="author-settings">
+      <h3 class="fw-bold">Your Account Information</h3><br>
+
+      <h4 class="fw-bold">ID:</h4>
       <h5>{{author.id}}</h5><br>
 
-      <h3>Your Host: </h3>
+      <h4 class="fw-bold">Host: </h4>
       <h5>{{author.host}}</h5><br>
 
-      <h3>Your Name: </h3>
+      <h4 class="fw-bold">Name: </h4>
       <h5>{{author.displayName}}</h5><br>
 
-      <h3>Your GitHub URL: </h3>
+      <h4 class="fw-bold">GitHub URL: </h4>
       <h5>{{author.github}}</h5><br>
 
-      <h3>Your Profile Image URL: </h3>
+      <h4 class="fw-bold">Profile Image URL: </h4>
       <h5>{{author.profileImage}}</h5>
     </div>
     <br><br>
+    <hr>
 
     <!-- Edit profile fields -->
     <h4>Edit Your Profile Fields:</h4>
