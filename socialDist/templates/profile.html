@@ -146,7 +146,7 @@
                                         <i class="fa-solid fa-trash"></i>
                                     </button>`
                         commentButton = 
-                        `<button type="button" class="btn btn-secondary btn-sm" onclick="postComment('${item.id}','internal')">
+                        `<button type="button" class="btn btn-secondary btn-sm" onclick="postComment('${item.id}','','internal')">
                             Comment
                         </button>`
                     } else {
@@ -169,8 +169,8 @@
                         <button type="button" class="btn btn-secondary btn-sm" id="like-btn-${index}" onclick="likePost(${index})">
                             <i class="fa-regular fa-heart"> Like</i>  
                         </button>
-                        ${editAndDeleteButtons}
                         ${commentButton}
+                        ${editAndDeleteButtons}
                     </div>
                 </div>
                 `);
