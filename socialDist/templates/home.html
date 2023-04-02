@@ -36,7 +36,7 @@
         window.location.href = url.pathname + "/edit/"
     }
     // GET and display comments for a post
-    let commentsList = [];
+    let commentsList;
     async function getComment(author_id, post_id,host_name,type) {
         if (type == 'internal'){
             const url = `/api/authors/${author_id}/posts/${post_id}/comments/`
@@ -49,12 +49,13 @@
                 },
             }).then(response => response.json())
                 .then(data => {
-                    commentsList = commentsList.concat(data.items);
+                    commentsList = data.items;
                     let index = 0;
                     for (const comment of data.items){
+                        
                         comment_html = 
                         `<h6 class="card-text" > 
-                            <b class="ml-5"><a href=${comment.author.url}>${comment.author.displayName}</a></b> ${comment.comment} 
+                            <b class="ml-5">${comment.author.displayName}</b> ${comment.content} 
                             <button id="like-comment-${index}" type="button" class="btn btn-light btn-sm ml-20" onclick="likeComment(${index})">
                                 <i class="fa-regular fa-heart"></i>
                             </button>
@@ -65,16 +66,8 @@
                     }
                 });
         } else if (type === 'external'){
-            const hostname = "https://" + host_name;
-            let parent_post_url = `${hostname}/authors/${author_id}/posts/${post_id}`
-            let author_url = `${hostname}/authors/${author_id}`
-            let url = `${hostname}/api/authors/${author_id}/posts/${post_id}/comments/`
-            if (hostname == "https://social-distribution-w23-t17.herokuapp.com") {
-                url = `${hostname}/authors/${author_url}/posts/${parent_post_url}/comments/?page=1&size=1000`
-            }
-            else if (hostname == "https://social-distribution-media.herokuapp.com") {
-                url = `${hostname}/api/authors/${author_id}/posts/${post_id}/comments?page=1&size=1000`
-            }
+            const hostname = "https://" + "{{hostName}}"
+            const url = `${hostname}/api/authors/${author_id}/posts/${post_id}/comments`
             const remoteConnection = listOfConnections.find(connection => connection.hostName === hostname);
             let authorization = remoteConnection.apiCreds;
             const response = await fetch(url, {
@@ -86,12 +79,14 @@
                 },
             }).then(response => response.json())
                 .then(data => {
-                    commentsList = commentsList.concat(data.items);
+                    // console.log(data)
+                    commentsList = data.items;
                     let index = 0;
                     for (const comment of data.items){
+                        
                         comment_html = 
                         `<h6 class="card-text" > 
-                            <b class="ml-5"><a href=${comment.author.url}>${comment.author.displayName}</a></b> ${comment.comment} 
+                            <b class="ml-5">${comment.author.displayName}</b> ${comment.content} 
                             <button id="like-comment-${index}" type="button" class="btn btn-light btn-sm ml-20" onclick="likeComment(${index})">
                                 <i class="fa-regular fa-heart"></i>
                             </button>
@@ -104,7 +99,6 @@
         }
         
     }
-
     async function likeComment(i) {
         // POST a like object to the author's inbox
         const comment = commentsList[i];
@@ -113,7 +107,7 @@
         const url = `/api/authors/${authorID}/inbox/`
         const data = {
             "@context": "Comment Like",
-            "summary": current_author.displayName + "likes a comment on your post",
+            "summary": "{{ user.username }} Likes your comment",
             "type": "Like",
             "author": current_author,
             "object": comment.id
@@ -248,7 +242,7 @@
                 }
                 getComment(author_id,post_id,'','internal')
                 likedby = `<h6 class="card-text my-3" id="liked-${post_id}"> Liked by <b>"random user"</b> and <b>"likes count"</b> others </h6> `
-                comment = `<br><br><div id="comment-${post_id}"></div>`
+                comment = `<div id="comment-${post_id}"></div>`
                 display_posts += likedby + comment
                 isLiked(index, 'internal'); // check if post is liked by user
                 return (display_posts + '</div></div>')
@@ -489,7 +483,6 @@
                                                         Comment
                                                     </button>
                                                     <h6 class="card-text my-3" id="liked-${post_id}"> Liked by <b>"random user"</b> and <b>"likes count"</b> others </h6> 
-                                                    <br><br>
                                                     <div id="comment-${post_id}"></div>
                                                 </div>
                                             </div>
