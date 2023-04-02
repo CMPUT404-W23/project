@@ -36,7 +36,7 @@
         window.location.href = url.pathname + "/edit/"
     }
     // GET and display comments for a post
-    let commentsList;
+    let commentsList = [];
     async function getComment(author_id, post_id,host_name,type) {
         if (type == 'internal'){
             const url = `/api/authors/${author_id}/posts/${post_id}/comments/`
