@@ -235,7 +235,7 @@
             "author": current_author,
             "object": post.id
         }
-        if (hostname == "https://social-distribution-media.herokuapp.com") {
+        if ("https://" + hostname == "https://social-distribution-media.herokuapp.com") {
             data = {
                 "@context": "Post Like",
                 "summary": "{{ user.username }} Likes your post",
