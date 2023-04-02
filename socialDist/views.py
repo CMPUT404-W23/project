@@ -1019,7 +1019,7 @@ class APIAuthorPrivatePosts(APIView):
         except Author.DoesNotExist:
             return Response(status=404)
         # ONLY CHANGE: from visible to private
-        posts = Post.objects.filter(author=author).filter(visibility="FRIENDS").order_by('-published')
+        posts = Post.objects.filter(author=author).filter(visibility="FRIENDS").order_by('-published') | Post.objects.filter(author=author).filter(unlisted=True).order_by('-published')
         serializer = PostSerializer(posts, many=True)
         if (request.META["QUERY_STRING"] == ""):
             return Response(status=200, data=api_helper.construct_list_of_posts(serializer.data, author))
