@@ -8,7 +8,14 @@
         crossorigin="anonymous" referrerpolicy="no-referrer" />
 </head>
 <div class="container-md mt-3">
-    <h1 class="fw-bold">{{author.displayName}} Profile Page </h1>
+    <h1 class="fw-bold">
+        {% if author.profileImage %}
+            <img src="{{author.profileImage}}" class="rounded-circle" style="width: 100px; height: 100px; object-fit: cover;">
+            {% else %}
+            <img src="https://ui-avatars.com/api/?name={{author.displayName}}&size=100" class="rounded-circle" style="width: 100px; height: 100px; object-fit: cover;">
+        {% endif %}
+        {{author.displayName}} Profile Page 
+    </h1>
     {% if author.Github == "" %}
     <p>GitHub: {{author.Github}}</p>
     {% endif %}
