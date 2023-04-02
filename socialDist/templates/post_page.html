@@ -82,20 +82,24 @@
             display_post = `
                         <div class="card my-3" id="post-${post_id}">
                             <div class="card-body">
-                                <h5 class="card-title"><a href="${post_relative_path}">${post.title}</a></h5>
-                                <h6 class="card-subtitle mb-2 text-muted"><a href="${author_relative_path}">${post.author.displayName}</a></h6>
-                                <h6 class="card-subtitle mb-2 text-muted">${post.description} <span class="badge bg-secondary">${post.categories}</span></h6>
-                                ${content}
+                                <h5 class="card-title"><a class="link-secondary" href="${post_relative_path}">${post.title}</a></h5>
+                                <h6 class="card-subtitle my-3 text-muted">
+                                    <img src="${post.author.profileImage || `https://ui-avatars.com/api/?name=${post.author.displayName}`}" class="rounded-circle" style="width: 30px; height: 30px; object-fit: cover;">
+                                    <a class="link-secondary mx-1" href="${author_relative_path}">${post.author.displayName}</a>
+                                </h6>
+                                <h6 class="card-subtitle mt-2 mb-2 text-muted">${post.description}</h6>
+                                <span class="badge bg-secondary">${post.categories}</span>
+                                <p class="post-content mb-2">${content}</p>
                                 <button type="button" class="btn btn-secondary btn-sm" id="like-btn">
-                                    <i class="fa-regular fa-heart"></i>   
+                                    <i class="fa-regular fa-heart"> Like</i>
                                 </button>
-                                <button type="button" class="btn btn-secondary btn-sm" onclick="postComment('${post.id}')">
-                                    Comment
+                                <button type="button" id="comment-btn" class="btn btn-secondary btn-sm" onclick="postComment('${post.id}')">
+                                    <i class="fa-regular fa-comment"></i>
                                 </button>`
             if (post.author.id == current_author.id) {
                 display_post += `
-                            <button type="button" class="btn btn-secondary btn-sm" onclick="editPost('${post.id}')">
-                                Edit
+                            <button type="button" id="edit-btn" class="btn btn-secondary btn-sm" onclick="editPost('${post.id}')">
+                                <i class="fa-solid fa-pen"></i>
                             </button>
                             <button type="button" class="btn btn-danger btn-sm" onclick="deletePost('${post.id}')">
                                 <i class="fa-solid fa-trash"></i>
