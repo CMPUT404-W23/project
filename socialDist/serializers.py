@@ -62,7 +62,7 @@ class CommentSerializer(serializers.ModelSerializer):
 
         # Update added fields (if it doesn't work just uncomment the line above)
         fields = ('id', 
-                  'content', 
+                  'comment', 
                   'contentType', 
                   'parentPost', 
                   'published', 
