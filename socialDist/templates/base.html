@@ -49,11 +49,6 @@
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle text-white" href="#" id="navbarDropdown" role="button"
               data-bs-toggle="dropdown" aria-expanded="false">
-              <!-- Show profile image if author has one -->
-              {% if author.profileImage %}
-              <img src="{{author.profileImage}}" class="rounded-circle me-1"
-                style="width: 30px; height: 30px; object-fit: cover;">
-              {% endif %}
               {{ user.username }}
             </a>
             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
