@@ -174,9 +174,9 @@
                 else if (item.type === "comment") {
                     let content;
                     if (item.contentType === "text/markdown") {
-                        content = `<p class="card-text">${marked.parse(item.content)}</p>`;
+                        content = `<p class="card-text">${marked.parse(item.comment)}</p>`;
                     } else {
-                        content = `<p class="card-text">${item.content}</p>`;
+                        content = `<p class="card-text">${item.comment}</p>`;
                     }
                     let parentPost = item.id.split("/comments")[0];
                     var htmlElement = htmlToElement(`
