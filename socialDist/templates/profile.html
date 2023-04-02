@@ -531,6 +531,7 @@
             },
             body: JSON.stringify(data),
         });
+        console.log("data:",data)
         if (response.status == 200) {
             document.getElementById(`like-comment-${i}`).innerHTML = `<i class="fa-solid fa-heart"></i>`;
             document.getElementById(`like-comment-${i}`).disabled = true;
