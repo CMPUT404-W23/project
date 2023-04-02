@@ -17,7 +17,7 @@
         <img src="https://ui-avatars.com/api/?name={{author.displayName}}&size=100" class="rounded-circle"
             style="width: 100px; height: 100px; object-fit: cover;">
         {% endif %}
-        {{author.displayName}} Profile Page
+        {{author.displayName}}'s Inbox
     </h1>
     {% if author.github %}
     <p>GitHub: {{author.github}}</p>
@@ -174,9 +174,9 @@
                 else if (item.type === "comment") {
                     let content;
                     if (item.contentType === "text/markdown") {
-                        content = `<p class="card-text">${marked.parse(item.content)}</p>`;
+                        content = `<p class="card-text">${marked.parse(item.comment)}</p>`;
                     } else {
-                        content = `<p class="card-text">${item.content}</p>`;
+                        content = `<p class="card-text">${item.comment}</p>`;
                     }
                     let parentPost = item.id.split("/comments")[0];
                     var htmlElement = htmlToElement(`

@@ -2,12 +2,57 @@
 <div class="container my-4">
   <div id="save-alert"></div>
   <form>
-    <h2 class="border-bottom py-3">Settings: </h2>
-    <h4>Please Edit and Update Your Profile Here</h4>
-    <i>*Only Edited Fields Will Be Changed, So Feel Free To Leave Fields Blank/Unedited If You Don't Want Them to be Changed</i>
-    <br><br>
-    {% load tz %}
-    <i>Last login: {{ user.last_login|timezone:"America/Edmonton" }} MST</i>
+    <!-- <h2 class="border-bottom py-3">Settings: </h2> -->
+      
+    <!-- heading -->
+    <div class="container-md mt-3">
+      <!-- Show image and name-->
+      <h1 class="fw-bold">
+        <!-- Show profile image if author has, otherwise show default image -->
+        {% if author.profileImage %}
+        <img src="{{author.profileImage}}" class="rounded-circle" style="width: 100px; height: 100px; object-fit: cover;">
+        {% else %}
+        <img src="https://ui-avatars.com/api/?name={{author.displayName}}&size=100" class="rounded-circle"
+          style="width: 100px; height: 100px; object-fit: cover;">
+        {% endif %}
+        Settings for {{author.displayName}}
+      </h1>
+
+      {% load tz %}
+      <i>Last login: {{ user.last_login|timezone:"America/Edmonton" }} MST</i>
+      <br><br><br>
+      <!-- Print rest of author's fields -->
+
+      <!-- {% if author.github %}
+      <p>GitHub: {{author.github}}</p>
+      {% endif %} -->
+    </div>
+
+      <!-- set a temp class name -->
+    <div class="author-settings">
+      <h3 class="fw-bold text-decloration:"><u>Your Account Information:</u></h3><br>
+
+      <h4 class="fw-bold">ID:</h4>
+      <h5>{{author.id}}</h5><br>
+
+      <h4 class="fw-bold">Host: </h4>
+      <h5>{{author.host}}</h5><br>
+
+      <h4 class="fw-bold">Name: </h4>
+      <h5>{{author.displayName}}</h5><br>
+
+      <h4 class="fw-bold">GitHub URL: </h4>
+      <h5>{{author.github}}</h5><br>
+
+      <h4 class="fw-bold">Profile Image URL: </h4>
+      <h5>{{author.profileImage}}</h5>
+    </div>
+    <br>
+    <hr>
+
+    <!-- Edit profile fields -->
+    <h4 class="fw-bold"><u>Edit Your Account</u></h4>
+    <i>*Only edited fields will Be changed, feel free to leave fields blank/unedited if you don't want them to be changed</i>
     <div class="my-3">
       <label for="username" class="form-label">Username</label>
       <!-- OLD code -->
