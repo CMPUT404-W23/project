@@ -20,7 +20,7 @@
 
       {% load tz %}
       <i>Last login: {{ user.last_login|timezone:"America/Edmonton" }} MST</i>
-      <br><br>
+      <br><br><br>
       <!-- Print rest of author's fields -->
 
       <!-- {% if author.github %}
@@ -29,11 +29,20 @@
     </div>
 
     <div class="fw-bold">
-      <h3>Your ID: {{author.id}}</h3>
-      <h3>Your Host: {{author.host}}</h3>
-      <h3>Your Name: {{author.displayName}}</h3>
-      <h3>Your GitHub URL: {{author.github}}</h3>
-      <h3>Your Profile Image URL: {{author.profileImage}}</h3>
+      <h3>Your ID:</h3>
+      <h5>{{author.id}}</h5><br>
+
+      <h3>Your Host: </h3>
+      <h5>{{author.host}}</h5><br>
+
+      <h3>Your Name: </h3>
+      <h5>{{author.displayName}}</h5><br>
+
+      <h3>Your GitHub URL: </h3>
+      <h5>{{author.github}}</h5><br>
+
+      <h3>Your Profile Image URL: </h3>
+      <h5>{{author.profileImage}}</h5>
     </div>
     <br><br>
 
