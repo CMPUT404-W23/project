@@ -55,7 +55,7 @@
             const author_relative_path = author_url.pathname;
             const comment_url = "/api" + post_url.pathname + "/comments/";
             const data = {
-                content : document.getElementById("Comment").value,
+                comment : document.getElementById("Comment").value,
                 contentType : document.getElementById("ContentType").value,
                 author : JSON.parse('{{author|escapejs}}'),
             };
