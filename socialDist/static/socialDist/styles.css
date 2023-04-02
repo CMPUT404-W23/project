@@ -26,7 +26,7 @@ body {
   color: #F08080;
 }
 /* Edit Button Hover when*/
-[id^="edit-btn"]:hover{
+#edit-btn:hover, #comment-btn:hover {
   color: #80baf0;
 }
 /* Delete button hover */
@@ -38,7 +38,6 @@ body {
 /* Post titile */
 .card-title{
   font-weight: bold;
-  margin-left: 0.5em;
 }
 
 #settings_save_changes {
