@@ -242,7 +242,7 @@
                 }
                 getComment(author_id,post_id,'','internal')
                 likedby = `<h6 class="card-text my-3" id="liked-${post_id}"> Liked by <b>"random user"</b> and <b>"likes count"</b> others </h6> `
-                comment = `<div id="comment-${post_id}"></div>`
+                comment = `<br><br><div id="comment-${post_id}"></div>`
                 display_posts += likedby + comment
                 isLiked(index, 'internal'); // check if post is liked by user
                 return (display_posts + '</div></div>')
@@ -483,6 +483,7 @@
                                                         Comment
                                                     </button>
                                                     <h6 class="card-text my-3" id="liked-${post_id}"> Liked by <b>"random user"</b> and <b>"likes count"</b> others </h6> 
+                                                    <br><br>
                                                     <div id="comment-${post_id}"></div>
                                                 </div>
                                             </div>
