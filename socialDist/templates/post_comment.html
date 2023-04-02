@@ -31,135 +31,108 @@
             </div>
         </form>
     </div>
-    <script>
-        const commonHeaders = {
-            "Content-Type": "application/json",
-            "X-CSRFToken": "{{ csrf_token }}",
-            "Authorization": "Token 516e5c3d636f46228edb8f09b9613d5b4b166816"
-        };
-        
-        function displayAlert(alertType, alertMessage) {
-            alertContainer = document.getElementById("save-alert");
-            alertContainer.innerHTML = "";
-            saveAlert = document.createElement("div");
-            saveAlert.classList.add("alert", alertType);
-            saveAlert.innerText = alertMessage;
-            alertContainer.appendChild(saveAlert);
-        }
-
-        async function postComment(type){
-            if (type == 'internal'){
-                const post_url = new URL("{{post.id}}");
-                const author_url = new URL("{{post.author.id}}");
-                const author_relative_path = author_url.pathname;
-                const comment_url = "/api" + post_url.pathname + "/comments/";
-                const data = {
-                    content : document.getElementById("Comment").value,
-                    contentType : document.getElementById("ContentType").value,
-                    author : JSON.parse('{{author|escapejs}}'),
-                };
-                const comment_response = await fetch(comment_url, {
-                    method: "POST",
-                    headers: commonHeaders,
-                    body: JSON.stringify(data),
-                });
-                const inbox_url = "/api" + author_relative_path + "/inbox/";
-                const inbox_response = await fetch(inbox_url, {
-                    method: "POST",
-                    headers: commonHeaders,
-                    body:  comment_response.text
-                });
-                if (comment_response.status == 201) {
-                    displayAlert("alert-success", "Comment posted successfully!");
-                    window.location.href = post_url.origin
-                } else {
-                    displayAlert("alert-danger", "Posting comment failed!");
-                }
-            } else if (type == 'external'){
-                console.log("{{foreignauthor_id}}","{{hostName}}")
-                const foreignauthor_id = "{{foreignauthor_id}}"
-                const post_id = "{{post_id}}"
-                const hostname = "https://" + "{{hostName}}"
-                let comments_url = `${hostname}/authors/${foreignauthor_id}/posts/${post_id}/comments/`;
-                if (hostname === "https://social-distribution-media.herokuapp.com") {
-                    comments_url = `${hostname}/api/authors/${foreignauthor_id}/posts/${post_id}/comments/`;
-                }
-                let authorization = "Token 516e5c3d636f46228edb8f09b9613d5b4b166816";
-                //Authorization
-                var listOfConnections = JSON.parse('{{connections|escapejs}}');
-                const remoteConnection = listOfConnections.find(connection => connection.hostName === hostname);
-                authorization = remoteConnection.apiCreds;
-                let comment_author = JSON.parse('{{author|escapejs}}');
-                let uuid = crypto.randomUUID();
-                let comment_id = comments_url + uuid
-                let data = {
-                    "id": comment_id,
-                    "type": "comment",
-                    "author": comment_author,
-                    "comment": document.getElementById("Comment").value,
-                    "contentType" : document.getElementById("ContentType").value,
-                }
-                if (hostname === "https://social-distribution-media.herokuapp.com") {
-                    data = {
-                        "@context": "Post Comment",
-                        "summary": comment_author.displayName + " commented on your post",
-                        "type": "comment",
-                        "actor": comment_author,
-                        "object": data,
-                    }
-                }
-                // POST a like object to the author's inbox
-                let inbox_url = `${remoteConnection.apiAddress}/authors/${foreignauthor_id}/inbox/`
-                let foreign_author_url = `${hostname}/authors/${foreignauthor_id}`;
-                if (hostname === "https://social-distribution-media.herokuapp.com") {
-                    inbox_url = `${remoteConnection.apiAddress}/authors/${foreignauthor_id}/inbox`
-                }
-                else if (hostname === "https://social-distribution-media.herokuapp.com") {
-                    inbox_url = `${remoteConnection.apiAddress}/authors/${foreign_author_url}/inbox/`
-                }
-                let repsonse = await fetch(inbox_url, {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "X-CSRFToken": "{{ csrf_token }}",
-                        "Authorization": authorization
-                    },
-                    body: JSON.stringify(data)
-                })
-                if (response.status == 200 || response.status == 201 || response.status == 202) {
-                    displayAlert("alert-success", "Comment posted successfully!");
-                } else {
-                    displayAlert("alert-danger", "Posting comment failed!");
-                }
-            }    
-        }
-
-        // async function sendToInbox(id, data) {
-        //     let url = new URL(id);
-        //     let author_relative_path = url.pathname + "/"
-        //     for (connection of connections) {
-        //         if ("https://" + url.hostname == connection.hostName) {
-        //             fetch(connection.apiAddress + author_relative_path + "inbox/", {
-        //                 method: "POST",
-        //                 headers: {
-        //                     "Content-Type": "application/json",
-        //                     "X-CSRFToken": "{{ csrf_token }}",
-        //                     "Authorization": connection.apiCreds
-        //                 },
-        //                 body: JSON.stringify(data),
-        //             });
-        //             break;
-        //         }
-        //         else if ("https://" + url.hostname == "https://socialdistcmput404.herokuapp.com") {
-        //             fetch("/api" + author_relative_path + "inbox/", {
-        //                 method: "POST",
-        //                 headers: commonHeaders,
-        //                 body: JSON.stringify(data),
-        //             });
-        //             break;
-        //         }
-        //     }
-        // }
-    </script>
 </main>
+<script>
+    const commonHeaders = {
+        "Content-Type": "application/json",
+        "X-CSRFToken": "{{ csrf_token }}",
+        "Authorization": "Token 516e5c3d636f46228edb8f09b9613d5b4b166816"
+    };
+    
+    function displayAlert(alertType, alertMessage) {
+        alertContainer = document.getElementById("save-alert");
+        alertContainer.innerHTML = "";
+        saveAlert = document.createElement("div");
+        saveAlert.classList.add("alert", alertType);
+        saveAlert.innerText = alertMessage;
+        alertContainer.appendChild(saveAlert);
+    };
+
+    async function postComment(type){
+        if (type == 'internal'){
+            const post_url = new URL("{{post.id}}");
+            const author_url = new URL("{{post.author.id}}");
+            const author_relative_path = author_url.pathname;
+            const comment_url = "/api" + post_url.pathname + "/comments/";
+            const data = {
+                content : document.getElementById("Comment").value,
+                contentType : document.getElementById("ContentType").value,
+                author : JSON.parse('{{author|escapejs}}'),
+            };
+            const comment_response = await fetch(comment_url, {
+                method: "POST",
+                headers: commonHeaders,
+                body: JSON.stringify(data),
+            });
+            const inbox_url = "/api" + author_relative_path + "/inbox/";
+            const inbox_response = await fetch(inbox_url, {
+                method: "POST",
+                headers: commonHeaders,
+                body:  comment_response.text
+            });
+            if (comment_response.status == 201) {
+                displayAlert("alert-success", "Comment posted successfully!");
+                window.location.href = post_url.origin
+            } else {
+                displayAlert("alert-danger", "Posting comment failed!");
+            }
+        } else if (type == 'external'){
+            console.log("{{foreignauthor_id}}","{{hostName}}")
+            const foreignauthor_id = "{{foreignauthor_id}}"
+            const post_id = "{{post_id}}"
+            const hostname = "https://" + "{{hostName}}"
+            let comments_url = `${hostname}/authors/${foreignauthor_id}/posts/${post_id}/comments/`;
+            if (hostname === "https://social-distribution-media.herokuapp.com") {
+                comments_url = `${hostname}/api/authors/${foreignauthor_id}/posts/${post_id}/comments/`;
+            }
+            let authorization = "Token 516e5c3d636f46228edb8f09b9613d5b4b166816";
+            //Authorization
+            var listOfConnections = JSON.parse('{{connections|escapejs}}');
+            const remoteConnection = listOfConnections.find(connection => connection.hostName === hostname);
+            authorization = remoteConnection.apiCreds;
+            let comment_author = JSON.parse('{{author|escapejs}}');
+            let uuid = crypto.randomUUID();
+            let comment_id = comments_url + uuid
+            let data = {
+                "id": comment_id,
+                "type": "comment",
+                "author": comment_author,
+                "comment": document.getElementById("Comment").value,
+                "contentType" : document.getElementById("ContentType").value,
+            }
+            if (hostname === "https://social-distribution-media.herokuapp.com") {
+                data = {
+                    "@context": "Post Comment",
+                    "summary": comment_author.displayName + " commented on your post",
+                    "type": "comment",
+                    "actor": comment_author,
+                    "object": data,
+                }
+            }
+            // POST a like object to the author's inbox
+            let inbox_url = `${remoteConnection.apiAddress}/authors/${foreignauthor_id}/inbox/`
+            let foreign_author_url = `${hostname}/authors/${foreignauthor_id}`;
+            if (hostname === "https://social-distribution-media.herokuapp.com") {
+                inbox_url = `${remoteConnection.apiAddress}/authors/${foreignauthor_id}/inbox`
+            }
+            else if (hostname === "https://social-distribution-media.herokuapp.com") {
+                inbox_url = `${remoteConnection.apiAddress}/authors/${foreign_author_url}/inbox/`
+            }
+            let repsonse = await fetch(inbox_url, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": "{{ csrf_token }}",
+                    "Authorization": authorization
+                },
+                body: JSON.stringify(data)
+            })
+            if (response.status == 200 || response.status == 201 || response.status == 202) {
+                displayAlert("alert-success", "Comment posted successfully!");
+            } else {
+                displayAlert("alert-danger", "Posting comment failed!");
+            }
+        }    
+    };
+</script>
 {% endblock content %}
