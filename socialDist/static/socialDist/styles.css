@@ -1,5 +1,6 @@
 :root {
   --primary-color: #007bff;
+  /* --primary-color: red; */
   --border-color: #e4e4e4;
   --dark-blue: #242936;
   --default-font: 'Roboto', sans-serif;
@@ -10,6 +11,36 @@ body {
 }
 
 /* specific elements */
+
+/* For Alex Testing */
+
+/* Relocate buttons */
+/* If we have time, let's try make navbar fixed */
+
+/* Like Button Hover when*/
+[id^="like-btn"]:hover{
+  color: #F08080;
+}
+/* Edit Button Hover when*/
+#edit-btn:hover, #comment-btn:hover {
+  color: #80baf0;
+}
+/* Delete button hover */
+.btn.btn-danger.btn-sm:hover {
+  color: #FFFFE0;
+
+}
+
+#image-descr{
+  margin-left: 20em;
+  
+}
+
+
+/* Post titile */
+.card-title{
+  font-weight: bold;
+}
 
 #settings_save_changes {
   margin-bottom: 1em;

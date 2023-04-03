@@ -35,6 +35,9 @@
         window.location.href = url.pathname + "/edit/"
     }
     const current_author = JSON.parse('{{current_author|escapejs}}');
+    current_author["type"] = "author";
+    current_author["url"] = current_author["id"];
+    const connections = JSON.parse('{{connections|escapejs}}');
     fetch("/api" + data_path + "/",
         { headers: new Headers({ "Authorization": "Token 516e5c3d636f46228edb8f09b9613d5b4b166816" }) })
         .then((response) => response.json())
@@ -61,24 +64,27 @@
             display_post = `
                         <div class="card my-3" id="post-${post_id}">
                             <div class="card-body">
-                                <h5 class="card-title"><a href="${post_relative_path}">${post.title}</a></h5>
-                                <h6 class="card-subtitle mb-2 text-muted"><a href="${author_relative_path}">${post.author.displayName}</a></h6>
-                                <h6 class="card-subtitle mb-2 text-muted">${post.description} <span class="badge bg-secondary">${post.categories}</span></h6>
-                                ${content}
+                                <h5 class="card-title"><a class="link-secondary" href="${post_relative_path}">${post.title}</a></h5>
+                                <h6 class="card-subtitle my-3 text-muted">
+                                    <img src="${post.author.profileImage || `https://ui-avatars.com/api/?name=${post.author.displayName}`}" class="rounded-circle" style="width: 30px; height: 30px; object-fit: cover;">
+                                    <a class="link-secondary mx-1" href="${author_relative_path}">${post.author.displayName}</a>
+                                </h6>
+                                <h6 class="card-subtitle mt-2 mb-2 text-muted">${post.description}</h6>
+                                <span class="badge bg-secondary">${post.categories}</span>
+                                <p class="post-content mb-2">${content}</p>
                                 <button type="button" class="btn btn-secondary btn-sm" id="like-btn">
-                                    <i class="fa-regular fa-heart"></i>   
+                                    <i class="fa-regular fa-heart"></i>
+                                </button>
+                                <button type="button" id="comment-btn" class="btn btn-secondary btn-sm" onclick="postComment('${post.id}')">
+                                    <i class="fa-regular fa-comment"></i>
+                                </button>
+                                <button type="button" id="share-btn" class="btn btn-secondary btn-sm" onclick="sharePost()">
+                                    <i class="fa fa-share"></i>
                                 </button>`
-<<<<<<< HEAD
-
-            if (author_id == "{{user.id}}") {
-                display_post += 
-                            `
-=======
             if (post.author.id == current_author.id) {
                 display_post += `
->>>>>>> 6c6259db0a16d58814b6dc9791447f4335157216
-                            <button type="button" class="btn btn-secondary btn-sm" onclick="editPost('${post.id}')">
-                                Edit
+                            <button type="button" id="edit-btn" class="btn btn-secondary btn-sm" onclick="editPost('${post.id}')">
+                                <i class="fa-solid fa-pen"></i>
                             </button>
                             <button type="button" class="btn btn-danger btn-sm" onclick="deletePost('${post.id}')">
                                 <i class="fa-solid fa-trash"></i>
@@ -138,6 +144,76 @@
                     }
                 }
             });
+    }
+
+    async function sharePost() {
+        let author_url = new URL(current_author.id)
+        let author_relative_path = author_url.pathname
+        let date = new Date();
+        // refresh "published" date
+        post["published"] = date.toISOString();
+        fetch("/api" +  author_relative_path + "/followers/", {
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": "{{ csrf_token }}",
+                "Authorization": "Token 516e5c3d636f46228edb8f09b9613d5b4b166816"
+        }})
+        .then((response) => response.json())
+        .then((data) =>{
+            followers = data.items;
+            for (follower of followers) {
+                sendToInbox(follower.id, post);
+            }
+        })
+    }
+
+    async function sendToInbox(id, data) {
+        // Send post to a user's inbox
+        let url = new URL(id);
+        let author_relative_path = url.pathname + "/"
+        for (connection of connections) {
+            if ("https://" + url.hostname == connection.hostName) {
+                author_relative_path = author_relative_path.replace("/api","");
+                author_relative_path = author_relative_path.replace("/main","");
+                let inbox_url = connection.apiAddress + author_relative_path + "inbox/";
+                if (connection.hostName == "https://social-distribution-w23-t17.herokuapp.com") {
+                    inbox_url = connection.apiAddress + "/authors/" + id + "/inbox/"
+                }
+                if (connection.hostName == "https://social-distribution-media.herokuapp.com") {
+                    data["categories"] = data["categories"].split()
+                    data = {
+                        "@context": "sending to inbox",
+                        "summary": data.author.displayName + " created a post!",
+                        "type": "post",
+                        "author": data.author,
+                        "object":data
+                    }
+                    inbox_url = connection.apiAddress + author_relative_path + "inbox";
+                }
+                fetch(inbox_url, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRFToken": "{{ csrf_token }}",
+                        "Authorization": connection.apiCreds
+                    },
+                    body: JSON.stringify(data),
+                });
+                break;
+            }
+            else if ("https://" + url.hostname == "https://socialdistcmput404.herokuapp.com") {
+                fetch("/api" + author_relative_path + "inbox/", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRFToken": "{{ csrf_token }}",
+                        "Authorization": "Token 516e5c3d636f46228edb8f09b9613d5b4b166816"
+                    },
+                    body: JSON.stringify(data),
+                });
+                break;
+            }
+        }
     }
 </script>
 {% endblock content %}

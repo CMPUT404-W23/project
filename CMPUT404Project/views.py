@@ -3,6 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from socialDist.models import Author, Post, Connection
 from socialDist.serializers import ConnectionSerializer, AuthorSerializer
+from socialDist.api_helper import is_follower
 import base64
 import json
 import marko
@@ -31,13 +32,12 @@ import marko
 
 # Markdown parser: https://marko-py.readthedocs.io/en/latest/
 
-HOST = "http://127.0.0.1:8000/"
+HOST = "https://socialdistcmput404.herokuapp.com/"
 
 @login_required
 def home(request):
     connections = Connection.objects.all()
     connections_serial = ConnectionSerializer(connections, many=True) 
-    
     try:
         current_author = Author.objects.get(user=request.user)
         current_author_serial = AuthorSerializer(current_author)
@@ -84,7 +84,10 @@ def postPage(request, author_id, post_id):
         post = Post.objects.filter(visibility="VISIBLE").get(id=HOST+"authors/"+author_id+"/posts/"+post_id)
     except Post.DoesNotExist:
         return HttpResponse(status=404, content="Post does not exist")
+    connections = Connection.objects.all()
+    connections_serial = ConnectionSerializer(connections, many=True) 
     context = {
+        'connections': json.dumps(connections_serial.data),
         'post': post,
         'current_author': current_author_context,
     }
@@ -123,6 +126,15 @@ def authorPage(request, author_id):
     return render(request, 'profile.html', context)
 
 @login_required
+def privatePosts(request):
+    try:
+        author = Author.objects.get(user=request.user)
+    except Author.DoesNotExist:
+        author = None
+    context = {'author': author}
+    return render(request, 'stream.html', context)
+
+@login_required
 def editPost(request, author_id, post_id):
     try:
         author =  Author.objects.get(id=HOST+"authors/"+author_id)
@@ -152,13 +164,28 @@ def create_post(request):
     return render(request, 'post.html', context)
 
 @login_required
-def postComment(request, author_id, post_id):
-    author = Author.objects.get(user=request.user)
-    author_serial = AuthorSerializer(author)
+def localComment(request, author_id, post_id):
+    current_author = Author.objects.get(user=request.user)
+    current_author_serial = AuthorSerializer(current_author)
     try:
-        post = Post.objects.filter(visibility="VISIBLE").get(id=HOST+"authors/"+author_id+"/posts/"+post_id)
+        author = Author.objects.get(id=HOST+"authors/"+author_id)
+    except Author.DoesNotExist:
+        return HttpResponse(status=404, content="Post does not exist")
+    try:
+        post = Post.objects.get(id=HOST+"authors/"+author_id+"/posts/"+post_id)
+        if post.visibility == "FRIENDS" and not is_follower(request.user, author):
+            return HttpResponse(status=404, content="Post does not exist")
         # author =  Author.objects.get(id=HOST+"authors/"+author_id)
-        context = {'post': post, 'author':json.dumps(author_serial.data)}
+        context = {'post': post, 'author':json.dumps(current_author_serial.data)}
         return render(request, 'post_comment.html', context)
     except Post.DoesNotExist:
         return HttpResponse(status=404, content="Post does not exist")
+    
+@login_required
+def foreignComment(request, hostName, post_id, foreignauthor_id):
+    author = Author.objects.get(user=request.user)
+    author_serial = AuthorSerializer(author)
+    connections = Connection.objects.all()
+    connections_serial = ConnectionSerializer(connections, many=True) 
+    context = {'hostName':hostName, 'post_id':post_id, 'author':json.dumps(author_serial.data), 'foreignauthor_id': foreignauthor_id, 'connections': json.dumps(connections_serial.data)}
+    return render(request, 'post_comment.html',context)

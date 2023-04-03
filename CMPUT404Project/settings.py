@@ -167,6 +167,8 @@ CORS_ALLOWED_ORIGINS = [
 "http://localhost:8000",
 # Local Host
 "http://127.0.0.1:8000",
+# Team 1
+"https://p2psd.herokuapp.com",
 # Team 5
 "https://social-t30.herokuapp.com",
 # Team 7
@@ -175,12 +177,15 @@ CORS_ALLOWED_ORIGINS = [
 "https://ultimate-teapot.herokuapp.com",
 # Team 18
 "https://distributed-social-net.herokuapp.com",
+"https://localhost:3000",
 # Team 17
 "https://social-distribution-w23-t17.herokuapp.com", 
 # Team 4
 "https://www.distribution.social",
 # Team 6
-"https://cmput404-group6-instatonne.herokuapp.com"    
+"https://cmput404-group6-instatonne.herokuapp.com",    
+# Team 2
+"https://social-distribution-media.herokuapp.com"
 ]
 
 # Static files (CSS, JavaScript, Images)

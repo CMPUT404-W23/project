@@ -20,7 +20,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-# This file contains the views for our API
+# This file contains the views for the different endpoints of our API
 
 # Sources:
 # https://docs.djangoproject.com/en/4.1/topics/db/queries/#:~:text=Creating%20objects&text=To%20create%20an%20object%2C%20instantiate,save%20it%20to%20the%20database.&text=This%20performs%20an%20INSERT%20SQL,method%20has%20no%20return%20value.
@@ -46,59 +46,18 @@ from rest_framework import status
 from django.utils.crypto import get_random_string
 from django.contrib.auth.models import User
 from django.forms.models import model_to_dict
-from .serializers import AuthorSerializer, PostSerializer, CommentSerializer, LikeSerializer, ServerSerializer, InboxSerializer, FollowRequestSerializer
-import urllib.parse
-# from itertools import chain
+from .serializers import AuthorSerializer, PostSerializer, CommentSerializer, LikeSerializer, InboxSerializer, FollowRequestSerializer
+from .models import Author, Post, Comment, Like, Inbox, UserFollowing, FollowRequest
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
-import uuid
-
-# TODO: we need to support the following operations to connect with other nodes!
-# What is said below appiles to local node elements too!
-# We also need the UI for the corresponding pages
-#   - Home stream or "global stream"
-#   - User profile page with user inbox
-#   - Create post page
-#   - Edit post page
-# - When making a post, we need to send a POST request containing the Post body
-#   to foreign inboxes which are targeted 
-#   - Public posts and private posts with no target, inbox of all followers of poster
-#   - Private posts, inbox of specfic target follower
-#   - Note this should also be forwarded to the inbox of the author!
-# - When we edit a public post, we should re-send the post to the inbox of the foreign node
-# - When making a follow request, we need to send a POST request containing the follow request
-#   body to the foreign author inbox in question
-#   - The follow request interface could be a field allowing us to select users in foriegn server
-#   which we want to follow (suggestion)
-# - On home or global stream, we need to get all of public Post of to all our
-# connected nodes using GET requests 
-#   - For fetching posts with embedded images, we need to fetch the corresponding image post using GET
-# - When making a comment on a foreign post or liking a foreign post (public or private), we need to send
-# a POST request to the foriegn node (to the /comments endpoint and the /inbox for comments and /inbox for likes)
-# - When fetching comments or likes of a foreign post/likes, we need to send a GET request to that node
-#   - How to display fetched likes or comments?
-# - When the inbox recieves a follow request, it should:
-#       - Check if the target author is hosted on the server or not
-#       - Check if the sending author is stored on the server's DB, create an author object if it isn't
-#       - Create a follow request object in the database
-# - When the inbox recieves a like object, it should:
-#       - Check if liking author exists (can be hosted on our server or foreign)
-#           - Create an author object if it isn't (foreign only)
-#       - Create a like object and associated with the parent object
-# - When the inbox recieves a comment object, it should: 
-#       - Check if comment author exists (can be hosted on our server or foreign)
-#           - Create an author object if it isn't (foreign only)
-# - When the post recieves a post object, it should:
-#        - Check if post author exists (can be hosted on our server or foreign)
-#           - Create an author object if it isn't (foreign only)
-# - In order to support cross-origin AJAX requests, we need to allow Cross-Origin on any returned webpages!
-#   - Note: need to see if we use AJAX or node to node commuication
-
-from .models import Author, Post, Comment, Like, Server, Inbox, UserFollowing, FollowRequest
 from . import api_helper, sample_dicts
+import uuid
 import base64 
+import urllib.parse
+# from itertools import chain
 
-HOST = "http://127.0.0.1:8000/"
+
+HOST = "https://socialdistcmput404.herokuapp.com/"
 
 # Swagger: DONE!!!
 
@@ -173,8 +132,8 @@ class APIListAuthors(APIView):
     def get(self, request):
         if (request.META["QUERY_STRING"] != ""):
             queryDict = QueryDict(request.META["QUERY_STRING"])
-            pageNum = 0
-            sizeNum = 0
+            pageNum = 1 # default page
+            sizeNum = 5 # default page size
             if "page" in queryDict:
                 try:
                     pageNum = int(queryDict["page"])
@@ -311,7 +270,7 @@ class APIPost(APIView):
             # Check if request is from an authorized source (only user and admin can call this!), 401 if not
             if not request.user.is_authenticated or (not request.user.is_staff and author_id != api_helper.extract_UUID(request.user.author.id )):
                 return Response(status=401)
-            if post.visibility == "PRIVATE":
+            if post.visibility == "FRIENDS":
                 return Response(status=404)
             postDict = dict(request.data)
             postDict["author"] = HOST+"authors/"+author_id
@@ -364,13 +323,13 @@ class APIListPosts(APIView):
             author = Author.objects.get(pk=HOST+"authors/"+author_id)
         except Author.DoesNotExist:
             return Response(status=404)
-        posts = Post.objects.filter(author=author).filter(visibility="VISIBLE").order_by('published')
+        posts = Post.objects.filter(author=author).filter(visibility="VISIBLE").order_by('-published')
         serializer = PostSerializer(posts, many=True)
         if (request.META["QUERY_STRING"] == ""):
             return Response(status=200, data=api_helper.construct_list_of_posts(serializer.data, author))
         queryDict = QueryDict(request.META["QUERY_STRING"])
-        pageNum = 0
-        sizeNum = 0
+        pageNum = 1 # default page
+        sizeNum = 5 # default page size
         if "page" in queryDict:
             try:
                 pageNum = int(queryDict["page"])
@@ -451,7 +410,7 @@ class APIImage(APIView):
         # Check if resource already exists, if it does, acts like a GET request
         try:
             post = Post.objects.get(pk=HOST+"authors/"+author_id+"/posts/"+post_id)
-            if post.visibility == "PRIVATE" and not api_helper.is_follower(request.user, author):
+            if post.visibility == "FRIENDS" and not api_helper.is_follower(request.user, author):
                 return Response(status=401)
             if post.contentType != "image/png;base64" and post.contentType != "image/jpeg;base64" and post.contentType != "image/jpg;base64":
                 return Response(status=404)
@@ -476,7 +435,7 @@ class APIComment(APIView):
         except Post.DoesNotExist:
             return Response(status=404)
         # for a private post, only the author can access the comments!
-        if post.visibility == "PRIVATE" and (not request.user.is_authenticated or request.user.author != author):
+        if post.visibility == "FRIENDS" and (not request.user.is_authenticated or request.user.author != author):
             return Response(status=401)
         try:
             comment = Comment.objects.filter(parentPost=HOST+
@@ -498,7 +457,7 @@ class APIComment(APIView):
 #API View for list of comments queries (endpoint /api/authors/<author_id>/posts/<post_id>/comments/)
 class APIListComments(APIView):
     # Get list of comments
-    permission_classes = [auth.CommentsPermissions]
+    permission_classes = [auth.RemotePermission]
     @swagger_auto_schema(operation_summary="Retrieve all of the comments within a post", operation_description="Retrieve all of the comments within a post based on:\n\n* The id of the comment's author\n* The id of the comment's commented post", tags=["Comments"], responses=sample_dicts.sampleListCommentsDict)
     def get(self, request, author_id, post_id):
         try:
@@ -510,7 +469,7 @@ class APIListComments(APIView):
         except Post.DoesNotExist:
             return Response(status=404)
         # for a private post, only the author can access the comments!
-        if post.visibility == "PRIVATE" and (not request.user.is_authenticated or request.user.author != author):
+        if post.visibility == "FRIENDS" and (not request.user.is_authenticated or request.user.author != author):
             return Response(status=401)
         comments = Comment.objects.filter(parentPost=HOST+"authors/"+author_id+"/posts/"+post_id)
         serializer = CommentSerializer(comments, many=True)
@@ -518,8 +477,8 @@ class APIListComments(APIView):
             return Response(status=200, data=api_helper.construct_list_of_comments(serializer.data,
                                                                                post))
         queryDict = QueryDict(request.META["QUERY_STRING"])
-        pageNum = 0
-        sizeNum = 0
+        pageNum = 1 # default page
+        sizeNum = 5 # default page size
         if "page" in queryDict:
             try:
                 pageNum = int(queryDict["page"])
@@ -796,18 +755,18 @@ class APIInbox(APIView):
             inbox=Inbox.objects.filter(author=author).get(pk=HOST+"authors/"+author_id+"/inbox")
             serializer=InboxSerializer(inbox)
             itemList = []
-            for post in inbox.posts.all():
+            for post in inbox.posts.order_by("-published"):
                 post_serial = PostSerializer(post, partial=True)
                 post_author = Author.objects.get(pk=post_serial.data["author"])
                 itemList.append(api_helper.construct_post_object(post_serial.data, post_author))
-            for follow_request in inbox.requests.all():
+            for follow_request in inbox.requests.order_by("-date"):
                 request_serial = FollowRequestSerializer(follow_request, partial=True)
                 target = Author.objects.get(pk=request_serial.data["target"])
                 sender = Author.objects.get(pk=request_serial.data["sender"])
                 itemList.append(api_helper.construct_follow_request_object(request_serial.data,
                                                                            target,
                                                                            sender))
-            for like in inbox.likes.all():
+            for like in inbox.likes.order_by("-published"):
                 like_serial = LikeSerializer(like, partial=True)
                 like_author = Author.objects.get(pk=like_serial.data["author"])
                 if like.likeType == "Post":
@@ -820,7 +779,7 @@ class APIInbox(APIView):
                                                                      like.parentComment.id, 
                                                                      "comment",
                                                                      like_author))
-            for comment in inbox.comments.all():
+            for comment in inbox.comments.order_by("-published"):
                 comment_serial = CommentSerializer(comment, partial=True)
                 comment_author = Author.objects.get(pk=comment_serial.data["author"])
                 itemList.append(api_helper.construct_comment_object(comment_serial.data, comment_author))
@@ -893,12 +852,18 @@ class APIInbox(APIView):
                         return Response(status=400, data=new_author_serial.errors)
                     new_author_serial.save()
                 postDict = dict(request.data)
+                # Source: https://www.programiz.com/python-programming/methods/string/join
+                try:
+                    if type(postDict["categories"]) is list:
+                            postDict["categories"] = ' '.join(postDict["categories"])
+                except KeyError:
+                    postDict["categories"] = "Uncategorized"
                 postDict["author"] = request.data["author"]["id"]
                 new_post_serial = PostSerializer(data=postDict, partial=True)
                 if not new_post_serial.is_valid():
                     return Response(status=400, data=new_post_serial.errors)
                 new_post_serial.save()
-                post = Post.objects.get(pk=request.data["post"]["id"])
+                post = Post.objects.get(pk=request.data["id"])
             inbox.posts.add(post)
             return Response(status=200)
         
@@ -1001,13 +966,21 @@ class APIInbox(APIView):
             try:
                 comment = Comment.objects.get(pk=request.data["id"])
             except Comment.DoesNotExist:
-                return Response(status=404)
+                comment_dict = dict(request.data)
+                comment_dict["parentPost"] = request.data["id"].split("/comments")[0]
+                comment_dict["published"] =  datetime.datetime.now().isoformat()
+                comment_dict["author"] = request.data["author"]["id"]
+                comment_serial = CommentSerializer(data=comment_dict, partial=True)
+                if not comment_serial.is_valid():
+                    return Response(status=400, data=comment_serial.errors)
+                comment_serial.save()
+                comment = Comment.objects.get(pk=request.data["id"])
             inbox.comments.add(comment)
             return Response(status=200)
             
     # TBA
     @swagger_auto_schema(operation_summary="Clear an author's inbox",operation_description="Clear an author's inbox based on:\n\n* The author's own id", tags=["Inbox"], responses=sample_dicts.sampleDELETEDict)
-    def delete (request, author_id):
+    def delete (self, request, author_id):
         try:
             author = Author.objects.get(pk=HOST+"authors/"+author_id)
         except Author.DoesNotExist:
@@ -1019,8 +992,9 @@ class APIInbox(APIView):
         # making inbox empty by setting all the fields as blank except author, every other field the same
         # Delete inbox and recreating it
         inbox.delete()
-        inbox.create(inbox_id=HOST+"authors/"+author_id+"/inbox", author=HOST+"authors/"+author_id, post=[])
-
+        new_inbox = Inbox(inboxID=HOST+"authors/"+author_id+"/inbox", 
+                          author=author)
+        new_inbox.save()
         return Response(status=200)
 
 # TODO Please generate appropriate documentation of the following API to root_project/openapi.json
@@ -1033,7 +1007,43 @@ class APIPosts(APIView):
         for each_author in Author.objects.filter(host=HOST):
             if not Post.objects.filter(author=each_author).count():
                 continue
-            posts = PostSerializer(Post.objects.filter(author=each_author).filter(visibility="VISIBLE").filter(unlisted=False), many=True)
+            posts = PostSerializer(Post.objects.filter(author=each_author).filter(visibility="VISIBLE").filter(unlisted=False).order_by("-published"), many=True)
             author_posts_pair.append([each_author, posts.data])
             
         return Response(status=200, data=api_helper.construct_list_of_all_posts(author_posts_pair))
+
+class APIAuthorPrivatePosts(APIView):
+    permission_classes = [auth.RemotePermission]
+    # TODO: add @swagger_auto_schema later
+    # Copy from GET in APIListPosts, except changing public to private
+
+    def get(self, request, author_id):
+        try:
+            author = Author.objects.get(pk=HOST+"authors/"+author_id)
+        except Author.DoesNotExist:
+            return Response(status=404)
+        # ONLY CHANGE: from visible to private
+        # posts = Post.objects.filter(author=author).filter(visibility="FRIENDS").order_by('-published') | Post.objects.filter(author=author).filter(unlisted=True).order_by('-published')
+        
+        # Return all post from author
+        posts = Post.objects.filter(author=author)
+        serializer = PostSerializer(posts, many=True)
+        if (request.META["QUERY_STRING"] == ""):
+            return Response(status=200, data=api_helper.construct_list_of_posts(serializer.data, author))
+        queryDict = QueryDict(request.META["QUERY_STRING"])
+        pageNum = 0
+        sizeNum = 0
+        if "page" in queryDict:
+            try:
+                pageNum = int(queryDict["page"])
+            except ValueError:
+                return Response(status=404)
+        if "size" in queryDict:
+            try:
+                sizeNum= int(queryDict["size"])
+            except ValueError:
+                return Response(status=404)
+        return Response(status=200, data=api_helper.construct_list_of_paginated_posts(serializer.data,
+                                                                                    pageNum,
+                                                                                    sizeNum,
+                                                                                    author))

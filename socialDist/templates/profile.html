@@ -7,23 +7,39 @@
         integrity="sha512-KfkfwYDsLkIlwQp6LFnl8zNdLGxu9YAA1QvwINks4PhcElQSvqcyVLLD9aMhXd13uQjoXtEKNosOWaZqXgel0g=="
         crossorigin="anonymous" referrerpolicy="no-referrer" />
 </head>
-<div class="container-md mt-2">
-    <h1>{{author.displayName}} Profile Page </h1>
-    <p>Github: {{author.Github}}</p>
+<div class="container-md mt-3">
+    <h1 class="fw-bold">
+        <!-- Show profile image if author has, otherwise show default image -->
+        {% if author.profileImage %}
+        <img src="{{author.profileImage}}" class="rounded-circle"
+            style="width: 100px; height: 100px; object-fit: cover;">
+        {% else %}
+        <img src="https://ui-avatars.com/api/?name={{author.displayName}}&size=100" class="rounded-circle"
+            style="width: 100px; height: 100px; object-fit: cover;">
+        {% endif %}
+        {{author.displayName}}'s Profile
+    </h1>
+    {% if author.github %}
+    <p>GitHub: {{author.github}}</p>
+    {% endif %}
+    <h4 class="border-bottom py-2">Connections</h4>
     <h6>Followers: {{follower_list | length}}</h6>
     <div class="grid">
         {% for follower in follower_list %}
         <div class="card my-3">
             <div class="card-body">
-               <p>{{follower.user_id.displayName}} 
-                <span>
-                    {% if isOwner %}
-                    <button class="btn btn-dark" onclick="deleteFollower('{{follower.user_id.id}}')">
-                        Remove follower
-                    </button>
-                    {% endif %}
-                </span>
-            </p>
+                <div class="row align-items-center">
+                    <div class="col-8">
+                        {{follower.user_id.displayName}}
+                    </div>
+                    <div class="col-4 text-end">
+                        {% if isOwner %}
+                        <button class="btn btn-outline-danger" onclick="deleteFollower('{{follower.user_id.id}}')">
+                            Remove
+                        </button>
+                        {% endif %}
+                    </div>
+                </div>
             </div>
         </div>
         {% endfor %}
@@ -33,25 +49,55 @@
         {% for following in following_list %}
         <div class="card my-3">
             <div class="card-body">
-                {{following.user_id.displayName}}
+                {{following.following_user_id.displayName}}
             </div>
         </div>
         {% endfor %}
     </div>
 
-    {% if isOwner %}
+    <h6>Friends (You & Your Follower BOTH follow each other)</h6>
     <div class="grid">
-        <h4>Posts</h4>
+        {% for following in following_list %}
+        {% for follower in follower_list %}
+        {% if following.following_user_id == follower.user_id %}
+        <div class="card my-3">
+            <div class="card-body">
+                {{following.following_user_id.displayName}}
+            </div>
+        </div>
+        {% endif %}
+        {% endfor %}
+        {% endfor %}
+    </div>
+
+    {% if isOwner %}
+    <h4 class="border-bottom py-2">Inbox</h4>
+    <button class="btn btn-danger" onclick="clearInbox()">Clear inbox</button>
+    <div class="grid">
+        <br>
+        <h5 class="border-bottom py-2">Posts:</h4>
         <div class="grid" id="posts">
+            <div class="card my-3" id="placeholder">
+                <div class="card-body"> No posts to show</div>
+            </div>
         </div>
-        <h4>Likes</h4>
+        <h5 class="border-bottom py-2">Likes:</h4>
         <div class="grid" id="likes">
+            <div class="card my-3" id="placeholder">
+                <div class="card-body"> No likes to show</div>
+            </div>
         </div>
-        <h4>Comments</h4>
+        <h5 class="border-bottom py-2">Comments:</h4>
         <div class="grid" id="comments">
+            <div class="card my-3" id="placeholder">
+                <div class="card-body"> No comments to show</div>
+            </div>
         </div>
-        <h4>Follow Requests</h4>
+        <h5 class="border-bottom py-2">Follow Requests:</h4>
         <div class="grid" id="requests">
+            <div class="card my-3" id="placeholder">
+                <div class="card-body"> No follow requests to show</div>
+            </div>
         </div>
     </div>
 </div>
@@ -63,10 +109,26 @@
         template.innerHTML = html;
         return template.content;
     };
+
+    function clearInbox() {
+        let current_author_url = new URL(current_author.id);
+        let current_author_relative_path = current_author_url.pathname;
+        fetch("/api" + current_author_relative_path + "/inbox/", {
+        method: "DELETE",
+        headers: new Headers({
+            "Authorization": "Token 516e5c3d636f46228edb8f09b9613d5b4b166816",
+            "X-CSRFToken": "{{ csrf_token }}"
+            })
+        });
+        window.location.reload();
+    }
     var followReqActors = [];
     var followIndex = 0;
     let inboxData;
     const current_author = JSON.parse('{{current_author|escapejs}}');
+    current_author["type"] = "author";
+    current_author["url"] = current_author["id"];
+    console.log("current_author:",current_author)
     let current_author_url = new URL(current_author.id)
     let current_author_relative_path = current_author_url.pathname
     const listOfConnections = JSON.parse('{{connections|escapejs}}'); // list of all connected nodes
@@ -85,6 +147,7 @@
             for (let item of data.items) {
                 if (item.type === "post") {
                     let content;
+                    let editAndDeleteButtons = "";
                     if (item.contentType.startsWith("image")) {
                         content = `<img class="img-fluid mx-auto d-block" style="max-width: 50%" src="data:${item.contentType}, ${item.content}"/><br>`;
                     } else if (item.contentType === "text/markdown") {
@@ -94,71 +157,185 @@
                     } else {
                         content = `<p class="card-text">${item.content}</p>`;
                     }
-                    var htmlElement = htmlToElement(`
-                <div class="card my-3">
-                    <div class="card-body">
-                        <h5 class="card-title"><a href="${item.id}">${item.title}</a></h5>
-                        <h6 class="card-subtitle mb-2 text-muted"><a href="${item.author.url}">${item.author.displayName}</a></h6>
-                        <h6 class="card-subtitle mb-2 text-muted">${item.description} <span class="badge bg-secondary">${item.categories}</span></h6>
-                        ${content}
-                        <button type="button" class="btn btn-secondary btn-sm" id="like-btn-${index}" onclick="likePost(${index})">
-                            <i class="fa-regular fa-heart"></i>  
-                        </button>
-                    </div>
-                </div>
-                `);
-                    console.log(htmlElement);
-                    document.getElementById("posts").appendChild(htmlElement);
+                    // owner of a public post, can see comments and edit
+                    if (item.author.id == current_author.id && item.visibility == "VISIBLE") {
+                        editAndDeleteButtons = `<button type="button" id="edit-btn" class="btn btn-secondary btn-sm" onclick="editPost('${item.id}')">
+                                        <i class="fa-solid fa-pen"></i>
+                                    </button>
+                                    <button type="button" class="btn btn-danger btn-sm" onclick="deletePost('${item.id}')">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </button>`
+                        commentButton = 
+                        `<button type="button" class="btn btn-secondary btn-sm" onclick="postComment('${item.id}','','internal')">
+                            <i class="fa-regular fa-comment"></i>
+                        </button>`
+                        getComment(item.author.id.split("/").pop(),item.id.split("/").pop(),'','internal')
+                    // either owner of a private post OR not the owner of a public post, can see comments but can't edit
+                    } else if (item.visibility == "VISIBLE" || item.author.id == current_author.id) {
+                        commentButton = 
+                        `<button type="button" class="btn btn-secondary btn-sm" onclick="postComment('${item.id}','${item.author.id.split("/").pop()}','external')">
+                            <i class="fa-regular fa-comment"></i>
+                        </button>`
+                        const post_url = new URL(item.id)
+                        const host_name = post_url.hostname
+                        let post_type = host_name === "socialdistcmput404.herokuapp.com" ? 'internal' : 'external';
+                        getComment(item.author.id.split("/").pop(),item.id.split("/").pop(),host_name, post_type)
+                    }
+                    // not the owner of a private post, can't see comments
+                    else {
+                        commentButton = 
+                        `<button type="button" class="btn btn-secondary btn-sm" onclick="postComment('${item.id}','${item.author.id.split("/").pop()}','external')">
+                            <i class="fa-regular fa-comment"></i>
+                        </button>`
+                    }
+
+                    if (item.contentType.startsWith("image")){
+                        var htmlElement = htmlToElement(`
+                            <div class="card my-3">
+                                <div class="card-body">
+                                    <h5 class="card-title"><a class="link-secondary" href="${item.id}">${item.title}</a></h5>
+                                    <h6 class="card-subtitle my-3 text-muted">
+                                        <img src="${item.author.profileImage || `https://ui-avatars.com/api/?name=${item.author.displayName}`}" class="rounded-circle" style="width: 30px; height: 30px; object-fit: cover;">
+                                        <a class="link-secondary mx-1" href="${item.author.url}">${item.author.displayName}</a>
+                                        </h6>
+                                    <span class="badge bg-secondary mb-2">${item.categories}</span>
+                                    ${content}<br>
+                                    <h6 class="card-subtitle mt-2 mb-2 text-muted" style="margin-left:0.5em;">${item.description}</h6><br>
+                                    <button type="button" class="btn btn-secondary btn-sm" id="like-btn-${index}" onclick="likePost(${index})">
+                                        <i class="fa-regular fa-heart"></i>  
+                                    </button>
+                                    <button type="button" id="share-btn" class="btn btn-secondary btn-sm" onclick="sharePost(${index})">
+                                                <i class="fa fa-share"></i>
+                                    </button>
+                                    ${commentButton}
+                                    ${editAndDeleteButtons}
+                                    <br><br><div id="comment-${item.id.split("/").pop()}"></div>
+                                </div>
+                            </div>
+                            `);
+                    }
+
+                    else {
+                        var htmlElement = htmlToElement(`
+                            <div class="card my-3">
+                                <div class="card-body">
+                                    <h5 class="card-title"><a class="link-secondary" href="${item.id}">${item.title}</a></h5>
+                                    <h6 class="card-subtitle my-3 text-muted">
+                                        <img src="${item.author.profileImage || `https://ui-avatars.com/api/?name=${item.author.displayName}`}" class="rounded-circle" style="width: 30px; height: 30px; object-fit: cover;">
+                                        <a class="link-secondary mx-1" href="${item.author.url}">${item.author.displayName}</a>
+                                        </h6>
+                                    <h6 class="card-subtitle mt-2 mb-2 text-muted">${item.description}</h6>
+                                    <span class="badge bg-secondary mb-2">${item.categories}</span>
+                                    ${content}
+                                    <button type="button" class="btn btn-secondary btn-sm" id="like-btn-${index}" onclick="likePost(${index})">
+                                        <i class="fa-regular fa-heart"></i>  
+                                    </button>
+                                    <button type="button" id="share-btn" class="btn btn-secondary btn-sm" onclick="sharePost(${index})">
+                                                <i class="fa fa-share"></i>
+                                    </button>
+                                    ${commentButton}
+                                    ${editAndDeleteButtons}
+                                    <br><br><div id="comment-${item.id.split("/").pop()}"></div>
+                                </div>
+                            </div>
+                            `);
+                    }
+                // OLD
+                //     var htmlElement = htmlToElement(`
+                // <div class="card my-3">
+                //     <div class="card-body">
+                //         <h5 class="card-title"><a class="link-secondary" href="${item.id}">${item.title}</a></h5>
+                //         <h6 class="card-subtitle my-3 text-muted">
+                //             <img src="${item.author.profileImage || `https://ui-avatars.com/api/?name=${item.author.displayName}`}" class="rounded-circle" style="width: 30px; height: 30px; object-fit: cover;">
+                //             <a class="link-secondary mx-1" href="${item.author.url}">${item.author.displayName}</a>
+                //             </h6>
+                //         <h6 class="card-subtitle mt-2 mb-2 text-muted">${item.description}</h6>
+                //         <span class="badge bg-secondary mb-2">${item.categories}</span>
+                //         ${content}
+                //         <button type="button" class="btn btn-secondary btn-sm" id="like-btn-${index}" onclick="likePost(${index})">
+                //             <i class="fa-regular fa-heart"></i>  
+                //         </button>
+                //         <button type="button" id="share-btn" class="btn btn-secondary btn-sm" onclick="sharePost(${index})">
+                //                     <i class="fa fa-share"></i>
+                //         </button>
+                //         ${commentButton}
+                //         ${editAndDeleteButtons}
+                //         <br><br><div id="comment-${item.id.split("/").pop()}"></div>
+                //     </div>
+                // </div>
+                // `);
+                    postsSection = document.getElementById("posts");
+                    if (postsSection.children[0].id === "placeholder") {
+                        postsSection.removeChild(postsSection.children[0]);
+                    }
+                    postsSection.appendChild(htmlElement);
                     isLiked(index); // check if post is liked by user
                 }
                 else if (item.type === "comment") {
                     let content;
                     if (item.contentType === "text/markdown") {
-                        content = `<p class="card-text">${marked.parse(item.content)}</p>`;
+                        content = `<p class="card-text">${marked.parse(item.comment)}</p>`;
                     } else {
-                        content = `<p class="card-text">${item.content}</p>`;
+                        content = `<p class="card-text">${item.comment}</p>`;
                     }
+                    let parentPost = item.id.split("/comments")[0];
                     var htmlElement = htmlToElement(`
                 <div class="card my-3">
                     <div class="card-body">
-                        <h6 class="card-subtitle mb-2 text-muted"><a href="${item.author.url}">${item.author.displayName}</a></h6>
-                        ${content}
-                        <button type="button" class="btn btn-secondary btn-sm" id="likeButton">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-heart" viewBox="0 0 16 16">
-                                <path d="m8 2.748-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385.92 1.815 2.834 3.989 6.286 6.357 3.452-2.368 5.365-4.542 6.286-6.357.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01L8 2.748zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143c.06.055.119.112.176.171a3.12 3.12 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15z"/>
-                            </svg>   
-                        </button>
+                        <h6 class="card-subtitle mb-2 text-muted"><a href="${item.author.url}">${item.author.displayName}</a>
+                            commented on your <a href="${parentPost}">post</a></h6>
+                        <div class="card my-3">
+                            <div class="card-body">
+                            ${content}
+                            </div>
+                        </div>
                     </div>
                 </div>
                 `);
-                    console.log(htmlElement);
-                    document.getElementById("comments").appendChild(htmlElement);
+                    commentSection = document.getElementById("comments");
+                    if (commentSection.children[0].id === "placeholder") {
+                        commentSection.removeChild(commentSection.children[0]);
+                    }
+                    commentSection.appendChild(htmlElement);
                 }
                 else if (item.type === "Like") {
                     var htmlElement = htmlToElement(`
                 <div class="card my-3">
                     <div class="card-body">
                         <p>${item.summary}</p>
+                        <a href=${item.object}>View</a>
                     </div>
                 </div>
                 `);
-                    console.log(htmlElement);
-                    document.getElementById("likes").appendChild(htmlElement);
+                    likesSection = document.getElementById("likes");
+                    if (likesSection.children[0].id === "placeholder") {
+                        likesSection.removeChild(likesSection.children[0]);
+                    }
+                    likesSection.appendChild(htmlElement);
                 }
                 else if (item.type === "Follow") {
                     var htmlElement = htmlToElement(`
-                <div class="card my-3">
-                    <div class="card-body">
-                        <a href="${item.actor.url}">${item.actor.displayName}</a> wants to follow you!
-                    </div>
-                    <button class="btn btn-dark" onclick="accept('${item.actor.id}')">Accept</button>
-                    <button class="btn btn-dark" onclick="reject('${item.actor.id}', ${followIndex})">Reject</button>
-                </div>
-                `);
+                        <div class="card my-3">
+                            <div class="card-body">
+                                <div class="row align-items-center">
+                                    <div class="col-8">
+                                        <a href="${item.actor.url}">${item.actor.displayName}</a> wants to follow you!
+                                    </div>
+                                    <div class="col-4 text-end">
+                                        <button class="btn btn-success" onclick="accept('${item.actor.id}')">Accept</button>
+                                        <button class="btn btn-outline-dark" onclick="reject('${item.actor.id}', ${followIndex})">Reject</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `);
                     followReqActors.push(item.actor);
                     followIndex++;
-                    console.log(htmlElement);
-                    document.getElementById("requests").appendChild(htmlElement);
+                    requestsSection = document.getElementById("requests");
+                    if (requestsSection.children[0].id === "placeholder") {
+                        requestsSection.removeChild(requestsSection.children[0]);
+                    }
+                    requestsSection.appendChild(htmlElement);
                 }
                 index += 1;
             }
@@ -181,27 +358,46 @@
             });
         window.location.reload();
     };
+
     async function likePost(i) {
         // like a post
         const post = inboxData[i]; // we got a list of all inbox items from fetch; like button passes the index of which post to like
         const author = post.author;
         const authorID = author.id.split("/").pop();
+        const authorURL = post.author.id;
         const hostname = new URL(author.id).hostname;
         let url = hostname === window.location.hostname ? `/api/authors/${authorID}/inbox/` : `https://${hostname}/api/authors/${authorID}/inbox/`;
-        if (hostname === "https://social-distribution-w23-t17.herokuapp.com") {
-            url = `https://${hostname}/authors/${authorID}/inbox/`;
+        if ("https://" + hostname === "https://social-distribution-w23-t17.herokuapp.com") {
+            url = `https://${hostname}/authors/${authorURL}/inbox/`;
+        }
+        if ("https://" + hostname === "https://social-distribution-media.herokuapp.com") {
+            url = `https://${hostname}/api/authors/${authorID}/inbox`;
         }
         let authorization = "Token 516e5c3d636f46228edb8f09b9613d5b4b166816";
         if (hostname != window.location.hostname) {
-            const remoteConnection = listOfConnections.find(connection => connection.hostName === hostname);
+            const remoteConnection = listOfConnections.find(connection => connection.hostName === "https://" + hostname);
             authorization = remoteConnection.apiCreds
         }
-        const data = {
+        let data = {
             "@context": "Post Like",
             "summary": "{{ user.username }} Likes your post",
             "type": "Like",
             "author": current_author,
             "object": post.id
+        }
+        if ("https://" + hostname == "https://social-distribution-media.herokuapp.com") {
+            data = {
+                "@context": "Post Like",
+                "summary": "{{ user.username }} Likes your post",
+                "type": "like",
+                "author": current_author,
+                "object": {
+                    "type": "like",
+                    "summary": "{{ user.username }} Likes your post",
+                    "author": current_author,
+                    "object": post.id
+                }
+            };
         }
         // POST a like object to the author's inbox
         const response = await fetch(url, {
@@ -213,7 +409,7 @@
             },
             body: JSON.stringify(data),
         });
-        if (response.status == 200) {
+        if (response.status == 200 || response.status == 201 || response.status == 202) {
             document.getElementById(`like-btn-${i}`).innerHTML = `<i class="fa-solid fa-heart"></i>`;
             document.getElementById(`like-btn-${i}`).disabled = true;
         } else {
@@ -241,15 +437,20 @@
         // checks if current user liked the post
         const post = inboxData[i];
         const author = post.author;
+        const authorURL = author.id;
         const authorID = author.id.split("/").pop();
         const hostname = new URL(author.id).hostname;
+        const postURL = post.id;
         let url = hostname === window.location.hostname ? `/api/authors/${authorID}/posts/${post.id.split('/').pop()}/likes/` : `https://${hostname}/api/authors/${authorID}/posts/${post.id.split('/').pop()}/likes/`;
-        if (hostname === "https://social-distribution-w23-t17.herokuapp.com") {
-            url = `https://${hostname}/authors/${authorID}/posts/${post.id.split('/').pop()}/likes/`;
+        if ("https://" + hostname === "https://social-distribution-w23-t17.herokuapp.com") {
+            url = `https://${hostname}/authors/${authorURL}/posts/${postURL}/likes/`;
+        }
+        if ("https://" + hostname === "https://social-distribution-media.herokuapp.com") {
+            url = `https://${hostname}/api/authors/${authorID}/posts/${post.id.split('/').pop()}/likes`
         }
         let authorization = "Token 516e5c3d636f46228edb8f09b9613d5b4b166816";
         if (hostname != window.location.hostname) {
-            const remoteConnection = listOfConnections.find(connection => connection.hostName === hostname);
+            const remoteConnection = listOfConnections.find(connection => connection.hostName === "https://" + hostname);
             authorization = remoteConnection.apiCreds
         }
         // GET all likes for the post
@@ -263,12 +464,258 @@
         }).then(response => response.json())
             .then(data => {
                 for (like of data.items) {
-                    if (like.author.id == current_author.id) {
+                    if (like.author.url == current_author.id) {
                         document.getElementById(`like-btn-${i}`).innerHTML = `<i class="fa-solid fa-heart"></i>`;
                         document.getElementById(`like-btn-${i}`).disabled = true;
                     }
                 }
             });
+    }
+
+    function editPost(id) {
+        url = new URL(id)
+        window.location.href = url.pathname + "/edit/"
+    }
+
+    function deletePost(id) {
+        // DELETE a post
+        url = new URL(id)
+        fetch_url = "/api" + url.pathname + "/"
+        fetch(fetch_url, { headers: new Headers({ "X-CSRFToken": "{{ csrf_token }}", "Authorization": "Token 516e5c3d636f46228edb8f09b9613d5b4b166816" }), method: 'DELETE' })
+            .then((response) => response.status())
+            .then(window.location.reload())
+    }
+
+    async function sharePost(index) {
+        let post = inboxData[index];
+        let author_url = new URL(current_author.id)
+        let author_relative_path = author_url.pathname
+        let date = new Date();
+        // refresh "published" date
+        post["published"] = date.toISOString();
+        fetch("/api" +  author_relative_path + "/followers/", {
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": "{{ csrf_token }}",
+                "Authorization": "Token 516e5c3d636f46228edb8f09b9613d5b4b166816"
+        }})
+        .then((response) => response.json())
+        .then((data) =>{
+            followers = data.items;
+            for (follower of followers) {
+                sendToInbox(follower.id, post);
+            }
+        })
+    }
+
+    async function sendToInbox(id, data) {
+        // Send post to a user's inbox
+        let url = new URL(id);
+        let author_relative_path = url.pathname + "/"
+        for (connection of listOfConnections) {
+            if ("https://" + url.hostname == connection.hostName) {
+                author_relative_path = author_relative_path.replace("/api","");
+                author_relative_path = author_relative_path.replace("/main","");
+                let inbox_url = connection.apiAddress + author_relative_path + "inbox/";
+                if (connection.hostName == "https://social-distribution-w23-t17.herokuapp.com") {
+                    inbox_url = connection.apiAddress + "/authors/" + id + "/inbox/"
+                }
+                if (connection.hostName == "https://social-distribution-media.herokuapp.com") {
+                    data["categories"] = data["categories"].split()
+                    data = {
+                        "@context": "sending to inbox",
+                        "summary": data.author.displayName + " created a post!",
+                        "type": "post",
+                        "author": data.author,
+                        "object":data
+                    }
+                    inbox_url = connection.apiAddress + author_relative_path + "inbox";
+                }
+                fetch(inbox_url, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRFToken": "{{ csrf_token }}",
+                        "Authorization": connection.apiCreds
+                    },
+                    body: JSON.stringify(data),
+                });
+                break;
+            }
+            else if ("https://" + url.hostname == "https://socialdistcmput404.herokuapp.com") {
+                fetch("/api" + author_relative_path + "inbox/", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRFToken": "{{ csrf_token }}",
+                        "Authorization": "Token 516e5c3d636f46228edb8f09b9613d5b4b166816"
+                    },
+                    body: JSON.stringify(data),
+                });
+                break;
+            }
+        }
+    }
+
+    
+    function postComment(post_id,foreignauthor_id,type) {
+        if (type === 'internal'){
+            console.log(post_id)
+            url = new URL(post_id)
+            window.location.href = url.pathname + "/comments/"
+        } else if (type === 'external'){
+            console.log(post_id,foreignauthor_id,type)
+            url = new URL(post_id)
+            post_id = post_id.split("/").pop()
+            window.location.href = `https://socialdistcmput404.herokuapp.com/posts/foreign/${url.hostname}/authors/${foreignauthor_id}/posts/${post_id}/comments`
+        }
+    }
+    // GET and display comments for a post
+    let commentsList = [];
+    let commentIndex = 0;
+    async function getComment(author_id, post_id,host_name,type) {
+        if (type == 'internal'){
+            const url = `/api/authors/${author_id}/posts/${post_id}/comments/`
+            const response = await fetch(url, {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": "{{ csrf_token }}",
+                    "Authorization": "Token 516e5c3d636f46228edb8f09b9613d5b4b166816"
+                },
+            }).then(response => response.json())
+                .then(data => {
+                    commentsList = commentsList.concat(data.items);
+                    for (const comment of data.items){
+                        comment_html = 
+                        `<h6 class="card-text" > 
+                            <b class="ml-5"><a href=${comment.author.url}>${comment.author.displayName}</a></b> ${comment.comment} 
+                            <button id="like-comment-${commentIndex}" type="button" class="btn btn-light btn-sm ml-20" onclick="likeComment(${commentIndex})">
+                                <i class="fa-regular fa-heart"></i>
+                            </button>
+                        </h6>`
+                        document.getElementById(`comment-${post_id}`).innerHTML += comment_html 
+                        isCommentLiked(commentIndex);
+                        commentIndex += 1;
+                    }
+                });
+        } else if (type === 'external'){
+            const hostname = "https://" + host_name;
+            let parent_post_url = `${hostname}/authors/${author_id}/posts/${post_id}`
+            let author_url = `${hostname}/authors/${author_id}`
+            let url = `${hostname}/api/authors/${author_id}/posts/${post_id}/comments/`
+            if (hostname == "https://social-distribution-w23-t17.herokuapp.com") {
+                url = `${hostname}/authors/${author_url}/posts/${parent_post_url}/comments/?page=1&size=1000`
+            }
+            else if (hostname == "https://social-distribution-media.herokuapp.com" ||
+            hostname == "https:social-t30.herokuapp.com") {
+                url = `${hostname}/api/authors/${author_id}/posts/${post_id}/comments?page=1&size=1000`
+            }
+            const remoteConnection = listOfConnections.find(connection => connection.hostName === hostname);
+            let authorization = remoteConnection.apiCreds;
+            const response = await fetch(url, {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": "{{ csrf_token }}",
+                    "Authorization": authorization
+                },
+            }).then(response => response.json())
+                .then(data => {
+                    commentsList = commentsList.concat(data.items);
+                    for (const comment of data.items){
+                        comment_html = 
+                        `<h6 class="card-text" > 
+                            <b class="ml-5"><a href=${comment.author.url}>${comment.author.displayName}</a></b> ${comment.comment} 
+                            <button id="like-comment-${commentIndex}" type="button" class="btn btn-light btn-sm ml-20" onclick="likeComment(${commentIndex})">
+                                <i class="fa-regular fa-heart"></i>
+                            </button>
+                        </h6>`
+                        document.getElementById(`comment-${post_id}`).innerHTML += comment_html 
+                        isCommentLiked(commentIndex);
+                        commentIndex += 1;
+                    }
+                });
+        }
+        
+    }
+    async function isCommentLiked(i) {
+        // checks if current user liked the comment
+        // i is index of comment in commentsList
+        const comment = commentsList[i];
+        const authorID = comment.author.id.split("/").pop();
+        const hostname = comment.author.host;
+        let authorization = "Token 516e5c3d636f46228edb8f09b9613d5b4b166816";
+        let url = `${hostname}/api${new URL(comment.id).pathname}/likes`;
+        console.log(`${hostname}${comment.id}/likes`)
+        if (hostname == "https://socialdistcmput404.herokuapp.com/") { // not a remote author
+            url = `/api${new URL(comment.id).pathname}/likes`
+        } else {
+            const remoteConnection = listOfConnections.find(connection => connection.hostName === hostname);
+            authorization = remoteConnection.apiCreds;
+            if (hostname == "https://social-distribution-w23-t17.herokuapp.com") {
+                url = `${hostname}${comment.id}/likes`
+            }
+        }
+        // GET list of likes for the post
+        const response = await fetch(url, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": "{{ csrf_token }}",
+                "Authorization": authorization,
+            },
+        }).then(response => response.json())
+            .then(data => {
+                for (like of data.items) {
+                    console.log(like.author.id, current_author.id)
+                    if (like.author.id == current_author.id) {
+                        document.getElementById(`like-comment-${i}`).innerHTML = `<i class="fa-solid fa-heart"></i>`;
+                        document.getElementById(`like-comment-${i}`).disabled = true;
+                    }
+                }
+            });
+
+    }
+    async function likeComment(i) {
+        // POST a like object to the author's inbox
+        const comment = commentsList[i];
+        const authorID = comment.author.id.split("/").pop();
+        const hostname = comment.author.host;
+        let authorization = "Token 516e5c3d636f46228edb8f09b9613d5b4b166816";
+        let url = `${hostname}/api/authors/${authorID}/inbox/`;
+        if (hostname == "https://socialdistcmput404.herokuapp.com/") { // not a remote author
+            url = `/api/authors/${authorID}/inbox/`
+        } else {
+            const remoteConnection = listOfConnections.find(connection => connection.hostName === hostname);
+            authorization = remoteConnection.apiCreds;
+            if (hostname == "https://social-distribution-w23-t17.herokuapp.com") {
+                url = `${hostname}/authors/${comment.author.id}/inbox/`
+            }
+        }
+        const data = {
+            "@context": "Comment Like",
+            "summary": current_author.displayName + " likes a comment on your post",
+            "type": "Like",
+            "author": current_author,
+            "object": comment.id
+        }
+        // POST a like object to the author's inbox
+        const response = await fetch(url, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": "{{ csrf_token }}",
+                "Authorization": authorization
+            },
+            body: JSON.stringify(data),
+        });
+        if (response.status == 200) {
+            document.getElementById(`like-comment-${i}`).innerHTML = `<i class="fa-solid fa-heart"></i>`;
+            document.getElementById(`like-comment-${i}`).disabled = true;
+        } else {
+            console.log(response.status, response.statusText)
+        }
     }
 </script>
 {% endif %}
