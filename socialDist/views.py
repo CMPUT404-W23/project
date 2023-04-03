@@ -858,7 +858,7 @@ class APIInbox(APIView):
                             postDict["categories"] = ' '.join(postDict["categories"])
                 except KeyError:
                     postDict["categories"] = ""
-                postDict["autho r"] = request.data["author"]["id"]
+                postDict["author"] = request.data["author"]["id"]
                 new_post_serial = PostSerializer(data=postDict, partial=True)
                 if not new_post_serial.is_valid():
                     return Response(status=400, data=new_post_serial.errors)
