@@ -83,8 +83,21 @@
                 </div>`
             }
             else {
-              listElement.innerHTML =  `<p>${author.displayName}</p>
-            <button class="btn btn-dark" id='${author.id}'>Already following!</button>`
+              listElement.innerHTML = `
+                <div class="card">
+                  <div class="card-body">
+                    <div class="row align-items-center">
+                      <div class="col-8">
+                        <img src="${author.profileImage || `https://ui-avatars.com/api/?name=${author.displayName}`}" class="rounded-circle me-1" style="width: 30px; height: 30px; object-fit: cover;">
+                        ${author.displayName}
+                      </div>
+                      <div class="col-4 text-end">
+                        <button class="btn btn-dark" id='${author.id}' onclick="sendToInbox('${author.id}', ${index})">
+                          Following!</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>`
             }
             searchList.appendChild(listElement);
         }
@@ -121,7 +134,7 @@
                     headers: {
                         "Authorization": connection.apiCreds
                     }
-                });
+                  });
                 }
                 if (connection.hostName == "https://social-t30.herokuapp.com") {
                   if  (response.status == 200 
@@ -141,8 +154,7 @@
               }
               catch {
                 return false;
-              }
-                
+              }   
                 break;
             }
             else if ("https://" + url.hostname == "https://socialdistcmput404.herokuapp.com") {
