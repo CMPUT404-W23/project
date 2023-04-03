@@ -189,7 +189,7 @@
                     // not the owner of a private post, can't see comments
                     else {
                         commentButton = 
-                        `<button type="button" class="btn btn-secondary btn-sm" onclick="postComment('${item.id}','${item.author.id.split("/").pop()}','external')">
+                        `<button type="button" class="btn btn-secondary btn-sm" onclick="postComment('${item.id}','${item.author.id.split("/").pop()}','external')" disabled>
                             <i class="fa-regular fa-comment"></i>
                         </button>`
                     }
@@ -198,7 +198,7 @@
                         var htmlElement = htmlToElement(`
                             <div class="card my-3">
                                 <div class="card-body">
-                                    <h5 class="card-title"><a class="link-secondary" href="${item.id}">${item.title}</a></h5>
+                                    <h5 class="card-title"><a class="link-secondary" href="${item.id}" style="${item.visibility != "VISIBLE" ? 'pointer-events':''}">${item.title}</a></h5>
                                     <h6 class="card-subtitle my-3 text-muted">
                                         <img src="${item.author.profileImage || `https://ui-avatars.com/api/?name=${item.author.displayName}`}" class="rounded-circle" style="width: 30px; height: 30px; object-fit: cover;">
                                         <a class="link-secondary mx-1" href="${item.author.url}">${item.author.displayName}</a>
