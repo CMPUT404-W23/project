@@ -86,9 +86,6 @@
       // const privateTitle = document.createTextNode("My Private and Unlisted Posts");
 
       // privateTitleTag.appendChild(privateTitle);
-      postsSection = document.getElementById("posts");
-      var htmlElement=`Private/unlisted posts test`;
-      postsSection.appendChild(htmlElement);
 
       for (let post of posts) {
         let content;
@@ -104,6 +101,7 @@
 
         if (post.contentType.startsWith("image")){
           var htmlElement = htmlToElement(`
+                <h4 class="card-subtitle mt-2 mb-2 text-muted">My Private Post</h4><br>
                 <div class="card my-3">
                     <div class="card-body">
                         <h5 class="card-title"><a class="link-secondary" style="pointer-events: none">${post.title}</a></h5>
@@ -114,13 +112,13 @@
                         <span class="badge bg-secondary mb-2">${post.categories}</span>
                         ${content}<br>
                         <h6 class="card-subtitle mt-2 mb-2 text-muted">${post.description}</h6><br>
-
                     </div>
                 </div>
                 `);
         }
         else{
           var htmlElement = htmlToElement(`
+                <h4 class="card-subtitle mt-2 mb-2 text-muted">My Private Post</h4><br>
                 <div class="card my-3">
                     <div class="card-body">
                         <h5 class="card-title"><a class="link-secondary" style="pointer-events: none">${post.title}</a></h5>
@@ -188,6 +186,7 @@
 
             if (post.contentType.startsWith("image")) {
               var htmlElement = htmlToElement(`
+                <h4 class="card-subtitle mt-2 mb-2 text-muted">My Public Post</h4><br>
                 <div class="card my-3">
                     <div class="card-body">
                         <h5 class="card-title"><a class="link-secondary" style="pointer-events: none">${post.title}</a></h5>
@@ -204,6 +203,7 @@
             }
             else {
               var htmlElement = htmlToElement(`
+                <h4 class="card-subtitle mt-2 mb-2 text-muted">My Public Post</h4><br>
                 <div class="card my-3">
                     <div class="card-body">
                         <h5 class="card-title"><a class="link-secondary" style="pointer-events: none">${post.title}</a></h5>
