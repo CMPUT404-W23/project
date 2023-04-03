@@ -117,7 +117,7 @@
             const remoteConnection = listOfConnections.find(connection => connection.hostName === hostname);
             authorization = remoteConnection.apiCreds;
             if (hostname == "https://social-distribution-w23-t17.herokuapp.com") {
-                url = `${hostname}/authors/${authorID}/inbox/`
+                url = `${hostname}/authors/${comment.author.id}/inbox/`
             }
         }
         const data = {
