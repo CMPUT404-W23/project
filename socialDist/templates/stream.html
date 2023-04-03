@@ -86,8 +86,9 @@
       // const privateTitle = document.createTextNode("My Private and Unlisted Posts");
 
       // privateTitleTag.appendChild(privateTitle);
-
+      postsSection = document.getElementById("posts");
       var htmlElement=`Private/unlisted posts test`;
+      postsSection.appendChild(htmlElement);
 
       for (let post of posts) {
         let content;
@@ -102,7 +103,7 @@
         }
 
         if (post.contentType.startsWith("image")){
-          var htmlElement = htmlElement+htmlToElement(`
+          var htmlElement = htmlToElement(`
                 <div class="card my-3">
                     <div class="card-body">
                         <h5 class="card-title"><a class="link-secondary" style="pointer-events: none">${post.title}</a></h5>
