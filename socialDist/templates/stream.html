@@ -99,11 +99,6 @@
 
       // privateTitleTag.appendChild(privateTitle);
 
-<<<<<<< HEAD
-      var htmlElement = `Private/unlisted posts test`;
-
-=======
->>>>>>> dev
       for (let post of posts) {
         let content;
         if (post.contentType.startsWith("image")) {
@@ -116,21 +111,12 @@
           content = `<p class="card-text">${post.content}</p>`;
         }
 
-<<<<<<< HEAD
-        if (post.contentType.startsWith("image")) {
-          var htmlElement =
-            htmlElement +
-            htmlToElement(`
-=======
         if (post.contentType.startsWith("image")){
           var htmlElement = htmlToElement(`
                 <h4 class="card-subtitle mt-2 mb-2 text-muted">My Private Post</h4><br>
->>>>>>> dev
                 <div class="card my-3">
                     <div class="card-body">
-                        <h5 class="card-title"><a class="link-secondary" style="pointer-events: none">${
-                          post.title
-                        }</a></h5>
+                        <h5 class="card-title"><a class="link-secondary" style="pointer-events: none">${post.title} (Private/Unlisted Post)</a></h5>
                         <h6 class="card-subtitle my-3 text-muted">
                             <img src="${
                               post.author.profileImage ||
@@ -144,24 +130,15 @@
                           post.categories
                         }</span>
                         ${content}<br>
-<<<<<<< HEAD
                         <h6 class="card-subtitle mt-2 mb-2 text-muted">${
                           post.description
                         }</h6><br>
-=======
-                        <h6 class="card-subtitle mt-2 mb-2 text-muted">${post.description}</h6><br>
-                    </div>
-                </div>
->>>>>>> dev
                 `);
         } else {
           var htmlElement = htmlToElement(`
-                <h4 class="card-subtitle mt-2 mb-2 text-muted">My Private Post</h4><br>
                 <div class="card my-3">
                     <div class="card-body">
-                        <h5 class="card-title"><a class="link-secondary" style="pointer-events: none">${
-                          post.title
-                        }</a></h5>
+                        <h5 class="card-title"><a class="link-secondary" style="pointer-events: none">${post.title} (Private/Unlisted Post)</a></h5>
                         <h6 class="card-subtitle my-3 text-muted">
                             <img src="${
                               post.author.profileImage ||
@@ -295,8 +272,6 @@
       }
     });
 
-<<<<<<< HEAD
-=======
 
     // Getting Public Posts
 
@@ -342,10 +317,9 @@
 
             if (post.contentType.startsWith("image")) {
               var htmlElement = htmlToElement(`
-                <h4 class="card-subtitle mt-2 mb-2 text-muted">My Public Post</h4><br>
                 <div class="card my-3">
                     <div class="card-body">
-                        <h5 class="card-title"><a class="link-secondary" style="pointer-events: none">${post.title}</a></h5>
+                        <h5 class="card-title"><a class="link-secondary" style="pointer-events: none">${post.title} (Public Post)</a></h5>
                         <h6 class="card-subtitle my-3 text-muted">
                             <img src="${post.author.profileImage || `https://ui-avatars.com/api/?name=${post.author.displayName}`}" class="rounded-circle" style="width: 30px; height: 30px; object-fit: cover;">
                             <a class="link-secondary mx-1" href="${post.author.url}">${post.author.displayName}</a>
@@ -359,10 +333,9 @@
             }
             else {
               var htmlElement = htmlToElement(`
-                <h4 class="card-subtitle mt-2 mb-2 text-muted">My Public Post</h4><br>
                 <div class="card my-3">
                     <div class="card-body">
-                        <h5 class="card-title"><a class="link-secondary" style="pointer-events: none">${post.title}</a></h5>
+                        <h5 class="card-title"><a class="link-secondary" style="pointer-events: none">${post.title} (Public Post)</a></h5>
                         <h6 class="card-subtitle my-3 text-muted">
                             <img src="${post.author.profileImage || `https://ui-avatars.com/api/?name=${post.author.displayName}`}" class="rounded-circle" style="width: 30px; height: 30px; object-fit: cover;">
                             <a class="link-secondary mx-1" href="${post.author.url}">${post.author.displayName}</a>
@@ -384,7 +357,6 @@
         });
 
 
->>>>>>> dev
   // Github Stream
 
   // fetch('https://api.github.com/users/Alex-Mak-MCW/events')
