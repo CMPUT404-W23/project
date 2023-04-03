@@ -287,63 +287,64 @@
             });
         window.location.reload();
     };
-    async function likePost(i) {
-        // like a post
-        const post = inboxData[i]; // we got a list of all inbox items from fetch; like button passes the index of which post to like
-        const author = post.author;
-        const authorID = author.id.split("/").pop();
-        const authorURL = post.author.id;
-        const hostname = new URL(author.id).hostname;
-        let url = hostname === window.location.hostname ? `/api/authors/${authorID}/inbox/` : `https://${hostname}/api/authors/${authorID}/inbox/`;
-        if ("https://" + hostname === "https://social-distribution-w23-t17.herokuapp.com") {
-            url = `https://${hostname}/authors/${authorURL}/inbox/`;
-        }
-        if ("https://" + hostname === "https://social-distribution-media.herokuapp.com") {
-            url = `https://${hostname}/api/authors/${authorID}/inbox`;
-        }
-        let authorization = "Token 516e5c3d636f46228edb8f09b9613d5b4b166816";
-        if (hostname != window.location.hostname) {
-            const remoteConnection = listOfConnections.find(connection => connection.hostName === "https://" + hostname);
-            authorization = remoteConnection.apiCreds
-        }
-        let data = {
-            "@context": "Post Like",
-            "summary": "{{ user.username }} Likes your post",
-            "type": "Like",
-            "author": current_author,
-            "object": post.id
-        }
-        if ("https://" + hostname == "https://social-distribution-media.herokuapp.com") {
-            data = {
-                "@context": "Post Like",
-                "summary": "{{ user.username }} Likes your post",
-                "type": "like",
-                "author": current_author,
-                "object": {
-                    "type": "like",
-                    "summary": "{{ user.username }} Likes your post",
-                    "author": current_author,
-                    "object": post.id
-                }
-            };
-        }
-        // POST a like object to the author's inbox
-        const response = await fetch(url, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "X-CSRFToken": "{{ csrf_token }}",
-                "Authorization": authorization,
-            },
-            body: JSON.stringify(data),
-        });
-        if (response.status == 200 || response.status == 201 || response.status == 202) {
-            document.getElementById(`like-btn-${i}`).innerHTML = `<i class="fa-solid fa-heart"></i>`;
-            document.getElementById(`like-btn-${i}`).disabled = true;
-        } else {
-            console.log(response.status, response.statusText)
-        }
-    }
+
+    // async function likePost(i) {
+    //     // like a post
+    //     const post = inboxData[i]; // we got a list of all inbox items from fetch; like button passes the index of which post to like
+    //     const author = post.author;
+    //     const authorID = author.id.split("/").pop();
+    //     const authorURL = post.author.id;
+    //     const hostname = new URL(author.id).hostname;
+    //     let url = hostname === window.location.hostname ? `/api/authors/${authorID}/inbox/` : `https://${hostname}/api/authors/${authorID}/inbox/`;
+    //     if ("https://" + hostname === "https://social-distribution-w23-t17.herokuapp.com") {
+    //         url = `https://${hostname}/authors/${authorURL}/inbox/`;
+    //     }
+    //     if ("https://" + hostname === "https://social-distribution-media.herokuapp.com") {
+    //         url = `https://${hostname}/api/authors/${authorID}/inbox`;
+    //     }
+    //     let authorization = "Token 516e5c3d636f46228edb8f09b9613d5b4b166816";
+    //     if (hostname != window.location.hostname) {
+    //         const remoteConnection = listOfConnections.find(connection => connection.hostName === "https://" + hostname);
+    //         authorization = remoteConnection.apiCreds
+    //     }
+    //     let data = {
+    //         "@context": "Post Like",
+    //         "summary": "{{ user.username }} Likes your post",
+    //         "type": "Like",
+    //         "author": current_author,
+    //         "object": post.id
+    //     }
+    //     if ("https://" + hostname == "https://social-distribution-media.herokuapp.com") {
+    //         data = {
+    //             "@context": "Post Like",
+    //             "summary": "{{ user.username }} Likes your post",
+    //             "type": "like",
+    //             "author": current_author,
+    //             "object": {
+    //                 "type": "like",
+    //                 "summary": "{{ user.username }} Likes your post",
+    //                 "author": current_author,
+    //                 "object": post.id
+    //             }
+    //         };
+    //     }
+    //     // POST a like object to the author's inbox
+    //     const response = await fetch(url, {
+    //         method: "POST",
+    //         headers: {
+    //             "Content-Type": "application/json",
+    //             "X-CSRFToken": "{{ csrf_token }}",
+    //             "Authorization": authorization,
+    //         },
+    //         body: JSON.stringify(data),
+    //     });
+    //     if (response.status == 200 || response.status == 201 || response.status == 202) {
+    //         document.getElementById(`like-btn-${i}`).innerHTML = `<i class="fa-solid fa-heart"></i>`;
+    //         document.getElementById(`like-btn-${i}`).disabled = true;
+    //     } else {
+    //         console.log(response.status, response.statusText)
+    //     }
+    // }
 
     async function deleteFollower(id) {
         let current_author_url = new URL(current_author.id)
@@ -361,44 +362,44 @@
         window.location.reload();
     }
 
-    async function isLiked(i) {
-        // checks if current user liked the post
-        const post = inboxData[i];
-        const author = post.author;
-        const authorURL = author.id;
-        const authorID = author.id.split("/").pop();
-        const hostname = new URL(author.id).hostname;
-        const postURL = post.id;
-        let url = hostname === window.location.hostname ? `/api/authors/${authorID}/posts/${post.id.split('/').pop()}/likes/` : `https://${hostname}/api/authors/${authorID}/posts/${post.id.split('/').pop()}/likes/`;
-        if ("https://" + hostname === "https://social-distribution-w23-t17.herokuapp.com") {
-            url = `https://${hostname}/authors/${authorURL}/posts/${postURL}/likes/`;
-        }
-        if ("https://" + hostname === "https://social-distribution-media.herokuapp.com") {
-            url = `https://${hostname}/api/authors/${authorID}/posts/${post.id.split('/').pop()}/likes`
-        }
-        let authorization = "Token 516e5c3d636f46228edb8f09b9613d5b4b166816";
-        if (hostname != window.location.hostname) {
-            const remoteConnection = listOfConnections.find(connection => connection.hostName === "https://" + hostname);
-            authorization = remoteConnection.apiCreds
-        }
-        // GET all likes for the post
-        const response = await fetch(url, {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-                "X-CSRFToken": "{{ csrf_token }}",
-                "Authorization": authorization,
-            },
-        }).then(response => response.json())
-            .then(data => {
-                for (like of data.items) {
-                    if (like.author.url == current_author.id) {
-                        document.getElementById(`like-btn-${i}`).innerHTML = `<i class="fa-solid fa-heart"></i>`;
-                        document.getElementById(`like-btn-${i}`).disabled = true;
-                    }
-                }
-            });
-    }
+    // async function isLiked(i) {
+    //     // checks if current user liked the post
+    //     const post = inboxData[i];
+    //     const author = post.author;
+    //     const authorURL = author.id;
+    //     const authorID = author.id.split("/").pop();
+    //     const hostname = new URL(author.id).hostname;
+    //     const postURL = post.id;
+    //     let url = hostname === window.location.hostname ? `/api/authors/${authorID}/posts/${post.id.split('/').pop()}/likes/` : `https://${hostname}/api/authors/${authorID}/posts/${post.id.split('/').pop()}/likes/`;
+    //     if ("https://" + hostname === "https://social-distribution-w23-t17.herokuapp.com") {
+    //         url = `https://${hostname}/authors/${authorURL}/posts/${postURL}/likes/`;
+    //     }
+    //     if ("https://" + hostname === "https://social-distribution-media.herokuapp.com") {
+    //         url = `https://${hostname}/api/authors/${authorID}/posts/${post.id.split('/').pop()}/likes`
+    //     }
+    //     let authorization = "Token 516e5c3d636f46228edb8f09b9613d5b4b166816";
+    //     if (hostname != window.location.hostname) {
+    //         const remoteConnection = listOfConnections.find(connection => connection.hostName === "https://" + hostname);
+    //         authorization = remoteConnection.apiCreds
+    //     }
+    //     // GET all likes for the post
+    //     const response = await fetch(url, {
+    //         method: "GET",
+    //         headers: {
+    //             "Content-Type": "application/json",
+    //             "X-CSRFToken": "{{ csrf_token }}",
+    //             "Authorization": authorization,
+    //         },
+    //     }).then(response => response.json())
+    //         .then(data => {
+    //             for (like of data.items) {
+    //                 if (like.author.url == current_author.id) {
+    //                     document.getElementById(`like-btn-${i}`).innerHTML = `<i class="fa-solid fa-heart"></i>`;
+    //                     document.getElementById(`like-btn-${i}`).disabled = true;
+    //                 }
+    //             }
+    //         });
+    // }
 
     function editPost(id) {
         url = new URL(id)
@@ -500,6 +501,7 @@
     }
     // GET and display comments for a post
     let commentsList = [];
+    let commentIndex = 0;
     async function getComment(author_id, post_id,host_name,type) {
         if (type == 'internal'){
             const url = `/api/authors/${author_id}/posts/${post_id}/comments/`
@@ -513,18 +515,17 @@
             }).then(response => response.json())
                 .then(data => {
                     commentsList = commentsList.concat(data.items);
-                    let index = 0;
                     for (const comment of data.items){
                         comment_html = 
                         `<h6 class="card-text" > 
                             <b class="ml-5"><a href=${comment.author.url}>${comment.author.displayName}</a></b> ${comment.comment} 
-                            <button id="like-comment-${index}" type="button" class="btn btn-light btn-sm ml-20" onclick="likeComment(${index})">
+                            <button id="like-comment-${commentIndex}" type="button" class="btn btn-light btn-sm ml-20" onclick="likeComment(${commentIndex})">
                                 <i class="fa-regular fa-heart"></i>
                             </button>
                         </h6>`
                         document.getElementById(`comment-${post_id}`).innerHTML += comment_html 
-                        isCommentLiked(index);
-                        index += 1;
+                        isCommentLiked(commentIndex);
+                        commentIndex += 1;
                     }
                 });
         } else if (type === 'external'){
@@ -551,18 +552,17 @@
             }).then(response => response.json())
                 .then(data => {
                     commentsList = commentsList.concat(data.items);
-                    let index = 0;
                     for (const comment of data.items){
                         comment_html = 
                         `<h6 class="card-text" > 
                             <b class="ml-5"><a href=${comment.author.url}>${comment.author.displayName}</a></b> ${comment.comment} 
-                            <button id="like-comment-${index}" type="button" class="btn btn-light btn-sm ml-20" onclick="likeComment(${index})">
+                            <button id="like-comment-${commentIndex}" type="button" class="btn btn-light btn-sm ml-20" onclick="likeComment(${commentIndex})">
                                 <i class="fa-regular fa-heart"></i>
                             </button>
                         </h6>`
                         document.getElementById(`comment-${post_id}`).innerHTML += comment_html 
-                        isCommentLiked(index);
-                        index += 1;
+                        isCommentLiked(commentIndex);
+                        commentIndex += 1;
                     }
                 });
         }
@@ -603,7 +603,7 @@
         const url = `/api/authors/${authorID}/inbox/`
         const data = {
             "@context": "Comment Like",
-            "summary": current_author.displayName + "likes a comment on your post",
+            "summary": current_author.displayName + " likes a comment on your post",
             "type": "Like",
             "author": current_author,
             "object": comment.id

@@ -3,14 +3,15 @@
   <div id="save-alert"></div>
   <form>
     <!-- <h2 class="border-bottom py-3">Settings: </h2> -->
-      
+
     <!-- heading -->
     <div class="container-md mt-3">
       <!-- Show image and name-->
       <h1 class="fw-bold">
         <!-- Show profile image if author has, otherwise show default image -->
         {% if author.profileImage %}
-        <img src="{{author.profileImage}}" class="rounded-circle" style="width: 100px; height: 100px; object-fit: cover;">
+        <img src="{{author.profileImage}}" class="rounded-circle"
+          style="width: 100px; height: 100px; object-fit: cover;">
         {% else %}
         <img src="https://ui-avatars.com/api/?name={{author.displayName}}&size=100" class="rounded-circle"
           style="width: 100px; height: 100px; object-fit: cover;">
@@ -28,7 +29,7 @@
       {% endif %} -->
     </div>
 
-      <!-- set a temp class name -->
+    <!-- set a temp class name -->
     <div class="author-settings">
       <h3 class="fw-bold text-decloration:"><u>Your Account Information:</u></h3><br>
 
@@ -52,24 +53,28 @@
 
     <!-- Edit profile fields -->
     <h4 class="fw-bold"><u>Edit Your Account</u></h4>
-    <i>*Only edited fields will Be changed, feel free to leave fields blank/unedited if you don't want them to be changed</i>
+    <i>*Only edited fields will Be changed, feel free to leave fields blank/unedited if you don't want them to be
+      changed</i>
     <div class="my-3">
       <label for="username" class="form-label">Username</label>
       <!-- OLD code -->
       <!-- <input type="text" class="form-control" id="username" value="{{author.displayName}}" required> -->
-      <input type="text" class="form-control" id="username" value="{{author.displayName}}" placeholder="Maximum 40 characters">
+      <input type="text" class="form-control" id="username" value="{{author.displayName}}"
+        placeholder="Maximum 40 characters">
     </div>
     <div class="mb-3">
       <label for="github" class="form-label">GitHub</label>
       <!-- OLD code -->
       <!-- <input type="url" class="form-control" id="github" value="{{author.github}}" required> -->
-      <input type="url" class="form-control" id="github" value="{{author.github}}" placeholder="ex. https://github.com/sampleUserAccount">
+      <input type="url" class="form-control" id="github" value="{{author.github}}"
+        placeholder="ex. https://github.com/sampleUserAccount">
     </div>
     <div class="mb-3">
       <label for="pfp-link" class="form-label">Profile Image Link</label>
       <!-- OLD Code -->
       <!-- <input type="url" class="form-control" id="pfp-link" value="{{author.profileImage}}" required> -->
-      <input type="url" class="form-control" id="pfp-link" value="{{author.profileImage}}" placeholder="ex. https://i.imgur.com/sampleUserImage.jpeg">
+      <input type="url" class="form-control" id="pfp-link" value="{{author.profileImage}}"
+        placeholder="ex. https://i.imgur.com/sampleUserImage.jpeg">
     </div>
 
     <!-- Commented password in case we need it again -->
@@ -104,16 +109,12 @@
         disabled
       />
     </div> -->
-    <button
-      type="submit"
-      class="btn btn-primary"
-      id="settings_save_changes"
-      onclick="sendUserInfo(event)"
-    >
+    <button type="submit" class="btn btn-primary" id="settings_save_changes" onclick="sendUserInfo(event)">
       Save Changes
     </button>
   </form>
 </div>
+
 {% csrf_token %}
 <script>
   function displayAlert(alertType, alertMessage) {
@@ -160,8 +161,8 @@
 
     // FIX 
     // IF changes are NOTmade in displayName, sub the original value back in
-    if (data.displayName === ""){
-      data.displayName="{{author.displayName}}";
+    if (data.displayName === "") {
+      data.displayName = "{{author.displayName}}";
     }
     if (data.github === "") {
       data.github = "{{author.github}}";
@@ -170,7 +171,7 @@
       data.profileImage = "{{author.profileImage}}";
     }
 
-    
+
     // Comment it out for now
     // if any fields are empty
     /*
