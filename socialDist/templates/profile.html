@@ -72,25 +72,26 @@
 
     {% if isOwner %}
     <div class="grid">
-        <h4 class="border-bottom py-2">Posts</h4>
+        <br>
+        <h4 class="border-bottom py-2">Posts:</h4>
         <div class="grid" id="posts">
             <div class="card my-3" id="placeholder">
                 <div class="card-body"> No posts to show</div>
             </div>
         </div>
-        <h4 class="border-bottom py-2">Likes</h4>
+        <h4 class="border-bottom py-2">Likes:</h4>
         <div class="grid" id="likes">
             <div class="card my-3" id="placeholder">
                 <div class="card-body"> No likes to show</div>
             </div>
         </div>
-        <h4 class="border-bottom py-2">Comments</h4>
+        <h4 class="border-bottom py-2">Comments:</h4>
         <div class="grid" id="comments">
             <div class="card my-3" id="placeholder">
                 <div class="card-body"> No comments to show</div>
             </div>
         </div>
-        <h4 class="border-bottom py-2">Follow Requests</h4>
+        <h4 class="border-bottom py-2">Follow Requests:</h4>
         <div class="grid" id="requests">
             <div class="card my-3" id="placeholder">
                 <div class="card-body"> No follow requests to show</div>
@@ -170,29 +171,82 @@
                             <i class="fa-regular fa-comment"></i>
                         </button>`
                     }
-                    var htmlElement = htmlToElement(`
-                <div class="card my-3">
-                    <div class="card-body">
-                        <h5 class="card-title"><a class="link-secondary" href="${item.id}">${item.title}</a></h5>
-                        <h6 class="card-subtitle my-3 text-muted">
-                            <img src="${item.author.profileImage || `https://ui-avatars.com/api/?name=${item.author.displayName}`}" class="rounded-circle" style="width: 30px; height: 30px; object-fit: cover;">
-                            <a class="link-secondary mx-1" href="${item.author.url}">${item.author.displayName}</a>
-                            </h6>
-                        <h6 class="card-subtitle mt-2 mb-2 text-muted">${item.description}</h6>
-                        <span class="badge bg-secondary mb-2">${item.categories}</span>
-                        ${content}
-                        <button type="button" class="btn btn-secondary btn-sm" id="like-btn-${index}" onclick="likePost(${index})">
-                            <i class="fa-regular fa-heart"></i>  
-                        </button>
-                        <button type="button" id="share-btn" class="btn btn-secondary btn-sm" onclick="sharePost(${index})">
-                                    <i class="fa fa-share"></i>
-                        </button>
-                        ${commentButton}
-                        ${editAndDeleteButtons}
-                        <br><br><div id="comment-${item.id.split("/").pop()}"></div>
-                    </div>
-                </div>
-                `);
+
+                    if (item.contentType.startsWith("image")){
+                        var htmlElement = htmlToElement(`
+                            <div class="card my-3">
+                                <div class="card-body">
+                                    <h5 class="card-title"><a class="link-secondary" href="${item.id}">${item.title}</a></h5>
+                                    <h6 class="card-subtitle my-3 text-muted">
+                                        <img src="${item.author.profileImage || `https://ui-avatars.com/api/?name=${item.author.displayName}`}" class="rounded-circle" style="width: 30px; height: 30px; object-fit: cover;">
+                                        <a class="link-secondary mx-1" href="${item.author.url}">${item.author.displayName}</a>
+                                        </h6>
+                                    <span class="badge bg-secondary mb-2">${item.categories}</span>
+                                    ${content}<br>
+                                    <h6 class="card-subtitle mt-2 mb-2 text-muted" style="margin-left:0.5em;">${item.description}</h6><br>
+                                    <button type="button" class="btn btn-secondary btn-sm" id="like-btn-${index}" onclick="likePost(${index})">
+                                        <i class="fa-regular fa-heart"></i>  
+                                    </button>
+                                    <button type="button" id="share-btn" class="btn btn-secondary btn-sm" onclick="sharePost(${index})">
+                                                <i class="fa fa-share"></i>
+                                    </button>
+                                    ${commentButton}
+                                    ${editAndDeleteButtons}
+                                    <br><br><div id="comment-${item.id.split("/").pop()}"></div>
+                                </div>
+                            </div>
+                            `);
+                    }
+
+                    else {
+                        var htmlElement = htmlToElement(`
+                            <div class="card my-3">
+                                <div class="card-body">
+                                    <h5 class="card-title"><a class="link-secondary" href="${item.id}">${item.title}</a></h5>
+                                    <h6 class="card-subtitle my-3 text-muted">
+                                        <img src="${item.author.profileImage || `https://ui-avatars.com/api/?name=${item.author.displayName}`}" class="rounded-circle" style="width: 30px; height: 30px; object-fit: cover;">
+                                        <a class="link-secondary mx-1" href="${item.author.url}">${item.author.displayName}</a>
+                                        </h6>
+                                    <h6 class="card-subtitle mt-2 mb-2 text-muted">${item.description}</h6>
+                                    <span class="badge bg-secondary mb-2">${item.categories}</span>
+                                    ${content}
+                                    <button type="button" class="btn btn-secondary btn-sm" id="like-btn-${index}" onclick="likePost(${index})">
+                                        <i class="fa-regular fa-heart"></i>  
+                                    </button>
+                                    <button type="button" id="share-btn" class="btn btn-secondary btn-sm" onclick="sharePost(${index})">
+                                                <i class="fa fa-share"></i>
+                                    </button>
+                                    ${commentButton}
+                                    ${editAndDeleteButtons}
+                                    <br><br><div id="comment-${item.id.split("/").pop()}"></div>
+                                </div>
+                            </div>
+                            `);
+                    }
+                // OLD
+                //     var htmlElement = htmlToElement(`
+                // <div class="card my-3">
+                //     <div class="card-body">
+                //         <h5 class="card-title"><a class="link-secondary" href="${item.id}">${item.title}</a></h5>
+                //         <h6 class="card-subtitle my-3 text-muted">
+                //             <img src="${item.author.profileImage || `https://ui-avatars.com/api/?name=${item.author.displayName}`}" class="rounded-circle" style="width: 30px; height: 30px; object-fit: cover;">
+                //             <a class="link-secondary mx-1" href="${item.author.url}">${item.author.displayName}</a>
+                //             </h6>
+                //         <h6 class="card-subtitle mt-2 mb-2 text-muted">${item.description}</h6>
+                //         <span class="badge bg-secondary mb-2">${item.categories}</span>
+                //         ${content}
+                //         <button type="button" class="btn btn-secondary btn-sm" id="like-btn-${index}" onclick="likePost(${index})">
+                //             <i class="fa-regular fa-heart"></i>  
+                //         </button>
+                //         <button type="button" id="share-btn" class="btn btn-secondary btn-sm" onclick="sharePost(${index})">
+                //                     <i class="fa fa-share"></i>
+                //         </button>
+                //         ${commentButton}
+                //         ${editAndDeleteButtons}
+                //         <br><br><div id="comment-${item.id.split("/").pop()}"></div>
+                //     </div>
+                // </div>
+                // `);
                     postsSection = document.getElementById("posts");
                     if (postsSection.children[0].id === "placeholder") {
                         postsSection.removeChild(postsSection.children[0]);
