@@ -611,6 +611,7 @@
                                 const post_url = new URL(post.id)
                                 const host_name = post_url.hostname
                                 getComment(author_id, post_id, host_name, 'external')
+                                getLikes(author_id,post_id,host_name,'external')
                                 // OLD htmlElement:
                                 // <div class="card my-3">
                                 //     <div class="card-body">
