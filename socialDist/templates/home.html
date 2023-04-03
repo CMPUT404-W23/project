@@ -239,7 +239,35 @@
                 // <button type="button" class="btn btn-secondary btn-sm" id="like-btn-${index}-internal" onclick="likePost(${index}, 'internal')">
                 //     <i class="fa-regular fa-heart"></i>
                 // </button>`
-                display_posts = `
+
+                // HTML to show posts (part to fix)
+
+                if (post.contentType.startsWith("image")) {
+                    display_posts = `
+                            <div class="card my-3" id="post-${post_id}">
+                                <div class="card-body">
+                                    <h4 class="card-title"><a class="link-secondary" href="${post_relative_path}">${post.title}</a></h4>
+                                    <h5 class="card-subtitle my-3 text-muted">
+                                        <img src="${post.author.profileImage || `https://ui-avatars.com/api/?name=${post.author.displayName}`}" class="rounded-circle" style="width: 30px; height: 30px; object-fit: cover;">
+                                        <a class="link-secondary mx-1" href="${author_relative_path}">${post.author.displayName}</a>
+                                    </h5>
+                                    <span class="badge bg-secondary mb-2">${post.categories}</span>
+                                    <p class="post-content mb-2">${content}</p>
+                                    <br><br>
+                                    <p class="post-content mb-2">${post.description}</p>
+                                    <button type="button" class="btn btn-secondary btn-sm" id="like-btn-${index}-internal" onclick="likePost(${index}, 'internal')">
+                                        <i class="fa-regular fa-heart"></i>
+                                    </button>
+                                    <button type="button" class="btn btn-secondary btn-sm" onclick="postComment('${post.id}','${author_id}','internal')">
+                                        <i class="fa-regular fa-comment"></i>
+                                    </button>
+                                    <button type="button" id="share-btn" class="btn btn-secondary btn-sm" onclick="sharePost(${index}, 'internal')">
+                                    <i class="fa fa-share"></i>
+                                    </button>`
+                    }
+                // For regular, non-image posts
+                else{
+                    display_posts = `
                             <div class="card my-3" id="post-${post_id}">
                                 <div class="card-body">
                                     <h4 class="card-title"><a class="link-secondary" href="${post_relative_path}">${post.title}</a></h4>
@@ -259,6 +287,8 @@
                                     <button type="button" id="share-btn" class="btn btn-secondary btn-sm" onclick="sharePost(${index}, 'internal')">
                                     <i class="fa fa-share"></i>
                                     </button>`
+                }
+
                 if (post.author.id == current_author.id) {
                     display_posts += `
                                     <button type="button" id="edit-btn" class="btn btn-secondary btn-sm" onclick="editPost('${post.id}')">
