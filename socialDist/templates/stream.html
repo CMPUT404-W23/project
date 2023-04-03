@@ -62,6 +62,25 @@
     template.innerHTML = html;
     return template.content;
   }
+  function deletePost(id) {
+    // DELETE a post
+    url = new URL(id);
+    fetch_url = "/api" + url.pathname + "/";
+    fetch(fetch_url, {
+      headers: new Headers({
+        "X-CSRFToken": "{{ csrf_token }}",
+        Authorization: "Token 516e5c3d636f46228edb8f09b9613d5b4b166816",
+      }),
+      method: "DELETE",
+    })
+      .then((response) => response.status())
+      .then(window.location.reload());
+  }
+  //https://www.w3docs.com/snippets/html/how-to-create-an-html-button-that-acts-like-a-link.html
+  function editPost(id) {
+    url = new URL(id);
+    window.location.href = url.pathname + "/edit/";
+  }
 
   // Get and show private/unlisted posts
   var authorID = "{{author.id}}";
@@ -111,12 +130,14 @@
           content = `<p class="card-text">${post.content}</p>`;
         }
 
-        if (post.contentType.startsWith("image")){
-          var htmlElement = htmlToElement(`
+        if (post.contentType.startsWith("image")) {
+          var htmlElement = `
                 <h4 class="card-subtitle mt-2 mb-2 text-muted">My Private Post</h4><br>
                 <div class="card my-3">
                     <div class="card-body">
-                        <h5 class="card-title"><a class="link-secondary" style="pointer-events: none">${post.title} (Private/Unlisted Post)</a></h5>
+                        <h5 class="card-title"><a class="link-secondary" style="pointer-events: none">${
+                          post.title
+                        } (Private/Unlisted Post)</a></h5>
                         <h6 class="card-subtitle my-3 text-muted">
                             <img src="${
                               post.author.profileImage ||
@@ -133,12 +154,14 @@
                         <h6 class="card-subtitle mt-2 mb-2 text-muted">${
                           post.description
                         }</h6><br>
-                `);
+                `;
         } else {
-          var htmlElement = htmlToElement(`
+          var htmlElement = `
                 <div class="card my-3">
                     <div class="card-body">
-                        <h5 class="card-title"><a class="link-secondary" style="pointer-events: none">${post.title} (Private/Unlisted Post)</a></h5>
+                        <h5 class="card-title"><a class="link-secondary" style="pointer-events: none">${
+                          post.title
+                        } (Private/Unlisted Post)</a></h5>
                         <h6 class="card-subtitle my-3 text-muted">
                             <img src="${
                               post.author.profileImage ||
@@ -155,206 +178,236 @@
                           post.categories
                         }</span>
                         ${content}
-                `);
+                `;
         }
         console.log(authorID);
         console.log(post.author.id);
+        if (post.author.id == authorID) {
+          htmlElement += `
+                          <button type="button" id="edit-btn" class="btn btn-secondary btn-sm" onclick="editPost('${post.id}')">
+                              <i class="fa-solid fa-pen"></i>
+                          </button>
+                          <button type="button" class="btn btn-danger btn-sm" onclick="deletePost('${post.id}')">
+                              <i class="fa-solid fa-trash"></i>
+                          </button>
+                          `;
+        }
 
         postsSection = document.getElementById("posts");
         if (postsSection.children[0].id === "spinner") {
           postsSection.removeChild(postsSection.children[0]);
         }
-        postsSection.appendChild(htmlElement + "</div></div>");
+        postsSection.appendChild(htmlToElement(htmlElement + "</div></div>"));
       }
     });
 
   // Getting Public Posts
 
-  // var authorID = "{{author.id}}";
-  // fetch(`/api/authors/${authorID.split("/").pop()}/posts/`, {
-  //   headers: new Headers({
-  //     Authorization: "Token 516e5c3d636f46228edb8f09b9613d5b4b166816",
-  //     "X-CSRFToken": "{{ csrf_token }}",
-  //   }),
-  // })
-  //   .then((response) => response.json())
-  //   .then((data) => {
-  //     posts = data.items; // list of all data in inbox
-  //     if (posts.length === 0) {
-  //       const htmlElement = htmlToElement(`
-  //         <div class="card my-3" id="placeholder">
-  //           <div class="card-body"> No posts to show</div>
-  //         </div>
-  //       `);
-  //       const postsSection = document.getElementById("posts");
-  //       if (postsSection.children[0].id === "spinner") {
-  //         postsSection.removeChild(postsSection.children[0]);
-  //       }
-  //       postsSection.appendChild(htmlElement);
-  //     }
-
-  //     const privateTitleTag = document.createElement("h4");
-  //     privateTitleTag.className = "border-bottom py-2";
-  //     const privateTitle = document.createTextNode("My Public Posts");
-
-  //     privateTitleTag.appendChild(privateTitle);
-  //     for (let post of posts) {
-  //       let content;
-  //       if (post.contentType.startsWith("image")) {
-  //         content = `<img class="img-fluid mx-auto d-block" style="max-width: 50%" src="data:${post.contentType}, ${post.content}"/><br>`;
-  //       } else if (post.contentType === "text/markdown") {
-  //         post.title = marked.parse(post.title);
-  //         post.description = marked.parse(post.description);
-  //         content = `<p class="card-text">${marked.parse(post.content)}</p>`;
-  //       } else {
-  //         content = `<p class="card-text">${post.content}</p>`;
-  //       }
-
-  //       if (post.contentType.startsWith("image")) {
-  //         var htmlElement = htmlToElement(`
-  //               <div class="card my-3">
-  //                   <div class="card-body">
-  //                       <h5 class="card-title"><a class="link-secondary" style="pointer-events: none">${
-  //                         post.title
-  //                       }</a></h5>
-  //                       <h6 class="card-subtitle my-3 text-muted">
-  //                           <img src="${
-  //                             post.author.profileImage ||
-  //                             `https://ui-avatars.com/api/?name=${post.author.displayName}`
-  //                           }" class="rounded-circle" style="width: 30px; height: 30px; object-fit: cover;">
-  //                           <a class="link-secondary mx-1" href="${
-  //                             post.author.url
-  //                           }">${post.author.displayName}</a>
-  //                           </h6>
-  //                       <span class="badge bg-secondary mb-2">${
-  //                         post.categories
-  //                       }</span>
-  //                       ${content}<br>
-  //                       <h6 class="card-subtitle mt-2 mb-2 text-muted">${
-  //                         post.description
-  //                       }</h6><br>
-  //                   </div>
-  //               </div>
-  //               `);
-  //       } else {
-  //         var htmlElement = htmlToElement(`
-  //               <div class="card my-3">
-  //                   <div class="card-body">
-  //                       <h5 class="card-title"><a class="link-secondary" style="pointer-events: none">${
-  //                         post.title
-  //                       }</a></h5>
-  //                       <h6 class="card-subtitle my-3 text-muted">
-  //                           <img src="${
-  //                             post.author.profileImage ||
-  //                             `https://ui-avatars.com/api/?name=${post.author.displayName}`
-  //                           }" class="rounded-circle" style="width: 30px; height: 30px; object-fit: cover;">
-  //                           <a class="link-secondary mx-1" href="${
-  //                             post.author.url
-  //                           }">${post.author.displayName}</a>
-  //                           </h6>
-  //                       <h6 class="card-subtitle mt-2 mb-2 text-muted">${
-  //                         post.description
-  //                       }</h6>
-  //                       <span class="badge bg-secondary mb-2">${
-  //                         post.categories
-  //                       }</span>
-  //                       ${content}
-  //                   </div>
-  //               </div>
-  //               `);
-  //       }
-
-  //       postsSection = document.getElementById("posts");
-  //       if (postsSection.children[0].id === "spinner") {
-  //         postsSection.removeChild(postsSection.children[0]);
-  //       }
-  //       postsSection.appendChild(htmlElement);
-  //     }
-  //   });
-
-
-    // Getting Public Posts
-    var authorID = "{{author.id}}";
-      fetch(`/api/authors/${authorID.split('/').pop()}/posts/`, {
-        headers: new Headers({
-          "Authorization": "Token 516e5c3d636f46228edb8f09b9613d5b4b166816",
-          "X-CSRFToken": "{{ csrf_token }}"
-        })
-      })
-        .then((response) => response.json())
-        .then((data) => {
-          posts = data.items; // list of all data in inbox
-          if (posts.length === 0) {
-            const htmlElement = htmlToElement(`
+  var authorID = "{{author.id}}";
+  fetch(`/api/authors/${authorID.split("/").pop()}/posts/`, {
+    headers: new Headers({
+      Authorization: "Token 516e5c3d636f46228edb8f09b9613d5b4b166816",
+      "X-CSRFToken": "{{ csrf_token }}",
+    }),
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      posts = data.items; // list of all data in inbox
+      if (posts.length === 0) {
+        const htmlElement = htmlToElement(`
           <div class="card my-3" id="placeholder">
             <div class="card-body"> No posts to show</div>
           </div>
         `);
-            const postsSection = document.getElementById("posts");
-            if (postsSection.children[0].id === "spinner") {
-              postsSection.removeChild(postsSection.children[0]);
-            }
-            postsSection.appendChild(htmlElement)
-          }
+        const postsSection = document.getElementById("posts");
+        if (postsSection.children[0].id === "spinner") {
+          postsSection.removeChild(postsSection.children[0]);
+        }
+        postsSection.appendChild(htmlElement);
+      }
 
-          const privateTitleTag = document.createElement("h4");
-          privateTitleTag.className = "border-bottom py-2";
-          const privateTitle = document.createTextNode("My Public Posts");
+      const privateTitleTag = document.createElement("h4");
+      privateTitleTag.className = "border-bottom py-2";
+      const privateTitle = document.createTextNode("My Public Posts");
 
-          privateTitleTag.appendChild(privateTitle);
-          for (let post of posts) {
-            let content;
-            if (post.contentType.startsWith("image")) {
-              content = `<img class="img-fluid mx-auto d-block" style="max-width: 50%" src="data:${post.contentType}, ${post.content}"/><br>`;
-            } else if (post.contentType === "text/markdown") {
-              post.title = marked.parse(post.title);
-              post.description = marked.parse(post.description);
-              content = `<p class="card-text">${marked.parse(post.content)}</p>`;
-            } else {
-              content = `<p class="card-text">${post.content}</p>`;
-            }
+      privateTitleTag.appendChild(privateTitle);
+      for (let post of posts) {
+        let content;
+        if (post.contentType.startsWith("image")) {
+          content = `<img class="img-fluid mx-auto d-block" style="max-width: 50%" src="data:${post.contentType}, ${post.content}"/><br>`;
+        } else if (post.contentType === "text/markdown") {
+          post.title = marked.parse(post.title);
+          post.description = marked.parse(post.description);
+          content = `<p class="card-text">${marked.parse(post.content)}</p>`;
+        } else {
+          content = `<p class="card-text">${post.content}</p>`;
+        }
 
-            if (post.contentType.startsWith("image")) {
-              var htmlElement = htmlToElement(`
+        if (post.contentType.startsWith("image")) {
+          var htmlElement = htmlToElement(`
                 <div class="card my-3">
                     <div class="card-body">
-                        <h5 class="card-title"><a class="link-secondary" style="pointer-events: none">${post.title} (Public Post)</a></h5>
+                        <h5 class="card-title"><a class="link-secondary" style="pointer-events: none">${
+                          post.title
+                        }</a></h5>
                         <h6 class="card-subtitle my-3 text-muted">
-                            <img src="${post.author.profileImage || `https://ui-avatars.com/api/?name=${post.author.displayName}`}" class="rounded-circle" style="width: 30px; height: 30px; object-fit: cover;">
-                            <a class="link-secondary mx-1" href="${post.author.url}">${post.author.displayName}</a>
+                            <img src="${
+                              post.author.profileImage ||
+                              `https://ui-avatars.com/api/?name=${post.author.displayName}`
+                            }" class="rounded-circle" style="width: 30px; height: 30px; object-fit: cover;">
+                            <a class="link-secondary mx-1" href="${
+                              post.author.url
+                            }">${post.author.displayName}</a>
                             </h6>
-                        <span class="badge bg-secondary mb-2">${post.categories}</span>
+                        <span class="badge bg-secondary mb-2">${
+                          post.categories
+                        }</span>
                         ${content}<br>
-                        <h6 class="card-subtitle mt-2 mb-2 text-muted">${post.description}</h6><br>
+                        <h6 class="card-subtitle mt-2 mb-2 text-muted">${
+                          post.description
+                        }</h6><br>
                     </div>
                 </div>
                 `);
-            }
-            else {
-              var htmlElement = htmlToElement(`
+        } else {
+          var htmlElement = htmlToElement(`
                 <div class="card my-3">
                     <div class="card-body">
-                        <h5 class="card-title"><a class="link-secondary" style="pointer-events: none">${post.title} (Public Post)</a></h5>
+                        <h5 class="card-title"><a class="link-secondary" style="pointer-events: none">${
+                          post.title
+                        }</a></h5>
                         <h6 class="card-subtitle my-3 text-muted">
-                            <img src="${post.author.profileImage || `https://ui-avatars.com/api/?name=${post.author.displayName}`}" class="rounded-circle" style="width: 30px; height: 30px; object-fit: cover;">
-                            <a class="link-secondary mx-1" href="${post.author.url}">${post.author.displayName}</a>
+                            <img src="${
+                              post.author.profileImage ||
+                              `https://ui-avatars.com/api/?name=${post.author.displayName}`
+                            }" class="rounded-circle" style="width: 30px; height: 30px; object-fit: cover;">
+                            <a class="link-secondary mx-1" href="${
+                              post.author.url
+                            }">${post.author.displayName}</a>
                             </h6>
-                        <h6 class="card-subtitle mt-2 mb-2 text-muted">${post.description}</h6>
-                        <span class="badge bg-secondary mb-2">${post.categories}</span>
+                        <h6 class="card-subtitle mt-2 mb-2 text-muted">${
+                          post.description
+                        }</h6>
+                        <span class="badge bg-secondary mb-2">${
+                          post.categories
+                        }</span>
                         ${content}
                     </div>
                 </div>
                 `);
-            }
+        }
 
-            postsSection = document.getElementById("posts");
-            if (postsSection.children[0].id === "spinner") {
-              postsSection.removeChild(postsSection.children[0]);
-            }
-            postsSection.appendChild(htmlElement);
-          }
-        });
+        postsSection = document.getElementById("posts");
+        if (postsSection.children[0].id === "spinner") {
+          postsSection.removeChild(postsSection.children[0]);
+        }
+        postsSection.appendChild(htmlElement);
+      }
+    });
 
+  // Getting Public Posts
+
+  var authorID = "{{author.id}}";
+  fetch(`/api/authors/${authorID.split("/").pop()}/posts/`, {
+    headers: new Headers({
+      Authorization: "Token 516e5c3d636f46228edb8f09b9613d5b4b166816",
+      "X-CSRFToken": "{{ csrf_token }}",
+    }),
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      posts = data.items; // list of all data in inbox
+      if (posts.length === 0) {
+        const htmlElement = htmlToElement(`
+          <div class="card my-3" id="placeholder">
+            <div class="card-body"> No posts to show</div>
+          </div>
+        `);
+        const postsSection = document.getElementById("posts");
+        if (postsSection.children[0].id === "spinner") {
+          postsSection.removeChild(postsSection.children[0]);
+        }
+        postsSection.appendChild(htmlElement);
+      }
+
+      const privateTitleTag = document.createElement("h4");
+      privateTitleTag.className = "border-bottom py-2";
+      const privateTitle = document.createTextNode("My Public Posts");
+
+      privateTitleTag.appendChild(privateTitle);
+      for (let post of posts) {
+        let content;
+        if (post.contentType.startsWith("image")) {
+          content = `<img class="img-fluid mx-auto d-block" style="max-width: 50%" src="data:${post.contentType}, ${post.content}"/><br>`;
+        } else if (post.contentType === "text/markdown") {
+          post.title = marked.parse(post.title);
+          post.description = marked.parse(post.description);
+          content = `<p class="card-text">${marked.parse(post.content)}</p>`;
+        } else {
+          content = `<p class="card-text">${post.content}</p>`;
+        }
+
+        if (post.contentType.startsWith("image")) {
+          var htmlElement = htmlToElement(`
+                <div class="card my-3">
+                    <div class="card-body">
+                        <h5 class="card-title"><a class="link-secondary" style="pointer-events: none">${
+                          post.title
+                        } (Public Post)</a></h5>
+                        <h6 class="card-subtitle my-3 text-muted">
+                            <img src="${
+                              post.author.profileImage ||
+                              `https://ui-avatars.com/api/?name=${post.author.displayName}`
+                            }" class="rounded-circle" style="width: 30px; height: 30px; object-fit: cover;">
+                            <a class="link-secondary mx-1" href="${
+                              post.author.url
+                            }">${post.author.displayName}</a>
+                            </h6>
+                        <span class="badge bg-secondary mb-2">${
+                          post.categories
+                        }</span>
+                        ${content}<br>
+                        <h6 class="card-subtitle mt-2 mb-2 text-muted">${
+                          post.description
+                        }</h6><br>
+                    </div>
+                </div>
+                `);
+        } else {
+          var htmlElement = htmlToElement(`
+                <div class="card my-3">
+                    <div class="card-body">
+                        <h5 class="card-title"><a class="link-secondary" style="pointer-events: none">${
+                          post.title
+                        } (Public Post)</a></h5>
+                        <h6 class="card-subtitle my-3 text-muted">
+                            <img src="${
+                              post.author.profileImage ||
+                              `https://ui-avatars.com/api/?name=${post.author.displayName}`
+                            }" class="rounded-circle" style="width: 30px; height: 30px; object-fit: cover;">
+                            <a class="link-secondary mx-1" href="${
+                              post.author.url
+                            }">${post.author.displayName}</a>
+                            </h6>
+                        <h6 class="card-subtitle mt-2 mb-2 text-muted">${
+                          post.description
+                        }</h6>
+                        <span class="badge bg-secondary mb-2">${
+                          post.categories
+                        }</span>
+                        ${content}
+                    </div>
+                </div>
+                `);
+        }
+
+        postsSection = document.getElementById("posts");
+        if (postsSection.children[0].id === "spinner") {
+          postsSection.removeChild(postsSection.children[0]);
+        }
+        postsSection.appendChild(htmlElement);
+      }
+    });
 
   // Github Stream
 
