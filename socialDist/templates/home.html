@@ -336,7 +336,6 @@
         if (response.status == 200 || response.status == 201 || response.status == 202) {
             document.getElementById(`like-btn-${i}-${type}`).innerHTML = `<i class="fa-solid fa-heart"></i>`;
             document.getElementById(`like-btn-${i}-${type}`).disabled = true;
-            window.location.reload()
         } else {
             console.log(response.status, response.statusText)
         }
