@@ -408,6 +408,9 @@
         let post = inboxData[index];
         let author_url = new URL(current_author.id)
         let author_relative_path = author_url.pathname
+        let date = new Date();
+        // refresh "published" date
+        post["published"] = date.toISOString();
         fetch("/api" +  author_relative_path + "/followers/", {
             headers: {
                 "Content-Type": "application/json",
