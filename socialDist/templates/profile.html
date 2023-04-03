@@ -599,8 +599,18 @@
         // POST a like object to the author's inbox
         const comment = commentsList[i];
         const authorID = comment.author.id.split("/").pop();
+        const hostname = comment.author.host;
         let authorization = "Token 516e5c3d636f46228edb8f09b9613d5b4b166816";
-        const url = `/api/authors/${authorID}/inbox/`
+        let url = `${hostname}/api/authors/${authorID}/inbox/`;
+        if (hostname == "https://socialdistcmput404.herokuapp.com/") { // not a remote author
+            url = `/api/authors/${authorID}/inbox/`
+        } else {
+            const remoteConnection = listOfConnections.find(connection => connection.hostName === hostname);
+            authorization = remoteConnection.apiCreds;
+            if (hostname == "https://social-distribution-w23-t17.herokuapp.com") {
+                url = `${hostname}/authors/${comment.author.id}/inbox/`
+            }
+        }
         const data = {
             "@context": "Comment Like",
             "summary": current_author.displayName + " likes a comment on your post",
@@ -618,7 +628,6 @@
             },
             body: JSON.stringify(data),
         });
-        console.log("data:",data)
         if (response.status == 200) {
             document.getElementById(`like-comment-${i}`).innerHTML = `<i class="fa-solid fa-heart"></i>`;
             document.getElementById(`like-comment-${i}`).disabled = true;
