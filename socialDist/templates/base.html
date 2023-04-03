@@ -42,6 +42,10 @@
             <a class="nav-link {% if request.resolver_match.url_name == 'search' %}active{% endif %}"
               aria-current="page" href="/search">Search</a>
           </li>
+          <li>
+            <a class="nav-link {% if request.resolver_match.url_name == 'search' %}active{% endif %}"
+            href="{% url 'private_posts' %}">My Stream</a>
+          </li>
           {% endif %}
         </ul>
         <ul class="navbar-nav">

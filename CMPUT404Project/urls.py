@@ -41,7 +41,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import include, path
 from django.views.generic.base import TemplateView, RedirectView
-from .views import settings, home, postPage, authorPage, create_post, editPost, search, localComment, foreignComment
+from .views import settings, home, postPage, authorPage, privatePosts, create_post, editPost, search, localComment, foreignComment
 
 urlpatterns = [
     
@@ -57,6 +57,7 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("accounts/settings", settings, name="settings"),
     path("accounts/signup", TemplateView.as_view(template_name="registration/signup.html"), name="signup"),
+    path("accounts/private-posts", privatePosts, name="private_posts"),
     path("authors/<str:author_id>/", view=authorPage, name="page_author"),
     path("authors/<str:author_id>/posts/<str:post_id>/", view=postPage, name="page_post"),
     path("authors/<str:author_id>/posts/<str:post_id>/edit/", view=editPost, name="edit_post"),

@@ -125,6 +125,15 @@ def authorPage(request, author_id):
     return render(request, 'profile.html', context)
 
 @login_required
+def privatePosts(request):
+    try:
+        author = Author.objects.get(user=request.user)
+    except Author.DoesNotExist:
+        author = None
+    context = {'author': author}
+    return render(request, 'private_posts.html', context)
+
+@login_required
 def editPost(request, author_id, post_id):
     try:
         author =  Author.objects.get(id=HOST+"authors/"+author_id)
