@@ -255,7 +255,7 @@
         } else {
           content = `<p class="card-text">${post.content}</p>`;
         }
-        var indicationString = (post.unlisted ? `Unlisted ` : ``) (post.visibility == "FRIENDS" ? `Private ` : ``) + `Post`;
+        var indicationString = (post.unlisted ? `Unlisted ` : ``) + (post.visibility == "FRIENDS" ? `Private ` : ``) + `Post`;
 
         if (post.contentType.startsWith("image")) {
           var htmlElement = `
