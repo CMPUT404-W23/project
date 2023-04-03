@@ -1,27 +1,39 @@
 {% extends 'base.html' %}
-<link rel="stylesheet" href="../static/socialDist/styles.css">
+<link rel="stylesheet" href="../static/socialDist/styles.css" />
 {% block content %}
 
 <head>
   <!-- FontAwesome Icons link -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css"
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css"
     integrity="sha512-KfkfwYDsLkIlwQp6LFnl8zNdLGxu9YAA1QvwINks4PhcElQSvqcyVLLD9aMhXd13uQjoXtEKNosOWaZqXgel0g=="
-    crossorigin="anonymous" referrerpolicy="no-referrer" />
+    crossorigin="anonymous"
+    referrerpolicy="no-referrer"
+  />
 </head>
 <div class="container-md mt-3">
   <h1 class="fw-bold">
     <!-- Show profile image if author has, otherwise show default image -->
     {% if author.profileImage %}
-    <img src="{{author.profileImage}}" class="rounded-circle" style="width: 100px; height: 100px; object-fit: cover;">
+    <img
+      src="{{author.profileImage}}"
+      class="rounded-circle"
+      style="width: 100px; height: 100px; object-fit: cover"
+    />
     {% else %}
-    <img src="https://ui-avatars.com/api/?name={{author.displayName}}&size=100" class="rounded-circle"
-      style="width: 100px; height: 100px; object-fit: cover;">
-    {% endif %}
-    My Stream
+    <img
+      src="https://ui-avatars.com/api/?name={{author.displayName}}&size=100"
+      class="rounded-circle"
+      style="width: 100px; height: 100px; object-fit: cover"
+    />
+    {% endif %} My Stream
   </h1>
 
   <div class="grid">
-    <h4 class="border-bottom py-2">My Posts: (Including Private & Unlisted Posts)</h4>
+    <h4 class="border-bottom py-2">
+      My Posts: (Including Private & Unlisted Posts)
+    </h4>
     <div class="grid" id="posts">
       <div class="d-flex justify-content-center" id="spinner">
         <div class="spinner-border" role="status">
@@ -46,18 +58,18 @@
 <script>
   //Source: https://stackoverflow.com/questions/494143/creating-a-new-dom-element-from-an-html-string-using-built-in-dom-methods-or-pro/35385518#35385518
   function htmlToElement(html) {
-    var template = document.createElement('template');
+    var template = document.createElement("template");
     template.innerHTML = html;
     return template.content;
-  };
+  }
 
   // Get and show private/unlisted posts
   var authorID = "{{author.id}}";
-  fetch(`/api/authors/${authorID.split('/').pop()}/private-posts/`, {
+  fetch(`/api/authors/${authorID.split("/").pop()}/private-posts/`, {
     headers: new Headers({
-      "Authorization": "Token 516e5c3d636f46228edb8f09b9613d5b4b166816",
-      "X-CSRFToken": "{{ csrf_token }}"
-    })
+      Authorization: "Token 516e5c3d636f46228edb8f09b9613d5b4b166816",
+      "X-CSRFToken": "{{ csrf_token }}",
+    }),
   })
     .then((response) => response.json())
     .then((data) => {
@@ -72,7 +84,7 @@
         if (postsSection.children[0].id === "spinner") {
           postsSection.removeChild(postsSection.children[0]);
         }
-        postsSection.appendChild(htmlElement)
+        postsSection.appendChild(htmlElement);
       }
 
       // How to add html in a JS function
@@ -106,32 +118,152 @@
                     <div class="card-body">
                         <h5 class="card-title"><a class="link-secondary" style="pointer-events: none">${post.title} (Private/Unlisted Post)</a></h5>
                         <h6 class="card-subtitle my-3 text-muted">
-                            <img src="${post.author.profileImage || `https://ui-avatars.com/api/?name=${post.author.displayName}`}" class="rounded-circle" style="width: 30px; height: 30px; object-fit: cover;">
-                            <a class="link-secondary mx-1" href="${post.author.url}">${post.author.displayName}</a>
+                            <img src="${
+                              post.author.profileImage ||
+                              `https://ui-avatars.com/api/?name=${post.author.displayName}`
+                            }" class="rounded-circle" style="width: 30px; height: 30px; object-fit: cover;">
+                            <a class="link-secondary mx-1" href="${
+                              post.author.url
+                            }">${post.author.displayName}</a>
                             </h6>
-                        <span class="badge bg-secondary mb-2">${post.categories}</span>
+                        <span class="badge bg-secondary mb-2">${
+                          post.categories
+                        }</span>
                         ${content}<br>
-                        <h6 class="card-subtitle mt-2 mb-2 text-muted">${post.description}</h6><br>
-                    </div>
-                </div>
+                        <h6 class="card-subtitle mt-2 mb-2 text-muted">${
+                          post.description
+                        }</h6><br>
                 `);
-        }
-        else{
+        } else {
           var htmlElement = htmlToElement(`
                 <div class="card my-3">
                     <div class="card-body">
                         <h5 class="card-title"><a class="link-secondary" style="pointer-events: none">${post.title} (Private/Unlisted Post)</a></h5>
                         <h6 class="card-subtitle my-3 text-muted">
-                            <img src="${post.author.profileImage || `https://ui-avatars.com/api/?name=${post.author.displayName}`}" class="rounded-circle" style="width: 30px; height: 30px; object-fit: cover;">
-                            <a class="link-secondary mx-1" href="${post.author.url}">${post.author.displayName}</a>
+                            <img src="${
+                              post.author.profileImage ||
+                              `https://ui-avatars.com/api/?name=${post.author.displayName}`
+                            }" class="rounded-circle" style="width: 30px; height: 30px; object-fit: cover;">
+                            <a class="link-secondary mx-1" href="${
+                              post.author.url
+                            }">${post.author.displayName}</a>
                             </h6>
-                        <h6 class="card-subtitle mt-2 mb-2 text-muted">${post.description}</h6>
-                        <span class="badge bg-secondary mb-2">${post.categories}</span>
+                        <h6 class="card-subtitle mt-2 mb-2 text-muted">${
+                          post.description
+                        }</h6>
+                        <span class="badge bg-secondary mb-2">${
+                          post.categories
+                        }</span>
+                        ${content}
+                `);
+        }
+        console.log(authorID);
+        console.log(post.author.id);
+
+        postsSection = document.getElementById("posts");
+        if (postsSection.children[0].id === "spinner") {
+          postsSection.removeChild(postsSection.children[0]);
+        }
+        postsSection.appendChild(htmlElement + "</div></div>");
+      }
+    });
+
+  // Getting Public Posts
+
+  var authorID = "{{author.id}}";
+  fetch(`/api/authors/${authorID.split("/").pop()}/posts/`, {
+    headers: new Headers({
+      Authorization: "Token 516e5c3d636f46228edb8f09b9613d5b4b166816",
+      "X-CSRFToken": "{{ csrf_token }}",
+    }),
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      posts = data.items; // list of all data in inbox
+      if (posts.length === 0) {
+        const htmlElement = htmlToElement(`
+          <div class="card my-3" id="placeholder">
+            <div class="card-body"> No posts to show</div>
+          </div>
+        `);
+        const postsSection = document.getElementById("posts");
+        if (postsSection.children[0].id === "spinner") {
+          postsSection.removeChild(postsSection.children[0]);
+        }
+        postsSection.appendChild(htmlElement);
+      }
+
+      const privateTitleTag = document.createElement("h4");
+      privateTitleTag.className = "border-bottom py-2";
+      const privateTitle = document.createTextNode("My Public Posts");
+
+      privateTitleTag.appendChild(privateTitle);
+      for (let post of posts) {
+        let content;
+        if (post.contentType.startsWith("image")) {
+          content = `<img class="img-fluid mx-auto d-block" style="max-width: 50%" src="data:${post.contentType}, ${post.content}"/><br>`;
+        } else if (post.contentType === "text/markdown") {
+          post.title = marked.parse(post.title);
+          post.description = marked.parse(post.description);
+          content = `<p class="card-text">${marked.parse(post.content)}</p>`;
+        } else {
+          content = `<p class="card-text">${post.content}</p>`;
+        }
+
+        if (post.contentType.startsWith("image")) {
+          var htmlElement = htmlToElement(`
+                <div class="card my-3">
+                    <div class="card-body">
+                        <h5 class="card-title"><a class="link-secondary" style="pointer-events: none">${
+                          post.title
+                        }</a></h5>
+                        <h6 class="card-subtitle my-3 text-muted">
+                            <img src="${
+                              post.author.profileImage ||
+                              `https://ui-avatars.com/api/?name=${post.author.displayName}`
+                            }" class="rounded-circle" style="width: 30px; height: 30px; object-fit: cover;">
+                            <a class="link-secondary mx-1" href="${
+                              post.author.url
+                            }">${post.author.displayName}</a>
+                            </h6>
+                        <span class="badge bg-secondary mb-2">${
+                          post.categories
+                        }</span>
+                        ${content}<br>
+                        <h6 class="card-subtitle mt-2 mb-2 text-muted">${
+                          post.description
+                        }</h6><br>
+                    </div>
+                </div>
+                `);
+        } else {
+          var htmlElement = htmlToElement(`
+                <div class="card my-3">
+                    <div class="card-body">
+                        <h5 class="card-title"><a class="link-secondary" style="pointer-events: none">${
+                          post.title
+                        }</a></h5>
+                        <h6 class="card-subtitle my-3 text-muted">
+                            <img src="${
+                              post.author.profileImage ||
+                              `https://ui-avatars.com/api/?name=${post.author.displayName}`
+                            }" class="rounded-circle" style="width: 30px; height: 30px; object-fit: cover;">
+                            <a class="link-secondary mx-1" href="${
+                              post.author.url
+                            }">${post.author.displayName}</a>
+                            </h6>
+                        <h6 class="card-subtitle mt-2 mb-2 text-muted">${
+                          post.description
+                        }</h6>
+                        <span class="badge bg-secondary mb-2">${
+                          post.categories
+                        }</span>
                         ${content}
                     </div>
                 </div>
                 `);
         }
+
         postsSection = document.getElementById("posts");
         if (postsSection.children[0].id === "spinner") {
           postsSection.removeChild(postsSection.children[0]);
@@ -232,16 +364,16 @@
   const ghURL = "{{author.github}}";
   const ghUsername = ghURL ? new URL(ghURL).pathname.replaceAll("/", "") : "";
   const url = `https://api.github.com/users/${ghUsername}/events`;
-    fetch(url)
-      .then(res => {
-        return res.json();
-      })
-      .then(data => {
-        for (item of data) {
-          var event = item.type.replace("Event", "");
-          var date = new Date(item.created_at);
-          var time_made = date.toUTCString();
-          var htmlElement = htmlToElement(`
+  fetch(url)
+    .then((res) => {
+      return res.json();
+    })
+    .then((data) => {
+      for (item of data) {
+        var event = item.type.replace("Event", "");
+        var date = new Date(item.created_at);
+        var time_made = date.toUTCString();
+        var htmlElement = htmlToElement(`
                     <div class="card my-3">
                         <div class="card-body">
                           <h6 class="card-subtitle my-3 text-muted">
@@ -252,28 +384,27 @@
                             on ${time_made} </p>
                         </div>
                     </div>
-                    `
-          );
-          const ghSection = document.getElementById("gh-stream")
-          if (ghSection.children[0].id === "spinner") {
-            ghSection.removeChild(ghSection.children[0]);
-          }
-          ghSection.appendChild(htmlElement)
+                    `);
+        const ghSection = document.getElementById("gh-stream");
+        if (ghSection.children[0].id === "spinner") {
+          ghSection.removeChild(ghSection.children[0]);
         }
-      })
-      .catch(error => {
-        const htmlElement = htmlToElement(`
+        ghSection.appendChild(htmlElement);
+      }
+    })
+    .catch((error) => {
+      const htmlElement = htmlToElement(`
             <div class="card my-3" id="placeholder">
               <div class="card-body fst-italic"> Could not get GitHub Activity. Please provide a valid GitHub URL in settings page.</div>
             </div>
           `);
-        const ghSection = document.getElementById("gh-stream")
-        if (ghSection.children[0].id === "spinner") {
-          ghSection.removeChild(ghSection.children[0]);
-        }
-        ghSection.appendChild(htmlElement)
-        console.log(error);
-      });
+      const ghSection = document.getElementById("gh-stream");
+      if (ghSection.children[0].id === "spinner") {
+        ghSection.removeChild(ghSection.children[0]);
+      }
+      ghSection.appendChild(htmlElement);
+      console.log(error);
+    });
 </script>
 
 {% endblock content %}
