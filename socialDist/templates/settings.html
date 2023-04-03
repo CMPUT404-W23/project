@@ -114,52 +114,6 @@
     </button>
   </form>
 
-  <!-- ALEX'S CODE START-->
-  <hr><br><br>
-  <!-- posting Github stream-->
-  <h3 class="fw-bold text-center"><u>Your GitHub Activity Stream:</u></h3>
-  <div id="stream">
-    <script>
-      // Should be 
-
-      // fetch('https://api.github.com/users/Alex-Mak-MCW/events')
-      fetch("{{author.github}}")
-        .then(res => {
-          return res.json();
-        })
-        .then(data => {
-          console.log(data);
-          // data.forEach(user => {
-          var mainContainer = document.getElementById("stream");
-          for (var i = 0; i < data.length; i++) {
-            var innerDiv = document.createElement("div");
-            // console.log(data[0]);
-            var output = "";
-            for (var property in data[i]) {
-              output += property + ': ' + JSON.stringify(data[i][property], null, 4) + ';<br><br>';
-            }
-            innerDiv.innerHTML = output + "<hr>";
-            // innerDiv.innerHTML = JSON.stringify(data[i], null, 4)+"<br><br>";
-            mainContainer.appendChild(innerDiv);
-          }
-        })
-        .catch(error => {
-          // comment it out incase we need it
-          //  var failContainer = document.getElementById("stream");
-          //  var failInnerDiv = document.createElement("div");
-          //  innerDiv.innerHTML = "<h3>Please Provide a Valid URL to see Your GitHub Activity Stream</h3>"
-          //  failContainer.appendChild(failInnerDiv);
-          console.log(error);
-        }
-        );
-    </script>
-  </div>
-  <br><br>
-  <h5 class="fw-bold text-center"><i>Please Provide a Valid URL to See Your GitHub Activity Stream if Your Stream is Empty</i></h5>
-</div>
-
-<!-- ALEX'S CODE ENDS-->
-
 {% csrf_token %}
 <script>
   function displayAlert(alertType, alertMessage) {
