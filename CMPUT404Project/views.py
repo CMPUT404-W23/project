@@ -37,7 +37,6 @@ HOST = "https://socialdistcmput404.herokuapp.com/"
 def home(request):
     connections = Connection.objects.all()
     connections_serial = ConnectionSerializer(connections, many=True) 
-    
     try:
         current_author = Author.objects.get(user=request.user)
         current_author_serial = AuthorSerializer(current_author)
@@ -84,7 +83,10 @@ def postPage(request, author_id, post_id):
         post = Post.objects.filter(visibility="VISIBLE").get(id=HOST+"authors/"+author_id+"/posts/"+post_id)
     except Post.DoesNotExist:
         return HttpResponse(status=404, content="Post does not exist")
+    connections = Connection.objects.all()
+    connections_serial = ConnectionSerializer(connections, many=True) 
     context = {
+        'connections': json.dumps(connections_serial.data),
         'post': post,
         'current_author': current_author_context,
     }
@@ -129,7 +131,7 @@ def privatePosts(request):
     except Author.DoesNotExist:
         author = None
     context = {'author': author}
-    return render(request, 'private_posts.html', context)
+    return render(request, 'stream.html', context)
 
 @login_required
 def editPost(request, author_id, post_id):
