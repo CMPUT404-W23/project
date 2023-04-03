@@ -21,7 +21,7 @@
   </h1>
 
   <div class="grid">
-    <h4 class="border-bottom py-2">Private & Unlisted Posts</h4>
+    <h4 class="border-bottom py-2">My Posts: (Including Private & Unlisted Posts)</h4>
     <div class="grid" id="posts">
       <div class="d-flex justify-content-center" id="spinner">
         <div class="spinner-border" role="status">
@@ -82,7 +82,26 @@
         } else {
           content = `<p class="card-text">${post.content}</p>`;
         }
-        var htmlElement = htmlToElement(`
+
+        if (post.contentType.startsWith("image")){
+          var htmlElement = htmlToElement(`
+                <div class="card my-3">
+                    <div class="card-body">
+                        <h5 class="card-title"><a class="link-secondary" style="pointer-events: none">${post.title}</a></h5>
+                        <h6 class="card-subtitle my-3 text-muted">
+                            <img src="${post.author.profileImage || `https://ui-avatars.com/api/?name=${post.author.displayName}`}" class="rounded-circle" style="width: 30px; height: 30px; object-fit: cover;">
+                            <a class="link-secondary mx-1" href="${post.author.url}">${post.author.displayName}</a>
+                            </h6>
+                        <span class="badge bg-secondary mb-2">${post.categories}</span>
+                        ${content}<br>
+                        <h6 class="card-subtitle mt-2 mb-2 text-muted">${post.description}</h6><br>
+
+                    </div>
+                </div>
+                `);
+        }
+        else{
+          var htmlElement = htmlToElement(`
                 <div class="card my-3">
                     <div class="card-body">
                         <h5 class="card-title"><a class="link-secondary" style="pointer-events: none">${post.title}</a></h5>
@@ -96,6 +115,8 @@
                     </div>
                 </div>
                 `);
+        }
+        
         postsSection = document.getElementById("posts");
         if (postsSection.children[0].id === "spinner") {
           postsSection.removeChild(postsSection.children[0]);
