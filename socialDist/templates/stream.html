@@ -64,8 +64,8 @@
   }
   function deletePost(id) {
     // DELETE a post
-    url = new URL(id);
-    fetch_url = "/api" + url.pathname + "/";
+    let url = new URL(id);
+    let fetch_url = "/api" + url.pathname + "/";
     fetch(fetch_url, {
       headers: new Headers({
         "X-CSRFToken": "{{ csrf_token }}",
@@ -78,19 +78,19 @@
   }
   //https://www.w3docs.com/snippets/html/how-to-create-an-html-button-that-acts-like-a-link.html
   function editPost(id) {
-    url = new URL(id);
+    let url = new URL(id);
     window.location.href = url.pathname + "/edit/";
   }
 
   function postComment(post_id,foreignauthor_id,type) {
     if (type === 'internal'){
-        console.log(post_id)
-        url = new URL(post_id)
+        console.log(post_id);
+        let url = new URL(post_id);
         window.location.href = url.pathname + "/comments/"
     } else if (type === 'external'){
         console.log(post_id,foreignauthor_id,type)
-        url = new URL(post_id)
-        post_id = post_id.split("/").pop()
+        let url = new URL(post_id);
+        let post_id = post_id.split("/").pop();
         window.location.href = `https://socialdistcmput404.herokuapp.com/posts/foreign/${url.hostname}/authors/${foreignauthor_id}/posts/${post_id}/comments`
     }
   }
