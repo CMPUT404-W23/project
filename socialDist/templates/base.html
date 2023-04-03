@@ -43,7 +43,7 @@
               aria-current="page" href="/search">Search</a>
           </li>
           <li>
-            <a class="nav-link {% if request.resolver_match.url_name == 'search' %}active{% endif %}"
+            <a class="nav-link {% if request.resolver_match.url_name == 'stream' %}active{% endif %}"
             href="{% url 'stream' %}">My Stream</a>
           </li>
           {% endif %}
