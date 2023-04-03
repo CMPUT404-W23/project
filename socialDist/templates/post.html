@@ -5,8 +5,9 @@
         <form method="post">
             {% csrf_token %}
             <div class="m-3">
+                <br>
                 <h1>
-                    Create a Post & Share it With Others
+                    Create a Post & Share it With Others!
                 </h1>
                 <br>
                 <h5 class="create-post-sub-title"><i>Fields With Asterisk(*) are Required to be Filled Out</i></h5>
@@ -32,19 +33,19 @@
                 <div class="mb-3">
                     <label for="Title" class="form-label">*Title:</label>
                     <input class="form-control" id="Title" style="width:80%" type="text"
-                        placeholder="Please enter title of post"></input>
+                        placeholder="Please Enter The Title of Your Post Here..."></input>
                 </div>
                 <!--Description-->
                 <div class="mb-3">
                     <label for="Description" class="form-label">*Description <u>(if post's type is text)</u> / Content <u>(if post's type is image):</u></label>
                     <textarea class="form-control" id="Description" style="width:80%" type="text"
-                        placeholder="Please enter post description"></textarea>
+                        placeholder="Please Enter The Description of Your Post Here..."></textarea>
                 </div>
                 <!--Content-->
                 <div class="mb-3" id="post-content">
                     <label for="Content" class="form-label">*Content:</label>
                     <textarea class="form-control" id="Content" style="width:80%" type="text"
-                        placeholder="Please enter content of post"></textarea>
+                        placeholder="Please Enter The Content of Your Post Here..."></textarea>
                 </div>
                 <!--Image Post-->
                 <div class="mb-3" id="post-image" hidden>
@@ -56,7 +57,7 @@
                 <div class="mb-3">
                     <label for="Categories" class="form-label">*Categories (If you have multiple categories, please separate them with a comma):</label>
                     <textarea class="form-control" id="Categories" style="width:80%" type="text"
-                        placeholder="Please enter categories of post (separated by commas)"></textarea>
+                        placeholder="Please Enter The Categories of Your Post Here..."></textarea>
                 </div>
                 <!--Visibility-->
                 <div class="mb-3">
