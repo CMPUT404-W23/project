@@ -352,8 +352,8 @@
                 },
             }).then(response => response.json())
                 .then(data => {
-                    console.log("data:", data.items)
-                    likehtml = `<h6 class="card-text my-3"> Liked by <b>"random user"</b> and <b>${data.items.length}</b> others </h6> `
+                    let random_user = data.items[Math.floor(Math.random()*data.items.length)].displayName
+                    likehtml = `<h6 class="card-text my-3"> Liked by <b>${random_user}</b> and <b>${data.items.length}</b> others </h6> `
                     document.getElementById(`liked-${post_id}`).innerHTML += likehtml 
                 });
         } else if (type === 'external'){
