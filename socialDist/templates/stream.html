@@ -77,16 +77,17 @@
 
       // How to add html in a JS function
 
-      var header = document.createElement("header");
-      var h4 = document.createElement("h4");
-      h4.textContent="testing"
-      h4.className= "border-bottom py-2";
-      header.appendChild(h4);
+      // var header = document.createElement("header");
+      // var h4 = document.createElement("h4");
+      // h4.textContent="testing"
+      // h4.className= "border-bottom py-2";
+      // header.appendChild(h4);
 
       // const privateTitle = document.createTextNode("My Private and Unlisted Posts");
 
       // privateTitleTag.appendChild(privateTitle);
 
+      var htmlElement=`Private/unlisted posts test`;
 
       for (let post of posts) {
         let content;
@@ -101,7 +102,7 @@
         }
 
         if (post.contentType.startsWith("image")){
-          var htmlElement = htmlToElement(`
+          var htmlElement = htmlElement+htmlToElement(`
                 <div class="card my-3">
                     <div class="card-body">
                         <h5 class="card-title"><a class="link-secondary" style="pointer-events: none">${post.title}</a></h5>
