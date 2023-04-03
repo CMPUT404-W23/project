@@ -114,18 +114,6 @@
       return res.json();
     })
     .then(data => {
-      // console.log(data);
-      // var mainContainer = document.getElementById("stream");
-      // for (var i = 0; i < data.length; i++) {
-      //   var innerDiv = document.createElement("div");
-      //   var output = "";
-      //   for (var property in data[i]) {
-      //     output += property + ': ' + JSON.stringify(data[i][property], null, 4) + ';<br><br>';
-      //   }
-      //   innerDiv.innerHTML = output + "<hr>";
-      //   // innerDiv.innerHTML = JSON.stringify(data[i], null, 4)+"<br><br>";
-      //   mainContainer.appendChild(innerDiv);
-      // }
       for (item of data) {
         var output = "";
         for (var property in item) {
