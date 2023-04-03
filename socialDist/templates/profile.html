@@ -120,12 +120,14 @@
             "X-CSRFToken": "{{ csrf_token }}"
             })
         });
-        // window.location.reload();
+        window.location.reload();
     }
     var followReqActors = [];
     var followIndex = 0;
     let inboxData;
     const current_author = JSON.parse('{{current_author|escapejs}}');
+    current_author["type"] = "author";
+    current_author["url"] = current_author["id"];
     console.log("current_author:",current_author)
     let current_author_url = new URL(current_author.id)
     let current_author_relative_path = current_author_url.pathname

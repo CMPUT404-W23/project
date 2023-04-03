@@ -196,6 +196,8 @@
 
     }
     var current_author = JSON.parse('{{current_author|escapejs}}');
+    current_author["type"] = "author";
+    current_author["url"] = current_author["id"];
     var posts = [];
     var externalPosts = [];
     // GET all public posts and display them
