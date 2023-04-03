@@ -74,6 +74,15 @@
         }
         postsSection.appendChild(htmlElement)
       }
+
+      // How to add html in a JS function
+      const privateTitleTag = document.createElement("h4");
+      privateTitleTag.className=  "border-bottom py-2";
+      const privateTitle = document.createTextNode("My Private and Unlisted Posts");
+
+      privateTitleTag.appendChild(privateTitle);
+
+
       for (let post of posts) {
         let content;
         if (post.contentType.startsWith("image")) {
@@ -101,8 +110,6 @@
 
                     </div>
                 </div>
-                <br>
-                <h4 class="border-bottom py-2">My Private and Unlisted Posts:</h4>
                 `);
         }
         else{
@@ -119,11 +126,8 @@
                         ${content}
                     </div>
                 </div>
-                <br>
-                <h4 class="border-bottom py-2">My Public Posts:</h4>
                 `);
         }
-        
         postsSection = document.getElementById("posts");
         if (postsSection.children[0].id === "spinner") {
           postsSection.removeChild(postsSection.children[0]);
@@ -157,6 +161,12 @@
             }
             postsSection.appendChild(htmlElement)
           }
+
+          const privateTitleTag = document.createElement("h4");
+          privateTitleTag.className = "border-bottom py-2";
+          const privateTitle = document.createTextNode("My Public Posts");
+
+          privateTitleTag.appendChild(privateTitle);
           for (let post of posts) {
             let content;
             if (post.contentType.startsWith("image")) {
@@ -181,7 +191,6 @@
                         <span class="badge bg-secondary mb-2">${post.categories}</span>
                         ${content}<br>
                         <h6 class="card-subtitle mt-2 mb-2 text-muted">${post.description}</h6><br>
-
                     </div>
                 </div>
                 `);
