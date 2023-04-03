@@ -165,8 +165,10 @@
                                     </button>
                                     <button type="button" class="btn btn-danger btn-sm" onclick="deletePost('${item.id}')">
                                         <i class="fa-solid fa-trash"></i>
-                                    </button>`
-                        commentButton = 
+                                    </button>`;
+                    }
+
+                    commentButton = 
                         `<button type="button" class="btn btn-secondary btn-sm" onclick="postComment('${item.id}','','internal')">
                             <i class="fa-regular fa-comment"></i>
                         </button>`
@@ -723,6 +725,77 @@
             console.log(response.status, response.statusText)
         }
     }
+
+    async function checkIfFollower(id) {
+        let url = new URL(id);
+        let author_relative_path = url.pathname + "/";
+        const sender = current_author;
+        for (connection of connections) {
+                if ("https://" + url.hostname == connection.hostName) {
+                  author_relative_path = author_relative_path.replace("/api","");
+                  author_relative_path = author_relative_path.replace("/main","");
+                  try {
+                    var response;
+                    var trailer = "/";
+                    if (connection.hostName == "https://social-distribution-w23-t17.herokuapp.com") {
+                        author_relative_path = "/authors/" + id + "/";
+                    }
+                    if (connection.hostName == "https://social-distribution-media.herokuapp.com") {
+                        trailer = "";
+                    }
+                    if (connection.apiCreds === "") {
+                      response = await fetch(connection.apiAddress + author_relative_path + "followers/" + sender.id + trailer);
+                    }
+                    else {
+                      response = await fetch(connection.apiAddress + author_relative_path + "followers/" + sender.id + trailer, {
+                        headers: {
+                            "Authorization": connection.apiCreds
+                        }
+                    });
+                    }
+                    if (connection.hostName == "https://social-t30.herokuapp.com") {
+                      if  (response.status == 200 
+                      && response.exists == "true") {
+                       return true;
+                      }
+                      else {
+                        return false;
+                      }
+                    }
+                    if (response.status == 200) {
+                       return true;
+                    }
+                    else {
+                      return false;
+                    }
+                  }
+                  catch {
+                    return false;
+                  }
+                    
+                    break;
+                }
+                else if ("https://" + url.hostname == "https://socialdistcmput404.herokuapp.com") {
+                    try {
+                      const response = await fetch("/api" + author_relative_path + "followers/" + sender.id +"/", {
+                          headers: {
+                              "Authorization": "Token 516e5c3d636f46228edb8f09b9613d5b4b166816"
+                          }});
+                      if (response.status == 200) {
+                        return true;
+                      }
+                      else {
+                        return false;
+                    }
+                    }
+                    catch {
+                      return false;
+                    }
+                 
+                    break;
+                }
+        }
+      }
     async function getLikes(author_id, post_id,host_name,type){
         if (type == 'internal'){
             const url = `/api/authors/${author_id}/posts/${post_id}/likes/`
