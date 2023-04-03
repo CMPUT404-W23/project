@@ -573,8 +573,19 @@
         // i is index of comment in commentsList
         const comment = commentsList[i];
         const authorID = comment.author.id.split("/").pop();
+        const hostname = comment.author.host;
         let authorization = "Token 516e5c3d636f46228edb8f09b9613d5b4b166816";
-        const url = `/api${new URL(comment.id).pathname}/likes`
+        let url = `${hostname}/api${new URL(comment.id).pathname}/likes`;
+        console.log(`${hostname}${comment.id}/likes`)
+        if (hostname == "https://socialdistcmput404.herokuapp.com/") { // not a remote author
+            url = `/api${new URL(comment.id).pathname}/likes`
+        } else {
+            const remoteConnection = listOfConnections.find(connection => connection.hostName === hostname);
+            authorization = remoteConnection.apiCreds;
+            if (hostname == "https://social-distribution-w23-t17.herokuapp.com") {
+                url = `${hostname}${comment.id}/likes`
+            }
+        }
         // GET list of likes for the post
         const response = await fetch(url, {
             method: "GET",
