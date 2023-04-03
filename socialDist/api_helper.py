@@ -194,7 +194,8 @@ def construct_paginated_list_of_comments(comment_list_data, pageNum, sizeNum, au
     while index < finalIndex:
         if index + 1 > len(comment_list):
             break
-        commentList.append(construct_comment_object(comment_list[index], author))
+        commentAuthor = Author.objects.get(pk=comment_list[index]["author"])
+        commentList.append(construct_comment_object(comment_list[index], commentAuthor))
         index += 1
     commentListDict = {}
     commentListDict["type"] = "comments"

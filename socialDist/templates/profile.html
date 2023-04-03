@@ -55,7 +55,7 @@
         {% endfor %}
     </div>
 
-    <h6>Friends (you follow each other!)</h6>
+    <h6>Friends (You & Your Follower BOTH follow each other)</h6>
     <div class="grid">
         {% for following in following_list %}
         {% for follower in follower_list %}
@@ -139,6 +139,7 @@
                     } else {
                         content = `<p class="card-text">${item.content}</p>`;
                     }
+                    // owner of a public post, can see comments and edit
                     if (item.author.id == current_author.id && item.visibility == "VISIBLE") {
                         editAndDeleteButtons = `<button type="button" id="edit-btn" class="btn btn-secondary btn-sm" onclick="editPost('${item.id}')">
                                         <i class="fa-solid fa-pen"></i>
@@ -151,14 +152,23 @@
                             <i class="fa-regular fa-comment"></i>
                         </button>`
                         getComment(item.author.id.split("/").pop(),item.id.split("/").pop(),'','internal')
-                    } else {
+                    // either owner of a private post OR not the owner of a public post, can see comments but can't edit
+                    } else if (item.visibility == "VISIBLE" || item.author.id == current_author.id) {
                         commentButton = 
                         `<button type="button" class="btn btn-secondary btn-sm" onclick="postComment('${item.id}','${item.author.id.split("/").pop()}','external')">
                             <i class="fa-regular fa-comment"></i>
                         </button>`
                         const post_url = new URL(item.id)
                         const host_name = post_url.hostname
-                        getComment(item.author.id.split("/").pop(),item.id.split("/").pop(),host_name,'external')
+                        let post_type = host_name === "socialdistcmput404.herokuapp.com" ? 'internal' : 'external';
+                        getComment(item.author.id.split("/").pop(),item.id.split("/").pop(),host_name, post_type)
+                    }
+                    // not the owner of a private post, can't see comments
+                    else {
+                        commentButton = 
+                        `<button type="button" class="btn btn-secondary btn-sm" onclick="postComment('${item.id}','${item.author.id.split("/").pop()}','external')">
+                            <i class="fa-regular fa-comment"></i>
+                        </button>`
                     }
                     var htmlElement = htmlToElement(`
                 <div class="card my-3">
@@ -277,6 +287,7 @@
             });
         window.location.reload();
     };
+
     async function likePost(i) {
         // like a post
         const post = inboxData[i]; // we got a list of all inbox items from fetch; like button passes the index of which post to like
@@ -490,6 +501,7 @@
     }
     // GET and display comments for a post
     let commentsList = [];
+    let commentIndex = 0;
     async function getComment(author_id, post_id,host_name,type) {
         if (type == 'internal'){
             const url = `/api/authors/${author_id}/posts/${post_id}/comments/`
@@ -503,18 +515,17 @@
             }).then(response => response.json())
                 .then(data => {
                     commentsList = commentsList.concat(data.items);
-                    let index = 0;
                     for (const comment of data.items){
                         comment_html = 
                         `<h6 class="card-text" > 
                             <b class="ml-5"><a href=${comment.author.url}>${comment.author.displayName}</a></b> ${comment.comment} 
-                            <button id="like-comment-${index}" type="button" class="btn btn-light btn-sm ml-20" onclick="likeComment(${index})">
+                            <button id="like-comment-${commentIndex}" type="button" class="btn btn-light btn-sm ml-20" onclick="likeComment(${commentIndex})">
                                 <i class="fa-regular fa-heart"></i>
                             </button>
                         </h6>`
                         document.getElementById(`comment-${post_id}`).innerHTML += comment_html 
-                        isCommentLiked(index);
-                        index += 1;
+                        isCommentLiked(commentIndex);
+                        commentIndex += 1;
                     }
                 });
         } else if (type === 'external'){
@@ -525,7 +536,8 @@
             if (hostname == "https://social-distribution-w23-t17.herokuapp.com") {
                 url = `${hostname}/authors/${author_url}/posts/${parent_post_url}/comments/?page=1&size=1000`
             }
-            else if (hostname == "https://social-distribution-media.herokuapp.com") {
+            else if (hostname == "https://social-distribution-media.herokuapp.com" ||
+            hostname == "https:social-t30.herokuapp.com") {
                 url = `${hostname}/api/authors/${author_id}/posts/${post_id}/comments?page=1&size=1000`
             }
             const remoteConnection = listOfConnections.find(connection => connection.hostName === hostname);
@@ -540,18 +552,17 @@
             }).then(response => response.json())
                 .then(data => {
                     commentsList = commentsList.concat(data.items);
-                    let index = 0;
                     for (const comment of data.items){
                         comment_html = 
                         `<h6 class="card-text" > 
                             <b class="ml-5"><a href=${comment.author.url}>${comment.author.displayName}</a></b> ${comment.comment} 
-                            <button id="like-comment-${index}" type="button" class="btn btn-light btn-sm ml-20" onclick="likeComment(${index})">
+                            <button id="like-comment-${commentIndex}" type="button" class="btn btn-light btn-sm ml-20" onclick="likeComment(${commentIndex})">
                                 <i class="fa-regular fa-heart"></i>
                             </button>
                         </h6>`
                         document.getElementById(`comment-${post_id}`).innerHTML += comment_html 
-                        isCommentLiked(index);
-                        index += 1;
+                        isCommentLiked(commentIndex);
+                        commentIndex += 1;
                     }
                 });
         }
@@ -562,8 +573,19 @@
         // i is index of comment in commentsList
         const comment = commentsList[i];
         const authorID = comment.author.id.split("/").pop();
+        const hostname = comment.author.host;
         let authorization = "Token 516e5c3d636f46228edb8f09b9613d5b4b166816";
-        const url = `/api${new URL(comment.id).pathname}/likes`
+        let url = `${hostname}/api${new URL(comment.id).pathname}/likes`;
+        console.log(`${hostname}${comment.id}/likes`)
+        if (hostname == "https://socialdistcmput404.herokuapp.com/") { // not a remote author
+            url = `/api${new URL(comment.id).pathname}/likes`
+        } else {
+            const remoteConnection = listOfConnections.find(connection => connection.hostName === hostname);
+            authorization = remoteConnection.apiCreds;
+            if (hostname == "https://social-distribution-w23-t17.herokuapp.com") {
+                url = `${hostname}${comment.id}/likes`
+            }
+        }
         // GET list of likes for the post
         const response = await fetch(url, {
             method: "GET",
@@ -588,11 +610,21 @@
         // POST a like object to the author's inbox
         const comment = commentsList[i];
         const authorID = comment.author.id.split("/").pop();
+        const hostname = comment.author.host;
         let authorization = "Token 516e5c3d636f46228edb8f09b9613d5b4b166816";
-        const url = `/api/authors/${authorID}/inbox/`
+        let url = `${hostname}/api/authors/${authorID}/inbox/`;
+        if (hostname == "https://socialdistcmput404.herokuapp.com/") { // not a remote author
+            url = `/api/authors/${authorID}/inbox/`
+        } else {
+            const remoteConnection = listOfConnections.find(connection => connection.hostName === hostname);
+            authorization = remoteConnection.apiCreds;
+            if (hostname == "https://social-distribution-w23-t17.herokuapp.com") {
+                url = `${hostname}/authors/${comment.author.id}/inbox/`
+            }
+        }
         const data = {
             "@context": "Comment Like",
-            "summary": current_author.displayName + "likes a comment on your post",
+            "summary": current_author.displayName + " likes a comment on your post",
             "type": "Like",
             "author": current_author,
             "object": comment.id
@@ -607,7 +639,6 @@
             },
             body: JSON.stringify(data),
         });
-        console.log("data:",data)
         if (response.status == 200) {
             document.getElementById(`like-comment-${i}`).innerHTML = `<i class="fa-solid fa-heart"></i>`;
             document.getElementById(`like-comment-${i}`).disabled = true;
