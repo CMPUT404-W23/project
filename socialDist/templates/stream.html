@@ -154,7 +154,7 @@
             var htmlElement = htmlToElement(`
                 <div class="card my-3">
                     <div class="card-body">
-                        <h5 class="card-title"><a class="link-secondary" href="${post.id}>${post.title}</a></h5>
+                        <h5 class="card-title"><a class="link-secondary" href="${post.id}">${post.title}</a></h5>
                         <h6 class="card-subtitle my-3 text-muted"><i>(Public Post)</i></h6>
                         <h6 class="card-subtitle my-3 text-muted">
                             <img src="${post.author.profileImage ||
@@ -255,14 +255,14 @@
         } else {
           content = `<p class="card-text">${post.content}</p>`;
         }
-        var indicationString = (post.unlisted ? `Unlisted ` : ``) (post.visibility == "FRIENDS" ? `Private ` : ``) + `Post`;
+        var indicationString = (post.unlisted ? `Unlisted ` : ``) + (post.visibility == "FRIENDS" ? `Private ` : ``) + `Post`;
 
         if (post.contentType.startsWith("image")) {
           var htmlElement = `
                 <h4 class="card-subtitle mt-2 mb-2 text-muted">My Private Post</h4><br>
                 <div class="card my-3">
                     <div class="card-body">` + (post.visibility != "FRIENDS" ? 
-                      `<h5 class="card-title"><a class="link-secondary" href="${post.id}>${post.title}</a></h5>` : 
+                      `<h5 class="card-title"><a class="link-secondary" href="${post.id}">${post.title}</a></h5>` : 
                       `<h5 class="card-title"><a class="link-secondary" style="pointer-events: none">${post.title}</a></h5>`) +
                         `<h6 class="card-subtitle my-3 text-muted"><i>${indicationString}</i></h6>
                         <h6 class="card-subtitle my-3 text-muted">
@@ -286,7 +286,7 @@
           var htmlElement = `
                 <div class="card my-3">
                     <div class="card-body">` + (post.visibility != "FRIENDS" ? 
-                      `<h5 class="card-title"><a class="link-secondary" href="${post.id}>${post.title}</a></h5>` : 
+                      `<h5 class="card-title"><a class="link-secondary" href="${post.id}">${post.title}</a></h5>` : 
                       `<h5 class="card-title"><a class="link-secondary" style="pointer-events: none">${post.title}</a></h5>`) +
                         `<h6 class="card-subtitle my-3 text-muted"><i>${indicationString}</i></h6>
                         <h6 class="card-subtitle my-3 text-muted">
