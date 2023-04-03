@@ -139,6 +139,7 @@
                     } else {
                         content = `<p class="card-text">${item.content}</p>`;
                     }
+                    // owner of a public post, can see comments and edit
                     if (item.author.id == current_author.id && item.visibility == "VISIBLE") {
                         editAndDeleteButtons = `<button type="button" id="edit-btn" class="btn btn-secondary btn-sm" onclick="editPost('${item.id}')">
                                         <i class="fa-solid fa-pen"></i>
@@ -151,14 +152,23 @@
                             <i class="fa-regular fa-comment"></i>
                         </button>`
                         getComment(item.author.id.split("/").pop(),item.id.split("/").pop(),'','internal')
-                    } else {
+                    // either owner of a private post OR not the owner of a public post, can see comments but can't edit
+                    } else if (item.visibility == "VISIBLE" || item.author.id == current_author.id) {
                         commentButton = 
                         `<button type="button" class="btn btn-secondary btn-sm" onclick="postComment('${item.id}','${item.author.id.split("/").pop()}','external')">
                             <i class="fa-regular fa-comment"></i>
                         </button>`
                         const post_url = new URL(item.id)
                         const host_name = post_url.hostname
-                        getComment(item.author.id.split("/").pop(),item.id.split("/").pop(),host_name,'external')
+                        let post_type = host_name === "socialdistcmput404.herokuapp.com" ? 'internal' : 'external';
+                        getComment(item.author.id.split("/").pop(),item.id.split("/").pop(),host_name, post_type)
+                    }
+                    // not the owner of a private post, can't see comments
+                    else {
+                        commentButton = 
+                        `<button type="button" class="btn btn-secondary btn-sm" onclick="postComment('${item.id}','${item.author.id.split("/").pop()}','external')">
+                            <i class="fa-regular fa-comment"></i>
+                        </button>`
                     }
                     var htmlElement = htmlToElement(`
                 <div class="card my-3">
@@ -526,7 +536,8 @@
             if (hostname == "https://social-distribution-w23-t17.herokuapp.com") {
                 url = `${hostname}/authors/${author_url}/posts/${parent_post_url}/comments/?page=1&size=1000`
             }
-            else if (hostname == "https://social-distribution-media.herokuapp.com") {
+            else if (hostname == "https://social-distribution-media.herokuapp.com" ||
+            hostname == "https:social-t30.herokuapp.com") {
                 url = `${hostname}/api/authors/${author_id}/posts/${post_id}/comments?page=1&size=1000`
             }
             const remoteConnection = listOfConnections.find(connection => connection.hostName === hostname);

@@ -270,7 +270,7 @@ class APIPost(APIView):
             # Check if request is from an authorized source (only user and admin can call this!), 401 if not
             if not request.user.is_authenticated or (not request.user.is_staff and author_id != api_helper.extract_UUID(request.user.author.id )):
                 return Response(status=401)
-            if post.visibility == "PRIVATE":
+            if post.visibility == "FRIENDS":
                 return Response(status=404)
             postDict = dict(request.data)
             postDict["author"] = HOST+"authors/"+author_id
@@ -410,7 +410,7 @@ class APIImage(APIView):
         # Check if resource already exists, if it does, acts like a GET request
         try:
             post = Post.objects.get(pk=HOST+"authors/"+author_id+"/posts/"+post_id)
-            if post.visibility == "PRIVATE" and not api_helper.is_follower(request.user, author):
+            if post.visibility == "FRIENDS" and not api_helper.is_follower(request.user, author):
                 return Response(status=401)
             if post.contentType != "image/png;base64" and post.contentType != "image/jpeg;base64" and post.contentType != "image/jpg;base64":
                 return Response(status=404)
@@ -435,7 +435,7 @@ class APIComment(APIView):
         except Post.DoesNotExist:
             return Response(status=404)
         # for a private post, only the author can access the comments!
-        if post.visibility == "PRIVATE" and (not request.user.is_authenticated or request.user.author != author):
+        if post.visibility == "FRIENDS" and (not request.user.is_authenticated or request.user.author != author):
             return Response(status=401)
         try:
             comment = Comment.objects.filter(parentPost=HOST+
@@ -469,7 +469,7 @@ class APIListComments(APIView):
         except Post.DoesNotExist:
             return Response(status=404)
         # for a private post, only the author can access the comments!
-        if post.visibility == "PRIVATE" and (not request.user.is_authenticated or request.user.author != author):
+        if post.visibility == "FRIENDS" and (not request.user.is_authenticated or request.user.author != author):
             return Response(status=401)
         comments = Comment.objects.filter(parentPost=HOST+"authors/"+author_id+"/posts/"+post_id)
         serializer = CommentSerializer(comments, many=True)
