@@ -101,7 +101,12 @@
         </div>
     </div>
 </div>
+
+<!-- marked.js import for markdown rendering -->
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<!-- DOMPurify import for sanitizing md input -->
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.1/purify.min.js"></script>
+
 <script>
     //Source: https://stackoverflow.com/questions/494143/creating-a-new-dom-element-from-an-html-string-using-built-in-dom-methods-or-pro/35385518#35385518
     function htmlToElement(html) {
@@ -151,9 +156,9 @@
                     if (item.contentType.startsWith("image")) {
                         content = `<img class="img-fluid mx-auto d-block" style="max-width: 50%" src="data:${item.contentType}, ${item.content}"/><br>`;
                     } else if (item.contentType === "text/markdown") {
-                        item.title = marked.parse(item.title);
-                        item.description = marked.parse(item.description);
-                        content = `<p class="card-text">${marked.parse(item.content)}</p>`;
+                        item.title = DOMPurify.sanitize(marked.parse(item.title));
+                        item.description = DOMPurify.sanitize(marked.parse(item.description));
+                        content = `<p class="card-text">${DOMPurify.sanitize(marked.parse(item.content))}</p>`;
                     } else {
                         content = `<p class="card-text">${item.content}</p>`;
                     }
@@ -282,7 +287,7 @@
                 else if (item.type === "comment") {
                     let content;
                     if (item.contentType === "text/markdown") {
-                        content = `<p class="card-text">${marked.parse(item.comment)}</p>`;
+                        content = `<p class="card-text">${DOMPurify.sanitize(marked.parse(item.comment))}</p>`;
                     } else {
                         content = `<p class="card-text">${item.comment}</p>`;
                     }

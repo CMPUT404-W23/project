@@ -18,7 +18,12 @@
             </div>
         </div>
 </main>
+
+<!-- marked.js import for markdown rendering -->
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<!-- DOMPurify import for sanitizing md input -->
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.1/purify.min.js"></script>
+
 <script>
     const listOfConnections = JSON.parse('{{connections|escapejs}}');
 
@@ -108,17 +113,18 @@
     async function likeComment(i) {
         // POST a like object to the author's inbox
         const comment = commentsList[i];
-        const authorID = comment.author.id.split("/").pop();
+        // const authorID = comment.author.id.split("/").pop();
+        const postAuthourID = new URL(comment.id).pathname.split("/")[2];
         const hostname = comment.author.host;
         let authorization = "Token 516e5c3d636f46228edb8f09b9613d5b4b166816";
-        let url = `${hostname}/api/authors/${authorID}/inbox/`;
+        let url = `${hostname}/api/authors/${postAuthourID}/inbox/`;
         if (hostname == "https://socialdistcmput404.herokuapp.com/") { // not a remote author
-            url = `/api/authors/${authorID}/inbox/`
+            url = `/api/authors/${postAuthourID}/inbox/`
         } else {
             const remoteConnection = listOfConnections.find(connection => connection.hostName === hostname);
             authorization = remoteConnection.apiCreds;
             if (hostname == "https://social-distribution-w23-t17.herokuapp.com") {
-                url = `${hostname}/authors/${comment.author.id}/inbox/`
+                url = `${hostname}/authors/https://social-distribution-w23-t17.herokuapp.com/authors/${postAuthourID}/inbox/`
             }
         }
         const data = {
@@ -216,9 +222,9 @@
                 }
                 else {
                     if (post.contentType === "text/markdown") {
-                        post.title = marked.parse(post.title);
-                        post.description = marked.parse(post.description);
-                        content = `<p class="card-text">${marked.parse(post.content)}</p>`;
+                        post.title = DOMPurify.sanitize(marked.parse(post.title));
+                        post.description = DOMPurify.sanitize(marked.parse(post.description));
+                        content = `<p class="card-text">${DOMPurify.sanitize(marked.parse(post.content))}</p>`;
                     } else {
                         content = `<p class="card-text">${post.content}</p>`;
                     }
@@ -631,9 +637,9 @@
                                 if (post.contentType.startsWith("image")) {
                                     content = `<img class="img-fluid mx-auto d-block" style="max-width: 50%" src="data:${post.contentType}, ${post.content}"/><br>`;
                                 } else if (post.contentType === "text/markdown") {
-                                    post.title = marked.parse(post.title);
-                                    post.description = marked.parse(post.description);
-                                    content = `<p class="card-text">${marked.parse(post.content)}</p>`;
+                                    post.title = DOMPurify.sanitize(marked.parse(post.title));
+                                    post.description = DOMPurify.sanitize(marked.parse(post.description));
+                                    content = `<p class="card-text">${DOMPurify.sanitize(marked.parse(post.content))}</p>`;
                                 } else {
                                     content = `<p class="card-text">${post.content}</p>`;
                                 }
