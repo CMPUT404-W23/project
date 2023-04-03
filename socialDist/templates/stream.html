@@ -27,12 +27,12 @@
       class="rounded-circle"
       style="width: 100px; height: 100px; object-fit: cover"
     />
-    {% endif %} {{author.displayName}}'s' Stream
+    {% endif %} {{author.displayName}}'s Stream
   </h1>
 
   <div class="grid">
     <h4 class="border-bottom py-2">
-      My Posts: (Including Public, Private & Unlisted Posts)
+      My Posts(Including Public, Private & Unlisted Posts):
     </h4>
     <div class="grid" id="posts">
       <div class="d-flex justify-content-center" id="spinner">
@@ -41,7 +41,7 @@
         </div>
       </div>
     </div>
-    <h4 class="border-bottom py-2">GitHub Activity Stream</h4>
+    <h4 class="border-bottom py-2">GitHub Activity Stream:</h4>
     <div class="grid" id="gh-stream">
       <div class="d-flex justify-content-center" id="spinner">
         <div class="spinner-border" role="status">
@@ -82,6 +82,20 @@
     window.location.href = url.pathname + "/edit/";
   }
 
+  function postComment(post_id,foreignauthor_id,type) {
+    if (type === 'internal'){
+        console.log(post_id)
+        url = new URL(post_id)
+        window.location.href = url.pathname + "/comments/"
+    } else if (type === 'external'){
+        console.log(post_id,foreignauthor_id,type)
+        url = new URL(post_id)
+        post_id = post_id.split("/").pop()
+        window.location.href = `https://socialdistcmput404.herokuapp.com/posts/foreign/${url.hostname}/authors/${foreignauthor_id}/posts/${post_id}/comments`
+    }
+  }
+
+  // Get and show private/unlisted posts
   // Getting Public Posts
     var authorID = "{{author.id}}";
     fetch(`/api/authors/${authorID.split("/").pop()}/posts/`, {
@@ -271,18 +285,23 @@
                         ${content}
                 `;
         }
-        console.log(authorID);
-        console.log(post.author.id);
-        if (post.author.id == authorID) {
-          htmlElement += `
-                          <button type="button" id="edit-btn" class="btn btn-secondary btn-sm" onclick="editPost('${post.id}')">
-                              <i class="fa-solid fa-pen"></i>
-                          </button>
-                          <button type="button" class="btn btn-danger btn-sm" onclick="deletePost('${post.id}')">
-                              <i class="fa-solid fa-trash"></i>
-                          </button>
-                          `;
+        let editButton = `
+        <button type="button" id="edit-btn" class="btn btn-secondary btn-sm" onclick="editPost('${post.id}')">
+          <i class="fa-solid fa-pen"></i>
+        </button>`;
+        let deleteButton = `
+        <button type="button" class="btn btn-danger btn-sm" onclick="deletePost('${post.id}')">
+          <i class="fa-solid fa-trash"></i>
+        </button>`;
+        let commentButton = `
+        <button type="button" class="btn btn-secondary btn-sm" onclick="postComment('${post.id}','','internal')">
+          <i class="fa-regular fa-comment"></i>
+        </button>
+        `;
+        if (post.visibility != "FRIENDS") {
+          htmlElement += editButton;
         }
+        htmlElement += deleteButton + commentButton;
 
         postsSection = document.getElementById("posts");
         if (postsSection.children[0].id === "spinner") {
