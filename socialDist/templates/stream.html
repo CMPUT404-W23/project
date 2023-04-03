@@ -98,6 +98,8 @@
 
                     </div>
                 </div>
+                <br>
+                <h4 class="border-bottom py-2">My Private and Unlisted Posts:</h4>
                 `);
         }
         else{
@@ -114,6 +116,8 @@
                         ${content}
                     </div>
                 </div>
+                <br>
+                <h4 class="border-bottom py-2">My Public Posts:</h4>
                 `);
         }
         
@@ -127,6 +131,7 @@
 
 
     // Getting Public Posts
+
     var authorID = "{{author.id}}";
       fetch(`/api/authors/${authorID.split('/').pop()}/posts/`, {
         headers: new Headers({
