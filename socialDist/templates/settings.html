@@ -3,6 +3,33 @@
   <div id="save-alert"></div>
   <form>
     <!-- <h2 class="border-bottom py-3">Settings: </h2> -->
+
+    <!-- <div id="stream">
+      <script>
+        fetch('https://api.github.com/users/Alex-Mak-MCW/events')
+            .then(res => {
+              return res.json();
+            })
+            .then(data => {
+              console.log(data);
+              // data.forEach(user => {
+
+                var mainContainer = document.getElementById("stream");
+                for (var i = 0; i < data.length; i++){
+                  var innerDiv = document.createElement("div");
+                  // console.log(data[0]);
+                  var output="";
+                  for (var property in data[i]){
+                    output += property + ': ' + JSON.stringify(data[i][property], null, 4) + ';<br><br>';
+                  }
+                  innerDiv.innerHTML = output + "<hr>";
+                  // innerDiv.innerHTML = JSON.stringify(data[i], null, 4)+"<br><br>";
+                  mainContainer.appendChild(innerDiv);
+                }
+            })
+            .catch(error => console.log(error));
+      </script>
+    </div> -->
       
     <!-- heading -->
     <div class="container-md mt-3">
@@ -195,5 +222,25 @@
     httpRequest.setRequestHeader("Authorization", "Token 516e5c3d636f46228edb8f09b9613d5b4b166816");
     httpRequest.send(JSON.stringify(data));
   }
+
+  // function stream(){
+  // // For testing new function later implement on stream
+  // // Source: https://www.youtube.com/watch?v=zUcc4vW-jsI
+  // fetch('https://api.github.com/users/Alex-Mak-MCW/events')
+  //   .then(res => {
+  //     return res.json();
+  //   })
+  //   .then(data => {
+  //     console.log(data);
+  //     data.forEach(user => {
+  //       // console.log(user.id);
+  //       const markUp=`<li>${user}</li>`;
+  //       console.log(user.id);
+  //       document.querySelector('ul').insertAdjacentHTML("beforeend", markUp);
+  //     });
+  //   })
+  //   .catch(error=> console.log(error));
+  // }
+
 </script>
 {% endblock content %}
