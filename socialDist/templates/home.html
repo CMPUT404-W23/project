@@ -72,7 +72,8 @@
             if (hostname == "https://social-distribution-w23-t17.herokuapp.com") {
                 url = `${hostname}/authors/${author_url}/posts/${parent_post_url}/comments/?page=1&size=1000`
             }
-            else if (hostname == "https://social-distribution-media.herokuapp.com") {
+            else if (hostname == "https://social-distribution-media.herokuapp.com" 
+            || hostname == "https:social-t30.herokuapp.com") {
                 url = `${hostname}/api/authors/${author_id}/posts/${post_id}/comments?page=1&size=1000`
             }
             const remoteConnection = listOfConnections.find(connection => connection.hostName === hostname);
