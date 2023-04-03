@@ -418,7 +418,7 @@
         .then((data) =>{
             followers = data.items;
             for (follower of followers) {
-                sendToInbox(follower.id, JSON.stringify(post));
+                sendToInbox(follower.id, post);
             }
         })
     }
@@ -427,7 +427,7 @@
         // Send post to a user's inbox
         let url = new URL(id);
         let author_relative_path = url.pathname + "/"
-        for (connection of connections) {
+        for (connection of listOfConnections) {
             if ("https://" + url.hostname == connection.hostName) {
                 author_relative_path = author_relative_path.replace("/api","");
                 author_relative_path = author_relative_path.replace("/main","");
