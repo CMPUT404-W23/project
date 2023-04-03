@@ -247,7 +247,8 @@
                                     `
                 }
                 getComment(author_id,post_id,'','internal')
-                likedby = `<h6 class="card-text my-3" id="liked-${post_id}"> Liked by <b>"random user"</b> and <b>"likes count"</b> others </h6> `
+                getLikes()
+                likedby = `<div > </div>` 
                 comment = `<br><br><div id="comment-${post_id}"></div>`
                 display_posts += likedby + comment
                 isLiked(index, 'internal'); // check if post is liked by user
@@ -317,7 +318,61 @@
             console.log(response.status, response.statusText)
         }
     }
-
+    async function getLikes(author_id, post_id,host_name,type){
+        if (type == 'internal'){
+            const url = `/api/authors/${author_id}/posts/${post_id}/likes/`
+            const response = await fetch(url, {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": "{{ csrf_token }}",
+                    "Authorization": "Token 516e5c3d636f46228edb8f09b9613d5b4b166816"
+                },
+            }).then(response => response.json())
+                .then(data => {
+                    console.log("data:", data.items)
+                    likehtml = `<h6 class="card-text my-3" id="liked-${post_id}"> Liked by <b>"random user"</b> and <b>${data.items.length}</b> others </h6> `
+                    document.getElementById(`liked-${post_id}`).innerHTML += likehtml 
+                });
+        } else if (type === 'external'){
+            const hostname = "https://" + host_name;
+            let parent_post_url = `${hostname}/authors/${author_id}/posts/${post_id}`
+            let author_url = `${hostname}/authors/${author_id}`
+            let url = `${hostname}/api/authors/${author_id}/posts/${post_id}/comments/`
+            if (hostname == "https://social-distribution-w23-t17.herokuapp.com") {
+                url = `${hostname}/authors/${author_url}/posts/${parent_post_url}/comments/?page=1&size=1000`
+            }
+            else if (hostname == "https://social-distribution-media.herokuapp.com") {
+                url = `${hostname}/api/authors/${author_id}/posts/${post_id}/comments?page=1&size=1000`
+            }
+            const remoteConnection = listOfConnections.find(connection => connection.hostName === hostname);
+            let authorization = remoteConnection.apiCreds;
+            const response = await fetch(url, {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": "{{ csrf_token }}",
+                    "Authorization": authorization
+                },
+            }).then(response => response.json())
+                .then(data => {
+                    commentsList = commentsList.concat(data.items);
+                    let index = 0;
+                    for (const comment of data.items){
+                        comment_html = 
+                        `<h6 class="card-text" > 
+                            <b class="ml-5"><a href=${comment.author.url}>${comment.author.displayName}</a></b> ${comment.comment} 
+                            <button id="like-comment-${index}" type="button" class="btn btn-light btn-sm ml-20" onclick="likeComment(${index})">
+                                <i class="fa-regular fa-heart"></i>
+                            </button>
+                        </h6>`
+                        document.getElementById(`comment-${post_id}`).innerHTML += comment_html 
+                        isCommentLiked(index);
+                        index += 1;
+                    }
+                });
+        }
+    }
     async function isLiked(i, type) {
         // checks if current user liked the post
         // i is the index of the post in the posts/externalPosts array
