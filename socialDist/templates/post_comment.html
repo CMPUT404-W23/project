@@ -50,8 +50,8 @@
 
     async function postComment(type){
         if (type == 'internal'){
-            const post_url = new URL("{{post_id}}");
-            const author_url = new URL("{{author}}");
+            const post_url = new URL("{{post.id}}");
+            const author_url = new URL("{{post.author.id}}");
             const author_relative_path = author_url.pathname;
             const comment_url = "/api" + post_url.pathname + "/comments/";
             const data = {
