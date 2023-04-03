@@ -139,6 +139,7 @@
                     } else {
                         content = `<p class="card-text">${item.content}</p>`;
                     }
+                    // owner of a public post, can see comments and edit
                     if (item.author.id == current_author.id && item.visibility == "VISIBLE") {
                         editAndDeleteButtons = `<button type="button" id="edit-btn" class="btn btn-secondary btn-sm" onclick="editPost('${item.id}')">
                                         <i class="fa-solid fa-pen"></i>
@@ -151,14 +152,23 @@
                             <i class="fa-regular fa-comment"></i>
                         </button>`
                         getComment(item.author.id.split("/").pop(),item.id.split("/").pop(),'','internal')
-                    } else {
+                    // either owner of a private post OR not the owner of a public post, can see comments but can't edit
+                    } else if (item.visibility == "VISIBLE" || item.author.id == current_author.id) {
                         commentButton = 
                         `<button type="button" class="btn btn-secondary btn-sm" onclick="postComment('${item.id}','${item.author.id.split("/").pop()}','external')">
                             <i class="fa-regular fa-comment"></i>
                         </button>`
                         const post_url = new URL(item.id)
                         const host_name = post_url.hostname
-                        getComment(item.author.id.split("/").pop(),item.id.split("/").pop(),host_name,'external')
+                        let post_type = host_name === "socialdistcmput404.herokuapp.com" ? 'internal' : 'external';
+                        getComment(item.author.id.split("/").pop(),item.id.split("/").pop(),host_name, post_type)
+                    }
+                    // not the owner of a private post, can't see comments
+                    else {
+                        commentButton = 
+                        `<button type="button" class="btn btn-secondary btn-sm" onclick="postComment('${item.id}','${item.author.id.split("/").pop()}','external')">
+                            <i class="fa-regular fa-comment"></i>
+                        </button>`
                     }
                     var htmlElement = htmlToElement(`
                 <div class="card my-3">
@@ -173,6 +183,9 @@
                         ${content}
                         <button type="button" class="btn btn-secondary btn-sm" id="like-btn-${index}" onclick="likePost(${index})">
                             <i class="fa-regular fa-heart"></i>  
+                        </button>
+                        <button type="button" id="share-btn" class="btn btn-secondary btn-sm" onclick="sharePost(${index})">
+                                    <i class="fa fa-share"></i>
                         </button>
                         ${commentButton}
                         ${editAndDeleteButtons}
@@ -274,6 +287,7 @@
             });
         window.location.reload();
     };
+
     async function likePost(i) {
         // like a post
         const post = inboxData[i]; // we got a list of all inbox items from fetch; like button passes the index of which post to like
@@ -400,6 +414,79 @@
             .then((response) => response.status())
             .then(window.location.reload())
     }
+
+    async function sharePost(index) {
+        let post = inboxData[index];
+        let author_url = new URL(current_author.id)
+        let author_relative_path = author_url.pathname
+        let date = new Date();
+        // refresh "published" date
+        post["published"] = date.toISOString();
+        fetch("/api" +  author_relative_path + "/followers/", {
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": "{{ csrf_token }}",
+                "Authorization": "Token 516e5c3d636f46228edb8f09b9613d5b4b166816"
+        }})
+        .then((response) => response.json())
+        .then((data) =>{
+            followers = data.items;
+            for (follower of followers) {
+                sendToInbox(follower.id, post);
+            }
+        })
+    }
+
+    async function sendToInbox(id, data) {
+        // Send post to a user's inbox
+        let url = new URL(id);
+        let author_relative_path = url.pathname + "/"
+        for (connection of listOfConnections) {
+            if ("https://" + url.hostname == connection.hostName) {
+                author_relative_path = author_relative_path.replace("/api","");
+                author_relative_path = author_relative_path.replace("/main","");
+                let inbox_url = connection.apiAddress + author_relative_path + "inbox/";
+                if (connection.hostName == "https://social-distribution-w23-t17.herokuapp.com") {
+                    inbox_url = connection.apiAddress + "/authors/" + id + "/inbox/"
+                }
+                if (connection.hostName == "https://social-distribution-media.herokuapp.com") {
+                    data["categories"] = data["categories"].split()
+                    data = {
+                        "@context": "sending to inbox",
+                        "summary": data.author.displayName + " created a post!",
+                        "type": "post",
+                        "author": data.author,
+                        "object":data
+                    }
+                    inbox_url = connection.apiAddress + author_relative_path + "inbox";
+                }
+                fetch(inbox_url, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRFToken": "{{ csrf_token }}",
+                        "Authorization": connection.apiCreds
+                    },
+                    body: JSON.stringify(data),
+                });
+                break;
+            }
+            else if ("https://" + url.hostname == "https://socialdistcmput404.herokuapp.com") {
+                fetch("/api" + author_relative_path + "inbox/", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRFToken": "{{ csrf_token }}",
+                        "Authorization": "Token 516e5c3d636f46228edb8f09b9613d5b4b166816"
+                    },
+                    body: JSON.stringify(data),
+                });
+                break;
+            }
+        }
+    }
+
+    
     function postComment(post_id,foreignauthor_id,type) {
         if (type === 'internal'){
             console.log(post_id)
@@ -414,6 +501,7 @@
     }
     // GET and display comments for a post
     let commentsList = [];
+    let commentIndex = 0;
     async function getComment(author_id, post_id,host_name,type) {
         if (type == 'internal'){
             const url = `/api/authors/${author_id}/posts/${post_id}/comments/`
@@ -427,18 +515,17 @@
             }).then(response => response.json())
                 .then(data => {
                     commentsList = commentsList.concat(data.items);
-                    let index = 0;
                     for (const comment of data.items){
                         comment_html = 
                         `<h6 class="card-text" > 
                             <b class="ml-5"><a href=${comment.author.url}>${comment.author.displayName}</a></b> ${comment.comment} 
-                            <button id="like-comment-${index}" type="button" class="btn btn-light btn-sm ml-20" onclick="likeComment(${index})">
+                            <button id="like-comment-${commentIndex}" type="button" class="btn btn-light btn-sm ml-20" onclick="likeComment(${commentIndex})">
                                 <i class="fa-regular fa-heart"></i>
                             </button>
                         </h6>`
                         document.getElementById(`comment-${post_id}`).innerHTML += comment_html 
-                        isCommentLiked(index);
-                        index += 1;
+                        isCommentLiked(commentIndex);
+                        commentIndex += 1;
                     }
                 });
         } else if (type === 'external'){
@@ -449,7 +536,8 @@
             if (hostname == "https://social-distribution-w23-t17.herokuapp.com") {
                 url = `${hostname}/authors/${author_url}/posts/${parent_post_url}/comments/?page=1&size=1000`
             }
-            else if (hostname == "https://social-distribution-media.herokuapp.com") {
+            else if (hostname == "https://social-distribution-media.herokuapp.com" ||
+            hostname == "https:social-t30.herokuapp.com") {
                 url = `${hostname}/api/authors/${author_id}/posts/${post_id}/comments?page=1&size=1000`
             }
             const remoteConnection = listOfConnections.find(connection => connection.hostName === hostname);
@@ -464,18 +552,17 @@
             }).then(response => response.json())
                 .then(data => {
                     commentsList = commentsList.concat(data.items);
-                    let index = 0;
                     for (const comment of data.items){
                         comment_html = 
                         `<h6 class="card-text" > 
                             <b class="ml-5"><a href=${comment.author.url}>${comment.author.displayName}</a></b> ${comment.comment} 
-                            <button id="like-comment-${index}" type="button" class="btn btn-light btn-sm ml-20" onclick="likeComment(${index})">
+                            <button id="like-comment-${commentIndex}" type="button" class="btn btn-light btn-sm ml-20" onclick="likeComment(${commentIndex})">
                                 <i class="fa-regular fa-heart"></i>
                             </button>
                         </h6>`
                         document.getElementById(`comment-${post_id}`).innerHTML += comment_html 
-                        isCommentLiked(index);
-                        index += 1;
+                        isCommentLiked(commentIndex);
+                        commentIndex += 1;
                     }
                 });
         }
@@ -516,7 +603,7 @@
         const url = `/api/authors/${authorID}/inbox/`
         const data = {
             "@context": "Comment Like",
-            "summary": current_author.displayName + "likes a comment on your post",
+            "summary": current_author.displayName + " likes a comment on your post",
             "type": "Like",
             "author": current_author,
             "object": comment.id
