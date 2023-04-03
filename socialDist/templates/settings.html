@@ -161,22 +161,9 @@
     alertContainer.appendChild(saveAlert);
   }
 
-  function sendUserInfo(e) {
+  async function sendUserInfo(e) {
     alertContainer = document.getElementById("save-alert");
     e.preventDefault();
-    // const httpRequest = new XMLHttpRequest();
-    // httpRequest.onreadystatechange = () => {
-    //   if (httpRequest.readyState === XMLHttpRequest.DONE) {
-    //     if (httpRequest.status === 201) {
-    //       displayAlert("alert-success", "Changes saved successfully!");
-    //     } else {
-    //       displayAlert(
-    //         "alert-danger",
-    //         `An error occurred while saving: ${httpRequest.statusText}`
-    //       );
-    //     }
-    //   }
-    // };
 
     const data = {
       displayName: document.getElementById("username").value,
@@ -204,17 +191,23 @@
 
     let author_url = new URL("{{author.id}}")
     let author_relative_path = author_url.pathname
-    fetch("/api" + author_relative_path + "/", {
+    const response = await fetch("/api" + author_relative_path + "/", {
       method: "POST",
       headers: {
         "X-CSRFToken": "{{ csrf_token }}",
+        "Content-Type": "application/json",
         "Authorization": "Token 516e5c3d636f46228edb8f09b9613d5b4b166816"
       },
+      body: JSON.stringify(data),
     });
-    // httpRequest.setRequestHeader("X-CSRFToken", "{{ csrf_token }}");
-    // httpRequest.setRequestHeader("Content-Type", "application/json");
-    // httpRequest.setRequestHeader("Authorization", "Token 516e5c3d636f46228edb8f09b9613d5b4b166816");
-    // httpRequest.send(JSON.stringify(data));
+    if (response.status === 201) {
+      displayAlert("alert-success", "Changes saved successfully!");
+    } else {
+      displayAlert(
+        "alert-danger",
+        `An error occurred while saving: ${response.statusText}`
+      );
+    }
   }
 </script>
 {% endblock content %}
