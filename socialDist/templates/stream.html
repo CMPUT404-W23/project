@@ -136,6 +136,19 @@
           } else {
             content = `<p class="card-text">${post.content}</p>`;
           }
+          let editButton = `
+          <button type="button" id="edit-btn" class="btn btn-secondary btn-sm" onclick="editPost('${post.id}')">
+            <i class="fa-solid fa-pen"></i>
+          </button>`;
+          let deleteButton = `
+          <button type="button" class="btn btn-danger btn-sm" onclick="deletePost('${post.id}')">
+            <i class="fa-solid fa-trash"></i>
+          </button>`;
+          let commentButton = `
+          <button type="button" class="btn btn-secondary btn-sm" onclick="postComment('${post.id}','','internal')">
+            <i class="fa-regular fa-comment"></i>
+          </button>
+          `;
 
           if (post.contentType.startsWith("image")) {
             var htmlElement = htmlToElement(`
@@ -155,6 +168,9 @@
                         ${content}<br>
                         <h6 class="card-subtitle mt-2 mb-2 text-muted">${post.description
               }</h6><br>
+                      ${commentButton}
+                      ${editButton}
+                      ${deleteButton}
                     </div>
                 </div>
                 `);
@@ -176,6 +192,9 @@
                         <span class="badge bg-secondary mb-2">${post.categories
               }</span>
                         ${content}
+                        ${commentButton}
+                      ${editButton}
+                      ${deleteButton}
                     </div>
                 </div>
                 `);
@@ -298,10 +317,11 @@
           <i class="fa-regular fa-comment"></i>
         </button>
         `;
+        htmlElement += commentButton;
         if (post.visibility != "FRIENDS") {
           htmlElement += editButton;
         }
-        htmlElement += deleteButton + commentButton;
+        htmlElement += deleteButton;
 
         postsSection = document.getElementById("posts");
         if (postsSection.children[0].id === "spinner") {
