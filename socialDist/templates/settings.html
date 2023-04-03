@@ -164,25 +164,27 @@
   function sendUserInfo(e) {
     alertContainer = document.getElementById("save-alert");
     e.preventDefault();
-    const httpRequest = new XMLHttpRequest();
-    httpRequest.onreadystatechange = () => {
-      if (httpRequest.readyState === XMLHttpRequest.DONE) {
-        if (httpRequest.status === 201) {
-          displayAlert("alert-success", "Changes saved successfully!");
-        } else {
-          displayAlert(
-            "alert-danger",
-            `An error occurred while saving: ${httpRequest.statusText}`
-          );
-        }
-      }
-    };
+    // const httpRequest = new XMLHttpRequest();
+    // httpRequest.onreadystatechange = () => {
+    //   if (httpRequest.readyState === XMLHttpRequest.DONE) {
+    //     if (httpRequest.status === 201) {
+    //       displayAlert("alert-success", "Changes saved successfully!");
+    //     } else {
+    //       displayAlert(
+    //         "alert-danger",
+    //         `An error occurred while saving: ${httpRequest.statusText}`
+    //       );
+    //     }
+    //   }
+    // };
 
     const data = {
       displayName: document.getElementById("username").value,
       github: document.getElementById("github").value,
       profileImage: document.getElementById("pfp-link").value,
     };
+
+    console.log(data)
 
     // if no fields changed at all
     if (
@@ -194,42 +196,25 @@
       return;
     }
 
-    // FIX 
-    // IF changes are NOTmade in displayName, sub the original value back in
-    if (data.displayName === "") {
-      data.displayName = "{{author.displayName}}";
-    }
-    if (data.github === "") {
-      data.github = "{{author.github}}";
-    }
-    if (data.profileImage === "") {
-      data.profileImage = "{{author.profileImage}}";
-    }
-
-
-    // Comment it out for now
-    // if any fields are empty
-    /*
     if (
-      data.displayName === "" ||
-      data.github === "" ||
-      data.profileImage === ""
-    ) {
-      displayAlert("alert-danger", "Please fill out all fields.");
+      data.displayName === "") {
+      displayAlert("alert-danger", "Username cannot be blank.");
       return;
     }
-    */
 
     let author_url = new URL("{{author.id}}")
     let author_relative_path = author_url.pathname
-    httpRequest.open(
-      "POST",
-      "/api" + author_relative_path + "/"
-    );
-    httpRequest.setRequestHeader("X-CSRFToken", "{{ csrf_token }}");
-    httpRequest.setRequestHeader("Content-Type", "application/json");
-    httpRequest.setRequestHeader("Authorization", "Token 516e5c3d636f46228edb8f09b9613d5b4b166816");
-    httpRequest.send(JSON.stringify(data));
+    fetch("/api" + author_relative_path + "/", {
+      method: "POST",
+      headers: {
+        "X-CSRFToken": "{{ csrf_token }}",
+        "Authorization": "Token 516e5c3d636f46228edb8f09b9613d5b4b166816"
+      },
+    });
+    // httpRequest.setRequestHeader("X-CSRFToken", "{{ csrf_token }}");
+    // httpRequest.setRequestHeader("Content-Type", "application/json");
+    // httpRequest.setRequestHeader("Authorization", "Token 516e5c3d636f46228edb8f09b9613d5b4b166816");
+    // httpRequest.send(JSON.stringify(data));
   }
 </script>
 {% endblock content %}
