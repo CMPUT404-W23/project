@@ -112,7 +112,7 @@
         const url = `/api/authors/${authorID}/inbox/`
         const data = {
             "@context": "Comment Like",
-            "summary": current_author.displayName + "likes a comment on your post",
+            "summary": current_author.displayName + " likes a comment on your post",
             "type": "Like",
             "author": current_author,
             "object": comment.id

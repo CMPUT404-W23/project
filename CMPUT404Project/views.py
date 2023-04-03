@@ -131,7 +131,7 @@ def privatePosts(request):
     except Author.DoesNotExist:
         author = None
     context = {'author': author}
-    return render(request, 'private_posts.html', context)
+    return render(request, 'stream.html', context)
 
 @login_required
 def editPost(request, author_id, post_id):
