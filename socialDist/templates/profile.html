@@ -188,7 +188,7 @@
                         getComment(item.author.id.split("/").pop(),item.id.split("/").pop(),host_name, post_type)
                         getLikes(item.author.id.split("/").pop(),item.id.split("/").pop(),host_name, post_type)
                         commentButton = 
-                        `<button type="button" class="btn btn-secondary btn-sm" onclick="postComment('${item.id}','${item.author.id.split("/").pop()}',${post_type})">
+                        `<button type="button" class="btn btn-secondary btn-sm" onclick="postComment('${item.id}','${item.author.id.split("/").pop()}','${post_type}')">
                             <i class="fa-regular fa-comment"></i>
                         </button>`
 
@@ -199,7 +199,7 @@
                         const host_name = post_url.hostname;
                         let post_type = host_name === "socialdistcmput404.herokuapp.com" ? 'internal' : 'external';
                         commentButton = 
-                        `<button type="button" class="btn btn-secondary btn-sm" onclick="postComment('${item.id}','${item.author.id.split("/").pop()}',${post_type})">
+                        `<button type="button" class="btn btn-secondary btn-sm" onclick="postComment('${item.id}','${item.author.id.split("/").pop()}','${post_type}')">
                             <i class="fa-regular fa-comment"></i>
                         </button>`
                     }
