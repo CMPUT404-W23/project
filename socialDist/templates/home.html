@@ -230,10 +230,10 @@
                                     <span class="badge bg-secondary mb-2">${post.categories}</span>
                                     <p class="post-content mb-2">${content}</p>
                                     <button type="button" class="btn btn-secondary btn-sm" id="like-btn-${index}-internal" onclick="likePost(${index}, 'internal')">
-                                        <i class="fa-regular fa-heart"> Like</i>
+                                        <i class="fa-regular fa-heart"></i>
                                     </button>
                                     <button type="button" class="btn btn-secondary btn-sm" onclick="postComment('${post.id}','${author_id}','internal')">
-                                    Comment
+                                        <i class="fa-regular fa-comment"></i>
                                     </button>
                                     <button type="button" id="share-btn" class="btn btn-secondary btn-sm" onclick="sharePost(${index}, 'internal')">
                                     <i class="fa fa-share"></i>
@@ -241,7 +241,7 @@
                 if (post.author.id == current_author.id) {
                     display_posts += `
                                     <button type="button" id="edit-btn" class="btn btn-secondary btn-sm" onclick="editPost('${post.id}')">
-                                        <i class="fa-solid fa-pen"> Edit</i>
+                                        <i class="fa-solid fa-pen"></i>
                                     </button>
                                     <button type="button" class="btn btn-danger btn-sm" onclick="deletePost('${post.id}')">
                                         <i class="fa-solid fa-trash"></i>
