@@ -270,7 +270,7 @@
                 }
                 getComment(author_id,post_id,'','internal')
                 getLikes(author_id,post_id,'','internal')
-                likedby = `<div > </div>` 
+                likedby = `<div id="liked-${post_id}"> </div>` 
                 comment = `<br><br><div id="comment-${post_id}"></div>`
                 display_posts += likedby + comment
                 isLiked(index, 'internal'); // check if post is liked by user
@@ -353,7 +353,7 @@
             }).then(response => response.json())
                 .then(data => {
                     console.log("data:", data.items)
-                    likehtml = `<h6 class="card-text my-3" id="liked-${post_id}"> Liked by <b>"random user"</b> and <b>${data.items.length}</b> others </h6> `
+                    likehtml = `<h6 class="card-text my-3"> Liked by <b>"random user"</b> and <b>${data.items.length}</b> others </h6> `
                     document.getElementById(`liked-${post_id}`).innerHTML += likehtml 
                 });
         } else if (type === 'external'){
