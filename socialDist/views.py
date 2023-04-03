@@ -980,7 +980,7 @@ class APIInbox(APIView):
             
     # TBA
     @swagger_auto_schema(operation_summary="Clear an author's inbox",operation_description="Clear an author's inbox based on:\n\n* The author's own id", tags=["Inbox"], responses=sample_dicts.sampleDELETEDict)
-    def delete (request, author_id):
+    def delete (self, request, author_id):
         try:
             author = Author.objects.get(pk=HOST+"authors/"+author_id)
         except Author.DoesNotExist:
@@ -992,8 +992,9 @@ class APIInbox(APIView):
         # making inbox empty by setting all the fields as blank except author, every other field the same
         # Delete inbox and recreating it
         inbox.delete()
-        inbox.create(inbox_id=HOST+"authors/"+author_id+"/inbox", author=HOST+"authors/"+author_id, post=[])
-
+        new_inbox = Inbox(inboxID=HOST+"authors/"+author_id+"/inbox", 
+                          author=author)
+        new_inbox.save()
         return Response(status=200)
 
 # TODO Please generate appropriate documentation of the following API to root_project/openapi.json

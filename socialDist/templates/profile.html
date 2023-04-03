@@ -17,7 +17,7 @@
         <img src="https://ui-avatars.com/api/?name={{author.displayName}}&size=100" class="rounded-circle"
             style="width: 100px; height: 100px; object-fit: cover;">
         {% endif %}
-        {{author.displayName}}'s Inbox
+        {{author.displayName}}'s Profile
     </h1>
     {% if author.github %}
     <p>GitHub: {{author.github}}</p>
@@ -71,27 +71,29 @@
     </div>
 
     {% if isOwner %}
+    <h4 class="border-bottom py-2">Inbox</h4>
+    <button class="btn btn-danger" onclick="clearInbox()">Clear inbox</button>
     <div class="grid">
         <br>
-        <h4 class="border-bottom py-2">Posts:</h4>
+        <h5 class="border-bottom py-2">Posts:</h4>
         <div class="grid" id="posts">
             <div class="card my-3" id="placeholder">
                 <div class="card-body"> No posts to show</div>
             </div>
         </div>
-        <h4 class="border-bottom py-2">Likes:</h4>
+        <h5 class="border-bottom py-2">Likes:</h4>
         <div class="grid" id="likes">
             <div class="card my-3" id="placeholder">
                 <div class="card-body"> No likes to show</div>
             </div>
         </div>
-        <h4 class="border-bottom py-2">Comments:</h4>
+        <h5 class="border-bottom py-2">Comments:</h4>
         <div class="grid" id="comments">
             <div class="card my-3" id="placeholder">
                 <div class="card-body"> No comments to show</div>
             </div>
         </div>
-        <h4 class="border-bottom py-2">Follow Requests:</h4>
+        <h5 class="border-bottom py-2">Follow Requests:</h4>
         <div class="grid" id="requests">
             <div class="card my-3" id="placeholder">
                 <div class="card-body"> No follow requests to show</div>
@@ -107,10 +109,25 @@
         template.innerHTML = html;
         return template.content;
     };
+
+    function clearInbox() {
+        let current_author_url = new URL(current_author.id);
+        let current_author_relative_path = current_author_url.pathname;
+        fetch("/api" + current_author_relative_path + "/inbox/", {
+        method: "DELETE",
+        headers: new Headers({
+            "Authorization": "Token 516e5c3d636f46228edb8f09b9613d5b4b166816",
+            "X-CSRFToken": "{{ csrf_token }}"
+            })
+        });
+        window.location.reload();
+    }
     var followReqActors = [];
     var followIndex = 0;
     let inboxData;
     const current_author = JSON.parse('{{current_author|escapejs}}');
+    current_author["type"] = "author";
+    current_author["url"] = current_author["id"];
     console.log("current_author:",current_author)
     let current_author_url = new URL(current_author.id)
     let current_author_relative_path = current_author_url.pathname
@@ -305,7 +322,7 @@
                                         <a href="${item.actor.url}">${item.actor.displayName}</a> wants to follow you!
                                     </div>
                                     <div class="col-4 text-end">
-                                        <button class="btn btn-dark" onclick="accept('${item.actor.id}')">Accept</button>
+                                        <button class="btn btn-success" onclick="accept('${item.actor.id}')">Accept</button>
                                         <button class="btn btn-outline-dark" onclick="reject('${item.actor.id}', ${followIndex})">Reject</button>
                                     </div>
                                 </div>
