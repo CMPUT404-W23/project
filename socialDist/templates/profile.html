@@ -173,6 +173,7 @@
                             <i class="fa-regular fa-comment"></i>
                         </button>`
                         getComment(item.author.id.split("/").pop(),item.id.split("/").pop(),'','internal')
+                        getLikes(item.author.id.split("/").pop(),item.id.split("/").pop(),'','internal')
                     // either owner of a private post OR not the owner of a public post, can see comments but can't edit
                     } else if (item.visibility == "VISIBLE" || item.author.id == current_author.id) {
                         commentButton = 
@@ -183,6 +184,8 @@
                         const host_name = post_url.hostname
                         let post_type = host_name === "socialdistcmput404.herokuapp.com" ? 'internal' : 'external';
                         getComment(item.author.id.split("/").pop(),item.id.split("/").pop(),host_name, post_type)
+                        getLikes(item.author.id.split("/").pop(),item.id.split("/").pop(),host_name, post_type)
+
                     }
                     // not the owner of a private post, can't see comments
                     else {
@@ -212,6 +215,7 @@
                                     </button>
                                     ${commentButton}
                                     ${editAndDeleteButtons}
+                                    <div id="liked-${item.id.split("/").pop()}"></div>
                                     <br><br><div id="comment-${item.id.split("/").pop()}"></div>
                                 </div>
                             </div>
@@ -238,6 +242,7 @@
                                     </button>
                                     ${commentButton}
                                     ${editAndDeleteButtons}
+                                    <div id="liked-${item.id.split("/").pop()}"></div>
                                     <br><br><div id="comment-${item.id.split("/").pop()}"></div>
                                 </div>
                             </div>
@@ -791,6 +796,51 @@
                 }
         }
       }
+    async function getLikes(author_id, post_id,host_name,type){
+        if (type == 'internal'){
+            const url = `/api/authors/${author_id}/posts/${post_id}/likes/`
+            const response = await fetch(url, {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": "{{ csrf_token }}",
+                    "Authorization": "Token 516e5c3d636f46228edb8f09b9613d5b4b166816"
+                },
+            }).then(response => response.json())
+                .then(data => {
+                    let random_user = data.items[Math.floor(Math.random()*data.items.length)].author.displayName
+                    likehtml = `<h6 class="card-text my-3"> Liked by <b>${random_user}</b> and <b>${data.items.length}</b> others </h6> `
+                    document.getElementById(`liked-${post_id}`).innerHTML += likehtml 
+                });
+        } else if (type === 'external'){
+            var listOfConnections = JSON.parse('{{connections|escapejs}}');
+            const hostname = "https://" + host_name;
+            let parent_post_url = `${hostname}/authors/${author_id}/posts/${post_id}`
+            let author_url = `${hostname}/authors/${author_id}`
+            let url = `${hostname}/api/authors/${author_id}/posts/${post_id}/likes/`
+            if (hostname == "https://social-distribution-w23-t17.herokuapp.com") {
+                url = `${hostname}/authors/${author_url}/posts/${parent_post_url}/likes/?page=1&size=1000`
+            }
+            else if (hostname == "https://social-distribution-media.herokuapp.com") {
+                url = `${hostname}/api/authors/${author_id}/posts/${post_id}/likes?page=1&size=1000`
+            }
+            const remoteConnection = listOfConnections.find(connection => connection.hostName === hostname);
+            let authorization = remoteConnection.apiCreds;
+            const response = await fetch(url, {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": "{{ csrf_token }}",
+                    "Authorization": authorization
+                },
+            }).then(response => response.json())
+                .then(data => {
+                    let random_user = data.items[Math.floor(Math.random()*data.items.length)].author.displayName
+                    likehtml = `<h6 class="card-text my-3"> Liked by <b>${random_user}</b> and <b>${data.items.length}</b> others </h6> `
+                    document.getElementById(`liked-${post_id}`).innerHTML += likehtml 
+                });
+        }
+    }
 </script>
 {% endif %}
 {% endblock content %}
