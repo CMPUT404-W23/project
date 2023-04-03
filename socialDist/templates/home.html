@@ -37,6 +37,7 @@
     }
     // GET and display comments for a post
     let commentsList = [];
+    let index = 0;
     async function getComment(author_id, post_id,host_name,type) {
         if (type == 'internal'){
             const url = `/api/authors/${author_id}/posts/${post_id}/comments/`
@@ -50,15 +51,14 @@
             }).then(response => response.json())
                 .then(data => {
                     commentsList = commentsList.concat(data.items);
-                    let index = 0;
                     for (const comment of data.items){
                         comment_html = 
-                        `<h6 class="card-text" > 
-                            <b class="ml-5"><a href=${comment.author.url}>${comment.author.displayName}</a></b> ${comment.comment} 
-                            <button id="like-comment-${index}" type="button" class="btn btn-light btn-sm ml-20" onclick="likeComment(${index})">
-                                <i class="fa-regular fa-heart"></i>
-                            </button>
-                        </h6>`
+                            `<h6 class="card-text" > 
+                                <b class="ml-5"><a href=${comment.author.url}>${comment.author.displayName}</a></b> ${comment.comment} 
+                                <button id="like-comment-${index}" type="button" class="btn btn-light btn-sm ml-20" onclick="likeComment(${index})">
+                                    <i class="fa-regular fa-heart"></i>
+                                </button>
+                            </h6>`
                         document.getElementById(`comment-${post_id}`).innerHTML += comment_html 
                         isCommentLiked(index);
                         index += 1;
