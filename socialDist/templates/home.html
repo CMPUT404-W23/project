@@ -354,7 +354,7 @@
             }).then(response => response.json())
                 .then(data => {
                     let random_user = data.items[Math.floor(Math.random()*data.items.length)].author.displayName
-                    likehtml = `<h6 class="card-text my-3"> Liked by <b>${random_user}</b> and <b>${data.items.length - 1}</b> others </h6> `
+                    likehtml = `<h6 class="card-text my-3"> Liked by <b>${random_user}</b> and <b>${data.items.length}</b> others </h6> `
                     document.getElementById(`liked-${post_id}`).innerHTML += likehtml 
                 });
         } else if (type === 'external'){
@@ -380,7 +380,7 @@
             }).then(response => response.json())
                 .then(data => {
                     let random_user = data.items[Math.floor(Math.random()*data.items.length)].author.displayName
-                    likehtml = `<h6 class="card-text my-3"> Liked by <b>${random_user}</b> and <b>${data.items.length - 1}</b> others </h6> `
+                    likehtml = `<h6 class="card-text my-3"> Liked by <b>${random_user}</b> and <b>${data.items.length}</b> others </h6> `
                     document.getElementById(`liked-${post_id}`).innerHTML += likehtml 
                 });
         }
