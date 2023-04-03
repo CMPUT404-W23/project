@@ -128,6 +128,7 @@
   // Github Stream
 
   // fetch('https://api.github.com/users/Alex-Mak-MCW/events')
+  // Source: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/
   const ghURL = "{{author.github}}";
   const ghUsername = ghURL ? new URL(ghURL).pathname.replaceAll("/", "") : "";
   const url = `https://api.github.com/users/${ghUsername}/events`;
@@ -137,14 +138,18 @@
       })
       .then(data => {
         for (item of data) {
-          var output = "";
-          for (var property in item) {
-            output += property + ': ' + JSON.stringify(item[property], null, 4) + ';<br><br>';
-          }
+          var event = item.type.replace("Event", "");
+          var date = new Date(item.created_at);
+          var time_made = date.toUTCString();
           var htmlElement = htmlToElement(`
                     <div class="card my-3">
                         <div class="card-body">
-                          ${output}
+                          <h6 class="card-subtitle my-3 text-muted">
+                            <img src="${item.actor.avatar_url}" class="rounded-circle" style="width: 30px; height: 30px; object-fit: cover;">
+                              <a class="link-secondary mx-1" href="${item.actor.url}">${item.actor.login}</a>
+                          </h6>
+                          <p class="post-content mb-2">Did a ${event} in <a class="link-secondary mx-1" href="${item.repo.url}">${item.repo.name}</a>
+                            on ${time_made} </p>
                         </div>
                     </div>
                     `
