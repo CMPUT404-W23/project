@@ -182,13 +182,13 @@
                     // either owner of a private post OR not the owner of a public post, can see comments but can't edit
                     } else if (item.visibility == "VISIBLE" || item.author.id == current_author.id) {
 
-                        const post_url = new URL(item.id)
-                        const host_name = post_url.hostname
+                        const post_url = new URL(item.id);
+                        const host_name = post_url.hostname;
                         let post_type = host_name === "socialdistcmput404.herokuapp.com" ? 'internal' : 'external';
                         getComment(item.author.id.split("/").pop(),item.id.split("/").pop(),host_name, post_type)
                         getLikes(item.author.id.split("/").pop(),item.id.split("/").pop(),host_name, post_type)
                         commentButton = 
-                        `<button type="button" class="btn btn-secondary btn-sm" onclick="postComment('${item.id}','${item.author.id.split("/").pop()}',${post_type})">
+                        `<button type="button" class="btn btn-secondary btn-sm" onclick="postComment('${item.id}','${item.author.id.split("/").pop()}','${post_type}')">
                             <i class="fa-regular fa-comment"></i>
                         </button>`
 
@@ -199,7 +199,7 @@
                         const host_name = post_url.hostname;
                         let post_type = host_name === "socialdistcmput404.herokuapp.com" ? 'internal' : 'external';
                         commentButton = 
-                        `<button type="button" class="btn btn-secondary btn-sm" onclick="postComment('${item.id}','${item.author.id.split("/").pop()}',${post_type})">
+                        `<button type="button" class="btn btn-secondary btn-sm" onclick="postComment('${item.id}','${item.author.id.split("/").pop()}','${post_type}')">
                             <i class="fa-regular fa-comment"></i>
                         </button>`
                     }
