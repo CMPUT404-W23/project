@@ -3,6 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from socialDist.models import Author, Post, Connection
 from socialDist.serializers import ConnectionSerializer, AuthorSerializer
+from socialDist.api_helper import is_follower
 import base64
 import json
 import marko
@@ -131,7 +132,7 @@ def privatePosts(request):
     except Author.DoesNotExist:
         author = None
     context = {'author': author}
-    return render(request, 'private_posts.html', context)
+    return render(request, 'stream.html', context)
 
 @login_required
 def editPost(request, author_id, post_id):
@@ -164,12 +165,18 @@ def create_post(request):
 
 @login_required
 def localComment(request, author_id, post_id):
-    author = Author.objects.get(user=request.user)
-    author_serial = AuthorSerializer(author)
+    current_author = Author.objects.get(user=request.user)
+    current_author_serial = AuthorSerializer(current_author)
     try:
-        post = Post.objects.filter(visibility="VISIBLE").get(id=HOST+"authors/"+author_id+"/posts/"+post_id)
+        author = Author.objects.get(id=HOST+"authors/"+author_id)
+    except Author.DoesNotExist:
+        return HttpResponse(status=404, content="Post does not exist")
+    try:
+        post = Post.objects.get(id=HOST+"authors/"+author_id+"/posts/"+post_id)
+        if post.visibility == "FRIENDS" and not is_follower(request.user, author):
+            return HttpResponse(status=404, content="Post does not exist")
         # author =  Author.objects.get(id=HOST+"authors/"+author_id)
-        context = {'post': post, 'author':json.dumps(author_serial.data)}
+        context = {'post': post, 'author':json.dumps(current_author_serial.data)}
         return render(request, 'post_comment.html', context)
     except Post.DoesNotExist:
         return HttpResponse(status=404, content="Post does not exist")

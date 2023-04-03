@@ -46,8 +46,8 @@ class Author(models.Model):
     # user: one to one field 
     user = models.OneToOneField(User, on_delete=models.CASCADE, null=True)
     # authorID: ID of the author
-    id=models.CharField(primary_key=True, max_length=200)
-    host=models.CharField(max_length=200)
+    id=models.CharField(primary_key=True, max_length=1000)
+    host=models.CharField(max_length=500)
     # Added displayName field, default as empty string
     displayName=models.CharField(default="", max_length=40)
     # github and profileImage fields
@@ -119,10 +119,10 @@ class FollowRequest(models.Model):
 # Posts stored on this server are posts made by authors hosted on this server, and any post
 # sent to the inbox of an author on this server
 class Post(models.Model):
-    id = models.CharField(primary_key=True, max_length=200)
-    title = models.CharField(max_length=50)
-    source = models.CharField(max_length=50)
-    origin = models.CharField(max_length=50)
+    id = models.CharField(primary_key=True, max_length=1000)
+    title = models.CharField(max_length=200)
+    source = models.CharField(max_length=200)
+    origin = models.CharField(max_length=200)
     description = models.TextField()
     contentType = models.TextField(choices=[
         ("text/plain", "plaintext"),
@@ -138,9 +138,9 @@ class Post(models.Model):
     # added categories: use arrayfield from postgres
     # categories=ArrayField(models.CharField(max_length=50), default=list)
     # # OR
-    categories=models.CharField(max_length=100)
+    categories=models.CharField(max_length=250)
     published = models.DateTimeField(auto_created=True)
-    visibility=models.CharField(max_length=30, choices=[
+    visibility=models.CharField(max_length=50, choices=[
         ("VISIBLE", "Public"),
         ("FRIENDS","Private")
     ])
@@ -161,7 +161,7 @@ class Post(models.Model):
 # Current Own Fields: author, commentID, content, contentType, published, parentPostID
 # Current foreignkey fields: isLiked
 class Comment(models.Model):
-    id = models.CharField(primary_key=True, max_length=200)
+    id = models.CharField(primary_key=True, max_length=500)
     author = models.ForeignKey(Author, on_delete=models.CASCADE, related_name="comments")
   
     comment = models.TextField()
@@ -184,8 +184,8 @@ class Comment(models.Model):
 # Current Own Fields: author, commentID, content, contentType, published, parentPostID
 # Current foreignkey fields: isLiked
 class Like(models.Model):
-    id = models.CharField(primary_key=True, max_length=200)
-    likeType = models.CharField(max_length=20)
+    id = models.CharField(primary_key=True, max_length=500)
+    likeType = models.CharField(max_length=50)
     author = models.ForeignKey(Author, on_delete=models.CASCADE, related_name="liked")
     parentPost = models.ForeignKey(Post, on_delete=models.CASCADE, related_name="likes",null=True, blank=True)
     parentComment = models.ForeignKey(Comment, on_delete=models.CASCADE, related_name="likes", null=True, blank=True)
@@ -200,7 +200,7 @@ class Like(models.Model):
 # Current foreignkey fields: isLiked
 class Inbox(models.Model):
     # EDIT: 
-    inboxID=models.CharField(primary_key=True, max_length=200, default="")
+    inboxID=models.CharField(primary_key=True, max_length=500, default="")
 
     author=models.ForeignKey(Author, on_delete=models.CASCADE)
     # owner=models.ForeignKey(Author, on_delete=models.CASCADE)
