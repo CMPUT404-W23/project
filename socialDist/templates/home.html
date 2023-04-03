@@ -336,6 +336,7 @@
         if (response.status == 200 || response.status == 201 || response.status == 202) {
             document.getElementById(`like-btn-${i}-${type}`).innerHTML = `<i class="fa-solid fa-heart"></i>`;
             document.getElementById(`like-btn-${i}-${type}`).disabled = true;
+            window.location.reload()
         } else {
             console.log(response.status, response.statusText)
         }
@@ -352,6 +353,7 @@
                 },
             }).then(response => response.json())
                 .then(data => {
+                    console.log("data:", data.items)
                     let random_user = data.items[Math.floor(Math.random()*data.items.length)].displayName
                     likehtml = `<h6 class="card-text my-3"> Liked by <b>${random_user}</b> and <b>${data.items.length}</b> others </h6> `
                     document.getElementById(`liked-${post_id}`).innerHTML += likehtml 
