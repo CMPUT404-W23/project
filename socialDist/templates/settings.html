@@ -16,7 +16,7 @@
         <img src="https://ui-avatars.com/api/?name={{author.displayName}}&size=100" class="rounded-circle"
           style="width: 100px; height: 100px; object-fit: cover;">
         {% endif %}
-        Settings for {{author.displayName}}
+        {{author.displayName}}'s Settings
       </h1>
 
       {% load tz %}
@@ -86,7 +86,7 @@
             be
             changed</i>
           <div class="my-3">
-            <label for="username" class="form-label">Display Name: /label>
+            <label for="username" class="form-label">Display Name: </label>
             <!-- OLD code -->
             <!-- <input type="text" class="form-control" id="username" value="{{author.displayName}}" required> -->
             <input type="text" class="form-control" id="username" value="{{author.displayName}}"
