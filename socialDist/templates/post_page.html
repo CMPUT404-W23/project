@@ -35,6 +35,8 @@
         window.location.href = url.pathname + "/edit/"
     }
     const current_author = JSON.parse('{{current_author|escapejs}}');
+    current_author["type"] = "author";
+    current_author["url"] = current_author["id"];
     const connections = JSON.parse('{{connections|escapejs}}');
     fetch("/api" + data_path + "/",
         { headers: new Headers({ "Authorization": "Token 516e5c3d636f46228edb8f09b9613d5b4b166816" }) })

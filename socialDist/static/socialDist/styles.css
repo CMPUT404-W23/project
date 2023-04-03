@@ -31,6 +31,12 @@ body {
 
 }
 
+#image-descr{
+  margin-left: 20em;
+  
+}
+
+
 /* Post titile */
 .card-title{
   font-weight: bold;
