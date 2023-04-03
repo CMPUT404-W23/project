@@ -194,8 +194,11 @@
                     }
                     // not the owner of a private post, can't see comments
                     else {
+                        const post_url = new URL(item.id);
+                        const host_name = post_url.hostname;
+                        let post_type = host_name === "socialdistcmput404.herokuapp.com" ? 'internal' : 'external';
                         commentButton = 
-                        `<button type="button" class="btn btn-secondary btn-sm" onclick="postComment('${item.id}','${item.author.id.split("/").pop()}','external')">
+                        `<button type="button" class="btn btn-secondary btn-sm" onclick="postComment('${item.id}','${item.author.id.split("/").pop()}',${post_type})">
                             <i class="fa-regular fa-comment"></i>
                         </button>`
                     }
