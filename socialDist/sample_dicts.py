@@ -49,6 +49,30 @@ samplePOSTAuthorDict={
 
 }
 
+samplePUTAuthorDict={
+    "201":openapi.Response(
+        description="Created",
+        examples={
+            "application/json": {
+                "id": "https://socialdistcmput404.herokuapp.com/authors/1641802d-c565-45b2-b4f7-ec08504038c8",
+                "host": "https://socialdistcmput404.herokuapp.com/",
+                "displayName": "UUIDauthor",
+                "github": "https://sampleUser1.github.com",
+                "profileImage": "http://sampleUserImage.com/1.jpg",
+                "type": "author",
+                "url": "https://socialdistcmput404.herokuapp.com/authors/1641802d-c565-45b2-b4f7-ec08504038c8"
+            }
+        }
+    ),
+    "400": openapi.Response(
+        description="Bad Request",
+    ),
+    "409": openapi.Response(
+        description="Conflict",
+    ),
+
+}
+
 sampleListAuthorDict={
     "200":openapi.Response(
         description="OK",
@@ -300,6 +324,9 @@ sampleGETCommentDict={
         }
         }
     ),
+    "401":openapi.Response(
+        description="Unauthorized",
+    ),
     "404": openapi.Response(
         description="Error: Not Found",
     ),
@@ -339,6 +366,59 @@ samplePOSTCommentDict={
 }
 
 sampleListCommentsDict={
+    "200":openapi.Response(
+        description="OK",
+        examples={
+            "application/json": {
+            "type": "comments",
+            "items": [
+                {
+                    "id": "https://socialdistcmput404.herokuapp.com/authors/ba109973-9c56-4e06-9e2e-9d4bef94f7c2/posts/112bce3e-194c-40f0-a167-e737181b7d71/comments/39c779b5-ac73-44da-84a1-8d451ff370f3",
+                    "content": "UUID test comment on heroku",
+                    "contentType": "text/plain",
+                    "published": "2023-03-31T02:12:59.861038Z",
+                    "author": {
+                        "id": "https://socialdistcmput404.herokuapp.com/authors/ba109973-9c56-4e06-9e2e-9d4bef94f7c2",
+                        "host": "https://socialdistcmput404.herokuapp.com/",
+                        "displayName": "UUIDTest",
+                        "github": "https://sampleUser.github.com",
+                        "profileImage": "http://sampleUserImage.com/1.jpg",
+                        "type": "author",
+                        "url": "https://socialdistcmput404.herokuapp.com/authors/ba109973-9c56-4e06-9e2e-9d4bef94f7c2"
+                    },
+                    "type": "comment"
+                },
+                {
+                    "id": "https://socialdistcmput404.herokuapp.com/authors/ba109973-9c56-4e06-9e2e-9dasfdasefase94f7c2/posts/112bce3e-194c-40f0-a167-e737181b7d71/comments/39c779b5-ac73-44da-84a1-8d451ff370f3",
+                    "content": "UUID test comment on heroku 2",
+                    "contentType": "text/plain",
+                    "published": "2023-03-31T02:12:59.861038Z",
+                    "author": {
+                        "id": "https://socialdistcmput404.herokuapp.com/authors/ba109973-9c56-4e06-9e2e-9d4bef94f7c2",
+                        "host": "https://socialdistcmput404.herokuapp.com/",
+                        "displayName": "UUIDTest",
+                        "github": "https://sampleUser.github.com",
+                        "profileImage": "http://sampleUserImage.com/1.jpg",
+                        "type": "author",
+                        "url": "https://socialdistcmput404.herokuapp.com/authors/ba109973-9c56-4e06-9e2e-9dasfdasefase94f7c2"
+                    },
+                    "type": "comment"
+                }
+            ],
+            "post": "https://socialdistcmput404.herokuapp.com/authors/1/posts/1",
+            "id": "https://socialdistcmput404.herokuapp.com/authors/1/posts/1/comments/"
+        }
+        }
+    ),
+    "401": openapi.Response(
+        description="Unauthorized",
+    ),
+    "404": openapi.Response(
+        description="Error: Not Found",
+    ),
+}
+
+samplePOSTListCommentsDict={
     "200":openapi.Response(
         description="OK",
         examples={
@@ -566,6 +646,15 @@ sampleFollowersDict={
     ),
 }
 
+sampleDELETEFollowersDict={
+    "200":openapi.Response(
+        description="OK",
+    ),
+    "404": openapi.Response(
+        description="Error: Not Found",
+    ),
+}
+
 sampleInboxDict={
     "200":openapi.Response(
         description="OK",
@@ -675,6 +764,18 @@ sampleInboxDict={
             ]
         }
         }
+    ),
+    "401": openapi.Response(
+        description="Unauthorized",
+    ),
+    "404": openapi.Response(
+        description="Error: Not Found",
+    ),
+}
+
+sampleDELETEInboxDict={
+    "200":openapi.Response(
+        description="OK",
     ),
     "404": openapi.Response(
         description="Error: Not Found",

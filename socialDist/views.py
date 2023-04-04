@@ -160,7 +160,7 @@ class APIListAuthors(APIView):
     @swagger_auto_schema(operation_summary="Create a new author's profile", 
     operation_description="Create an author's profile without any fields", 
     tags=["Author's Profile"], 
-    responses=sample_dicts.sampleGETAuthorDict,
+    responses=sample_dicts.samplePUTAuthorDict,
     request_body=openapi.Schema(
         type=openapi.TYPE_OBJECT,
         properties=
@@ -450,7 +450,7 @@ class APIComment(APIView):
                                                         "/comments/"+
                                                         comment_id)
             serialzer = CommentSerializer(comment)
-            return Response(api_helper.construct_comment_object(serialzer.data, author))
+            return Response(status=200, data=api_helper.construct_comment_object(serialzer.data, author))
         except Comment.DoesNotExist:
             return Response(status=404)
     
@@ -507,7 +507,7 @@ class APIListComments(APIView):
         properties=
         {
             "id": openapi.Schema(type=openapi.TYPE_STRING, example="https://socialdistcmput404.herokuapp.com/authors/ba109973-9c56-4e06-9e2e-9d4bef94f7c2/posts/112bce3e-194c-40f0-a167-e737181b7d71/comments/39c779b5-ac73-44da-84a1-8d451ff370f3"),
-            "content": openapi.Schema(type=openapi.TYPE_STRING, example="Test comment content"),         
+            "comment": openapi.Schema(type=openapi.TYPE_STRING, example="Test comment content"),         
             "contentType": openapi.Schema(type=openapi.TYPE_STRING, example="text/plain"),
             "published": openapi.Schema(type=openapi.TYPE_STRING, example="2023-03-22T21:37:36Z"),
             "author": openapi.Schema(type=openapi.TYPE_OBJECT, 
@@ -664,7 +664,7 @@ class APIFollower(APIView):
     # Check if the specified foreign author is a follower of the author
     # Returns the author object if it exists
     permission_classes = [auth.RemotePermission]
-    @swagger_auto_schema(operation_summary="Check whether an author is a followr for another author", operation_description="Check whether an author is a followr for another author based on:\n\n* The author's own id\n* The FULL id of the foreign author (i.e. https://socialdistcmput404.herokuapp.com/authors/{AUTHOR_ID})", tags=["Followers"], responses=sample_dicts.sampleGETAuthorDict, parameters=[{"allowReserved": True}])
+    @swagger_auto_schema(operation_summary="Check whether an author is a follower for another author", operation_description="Check whether an author is a followr for another author based on:\n\n* The author's own id\n* The FULL id of the foreign author (i.e. https://socialdistcmput404.herokuapp.com/authors/{AUTHOR_ID})", tags=["Followers"], responses=sample_dicts.sampleGETAuthorDict, parameters=[{"allowReserved": True}])
     def get(self, request, author_id, foreign_author_id):
         try:
             targetAuthor = Author.objects.get(pk=HOST+"authors/"+author_id)
@@ -685,7 +685,7 @@ class APIFollower(APIView):
     # Make the foreign author follow the author
     # foreign_author_id should be an abs URL, encoded as a parameter or path element
     # PUT body should contain author object, which is author object of requested follower
-    @swagger_auto_schema(operation_summary="Allow one author to follow another author", operation_description="Allow one author to follow another author based on:\n\n* The author's own id\n* The FULL id of the foreign author (i.e. https://socialdistcmput404.herokuapp.com/authors/2/)", tags=["Followers"], parameters=[{"allowReserved": True}])
+    @swagger_auto_schema(operation_summary="Allow one author to follow another author", operation_description="Allow one author to follow another author based on:\n\n* The author's own id\n* The FULL id of the foreign author (i.e. https://socialdistcmput404.herokuapp.com/authors/{AUTHOR_ID})", tags=["Followers"], parameters=[{"allowReserved": True}])
     def put(self, request, author_id, foreign_author_id):
         try:
             targetAuthor = Author.objects.get(pk=HOST+"authors/"+author_id)
@@ -718,7 +718,7 @@ class APIFollower(APIView):
     # Make the foreign author not follow the author
     # foreign_author_id should be an abs URL, encoded as a parameter or path element
     # same notes as before!
-    @swagger_auto_schema(operation_summary="Allow one author to not follow another author", operation_description="Allow one author to not follow another author based on:\n\n* The author's own id\n* The FULL id of the foreign author (i.e. https://socialdistcmput404.herokuapp.com/authors/2/)", tags=["Followers"], responses=sample_dicts.sampleDELETEDict)
+    @swagger_auto_schema(operation_summary="Allow one author to not follow another author", operation_description="Allow one author to not follow another author based on:\n\n* The author's own id\n* The FULL id of the foreign author (i.e. https://socialdistcmput404.herokuapp.com/authors/{AUTHOR_ID})", tags=["Followers"], responses=sample_dicts.sampleDELETEFollowersDict)
     def delete(self, request, author_id, foreign_author_id):
         try:
             targetAuthor = Author.objects.get(pk=HOST+"authors/"+author_id)
@@ -799,6 +799,7 @@ class APIInbox(APIView):
     @swagger_auto_schema(operation_summary="Send an object(posts, follow requests, post likes, comment likes, comments) to an author's inbox", 
     operation_description="Send an object(posts, follow requests, post likes, comment likes, comments) to an author's inbox based on:\n\n* The author's own id\n\nThe sampe object below is a like object, if you prefer to POST other objects (post, comments, follow requsts) to the inbox, please copy the objects from our other APIs", 
     tags=["Inbox"],
+    responses=sample_dicts.sampleDELETEDict,
     request_body=openapi.Schema(
         type=openapi.TYPE_OBJECT,
         properties=
@@ -822,7 +823,6 @@ class APIInbox(APIView):
             },
         description="Sample Like object",
     ),)
-
     def post(self, request, author_id):
         # get the author object first
         try:
@@ -979,7 +979,7 @@ class APIInbox(APIView):
             return Response(status=200)
             
     # TBA
-    @swagger_auto_schema(operation_summary="Clear an author's inbox",operation_description="Clear an author's inbox based on:\n\n* The author's own id", tags=["Inbox"], responses=sample_dicts.sampleDELETEDict)
+    @swagger_auto_schema(operation_summary="Clear an author's inbox",operation_description="Clear an author's inbox based on:\n\n* The author's own id", tags=["Inbox"], responses=sample_dicts.sampleDELETEInboxDict)
     def delete (self, request, author_id):
         try:
             author = Author.objects.get(pk=HOST+"authors/"+author_id)
@@ -998,7 +998,6 @@ class APIInbox(APIView):
         return Response(status=200)
 
 # TODO Please generate appropriate documentation of the following API to root_project/openapi.json
-
 class APIPosts(APIView): 
     permission_classes = [auth.RemotePermission]
     @swagger_auto_schema(operation_summary="Retrieve all of the posts from every author",operation_description="Retrieve all of the posts from every author", tags=["Posts"], responses=sample_dicts.sampleListEveryPostDict)
@@ -1014,9 +1013,7 @@ class APIPosts(APIView):
 
 class APIAuthorPrivatePosts(APIView):
     permission_classes = [auth.RemotePermission]
-    # TODO: add @swagger_auto_schema later
-    # Copy from GET in APIListPosts, except changing public to private
-
+    @swagger_auto_schema(operation_summary="Retrieve all of the private and unlisted posts from an author",operation_description="Retrieve all of the private and unlisted posts from an author using the author's id", tags=["Posts"], responses=sample_dicts.sampleListEveryPostDict)
     def get(self, request, author_id):
         try:
             author = Author.objects.get(pk=HOST+"authors/"+author_id)
