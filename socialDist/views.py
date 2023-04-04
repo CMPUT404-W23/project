@@ -298,7 +298,7 @@ class APIPost(APIView):
         
     # Delete the single post
     # Cannot delete private posts!
-    @swagger_auto_schema(operation_summary="Delete a public post", operation_description="Delete a public post's information based on:\n\n* The id of the post's author\n* The id of the post itself", tags=["Posts"], responses=sample_dicts.sampleDELETEDict)
+    @swagger_auto_schema(operation_summary="Delete a public post", operation_description="Delete a public post's information based on:\n\n* The id of the post's author\n* The id of the post itself", tags=["Posts"], responses=sample_dicts.sampleDELETEPostDict)
     def delete(self, request, author_id, post_id):
         try:
             author = Author.objects.get(pk=HOST+"authors/"+author_id)

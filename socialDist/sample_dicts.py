@@ -185,6 +185,18 @@ samplePOSTPostDict={
     ),
 }
 
+sampleDELETEPostDict={
+    "200":openapi.Response(
+        description="OK",
+    ),
+    "401": openapi.Response(
+        description="Unauthorized",
+    ),
+    "404": openapi.Response(
+        description="Error: Not Found",
+    ),
+}
+
 sampleDELETEDict={
     "200":openapi.Response(
         description="OK",
