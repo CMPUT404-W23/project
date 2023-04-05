@@ -447,7 +447,7 @@ class InboxModelTests(TestCase):
         Inbox.objects.get(author=author1).delete()
         self.assertEqual(inboxDict.count(),0)
 
-# Extra Tests: for serializers
+# Bonus Tests: for serializer (author only)
 class AuthorSerializerTests(TestCase):
     def setUp(self):
         self.authorAttributes={
