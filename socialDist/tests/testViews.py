@@ -1,7 +1,7 @@
 # TODO: handle permission_classes
 # TODO: APIListComments, APIListLikesPost, APIListLikesComments(APIView), APILiked, APIFollowers, APIFollower, 
 
-"""
+
 import json, datetime
 from django.utils.timezone import make_aware
 from rest_framework import status
@@ -21,12 +21,18 @@ from rest_framework.authtoken.models import Token
 # TO RUN THIS TEST: Command "python manage.py test socialDist.tests.testViews"
 #  python manage.py runserver
 
+HOST="http://127.0.0.1:8000/"
+# https://socialdistcmput404.herokuapp.com/api/authors/
 
 # Test case for the API views APIListAuthors
 class APIListAuthorTests(TestCase):
     # Setup client, a dummy broswer used for testing
     def setUp(self):
-        self.HEADERS={"Authorization": "Token 516e5c3d636f46228edb8f09b9613d5b4b166816"}
+
+        new_server = Server.objects.create(serverAddress="http://127.0.0.1:8000/",serverKey="516e5c3d636f46228edb8f09b9613d5b4b166816", isLocalServer=True)
+        new_server.save()
+
+        # self.HEADERS={"Authorization": "Token 516e5c3d636f46228edb8f09b9613d5b4b166816"}
         # self.user=User.objects.create_user('test','test@gmail.com', 'password')
         # self.user=User.objects.create_superuser(username='test',email='test@gmail.com', password='password')
         self.user=User.objects.create_user(username='test',email='test@gmail.com', password='password')
@@ -59,7 +65,7 @@ class APIListAuthorTests(TestCase):
         print(response.data)
         # self.assertEqual(response.data, expectedData)
 
-    
+"""
     # test by replacing the second author with a third author: intend to give 409
     def testPUTListAuthorsSuccess(self):
         # Successful case, should return 201
