@@ -175,8 +175,11 @@ CORS_ALLOWED_ORIGINS = [
 "https://sd7-api.herokuapp.com",
 # Team 9
 "https://ultimate-teapot.herokuapp.com",
-# Team 18
+# Team 18(Backend)
 "https://distributed-social-net.herokuapp.com",
+# Team 18(Frontend) 
+"https://social-team-18.netlify.app/"    
+    
 "https://localhost:3000",
 # Team 17
 "https://social-distribution-w23-t17.herokuapp.com", 
