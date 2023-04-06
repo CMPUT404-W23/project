@@ -3,6 +3,14 @@
 URL to web appilication:
 https://socialdistcmput404.herokuapp.com/
 
+Admin account (Note: Is not an author, only use for adminstrative actions and for testing API):
+- Username: admin
+- Password: cmput404
+
+Testing account (Use this to test the site's features):
+- Username: demoTest
+- Password: cmput404
+
 ## Resources
 
 - Don Esrom, [Deploying Your Django Web App to Heroku](https://sweetcode.io/deploying-your-django-web-app-to-heroku/) 
