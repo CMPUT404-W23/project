@@ -35,7 +35,10 @@
             .then((response) => response.status())
             .then(window.location.reload())
     }
-    //https://www.w3docs.com/snippets/html/how-to-create-an-html-button-that-acts-like-a-link.html
+    // Source:
+    // W3Docs
+    // Title: How to Add an HTML Button that Acts Like a Link
+    // https://www.w3docs.com/snippets/html/how-to-create-an-html-button-that-acts-like-a-link.html
     function editPost(id) {
         url = new URL(id)
         window.location.href = url.pathname + "/edit/"
@@ -113,7 +116,6 @@
     async function likeComment(i) {
         // POST a like object to the author's inbox
         const comment = commentsList[i];
-        // const authorID = comment.author.id.split("/").pop();
         const postAuthourID = new URL(comment.id).pathname.split("/")[2];
         const hostname = comment.author.host;
         let authorization = "Token 516e5c3d636f46228edb8f09b9613d5b4b166816";
@@ -237,18 +239,6 @@
                 post_arr = post_url.pathname.split("/");
                 post_id = post_arr[post_arr.length - 1];
                 author_id = author_arr[author_arr.length - 1];
-
-                // OLD CODE under card-body
-                // <h5 class="card-title"><a href="${post_relative_path}">${post.title}</a></h5>
-                // <h6 class="card-subtitle mb-2 text-muted"><a href="${author_relative_path}">${post.author.displayName}</a></h6>
-                // <h6 class="card-subtitle mb-2 text-muted">${post.description}</h6>
-                // <span class="badge bg-secondary">${post.categories}</span>
-                // ${content}
-                // <button type="button" class="btn btn-secondary btn-sm" id="like-btn-${index}-internal" onclick="likePost(${index}, 'internal')">
-                //     <i class="fa-regular fa-heart"></i>
-                // </button>`
-
-                // HTML to show posts (part to fix)
 
                 if (post.contentType.startsWith("image")) {
                     display_posts = `
@@ -463,6 +453,7 @@
             });
     }
 
+    // Sources:
     // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/Date
     // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/toISOString
     async function sharePost(i, type) {
@@ -540,7 +531,13 @@
     }
 
     fetchExternalPosts();
-    //Source: https://stackoverflow.com/questions/494143/creating-a-new-dom-element-from-an-html-string-using-built-in-dom-methods-or-pro/35385518#35385518
+    //Source: 
+    // StackOverflow
+    // Author: Crescent Fresh
+    // Author URL: https://stackoverflow.com/users/45433/crescent-fresh
+    // Title: Creating a new DOM element from an HTML string using built-in DOM methods or Prototype
+    // Date: Jan 30, 2009
+    // URL: https://stackoverflow.com/questions/494143/creating-a-new-dom-element-from-an-html-string-using-built-in-dom-methods-or-pro/35385518#35385518
     function htmlToElement(html) {
         var template = document.createElement('template');
         template.innerHTML = html;
@@ -551,7 +548,13 @@
         var listOfConnections = JSON.parse('{{connections|escapejs}}');
         let i = 0;
         // fetch foreign posts and render
-        //Source: https://stackoverflow.com/questions/43305020/how-to-use-the-context-variables-passed-from-django-in-javascript
+        // Source: 
+        // StackOverflow 
+        // Author: xyres
+        // Author URL: https://stackoverflow.com/users/1925257/xyres
+        // Title: How to use the context variables passed from Django in javascript?
+        // Date: Apr 9, 2017  
+        // URL: https://stackoverflow.com/questions/43305020/how-to-use-the-context-variables-passed-from-django-in-javascript
         for (connection of listOfConnections) {
             try {
                 let returnedData;
@@ -583,7 +586,11 @@
                     continue
                 }
                 for (data of returnedDataList.items) {
-                    // https://dmitripavlutin.com/parse-url-javascript/
+                    // Source:
+                    // Title: How to Parse URL in JavaScript: hostname, pathname, query, hash
+                    // Author: Dmitri Pavlutin
+                    // Date: January 28, 2023
+                    // URL: https://dmitripavlutin.com/parse-url-javascript/
                     try {
                         let data_url = new URL(data.id);
                         let data_path = data_url.pathname;
@@ -650,19 +657,6 @@
                                 const host_name = post_url.hostname
                                 getComment(author_id, post_id, host_name, 'external')
                                 getLikes(author_id,post_id,host_name,'external')
-                                // OLD htmlElement:
-                                // <div class="card my-3">
-                                //     <div class="card-body">
-                                //         <h5 class="card-title"><a href="${post.id}">${post.title}</a></h5>
-                                //         <h6 class="card-subtitle mb-2 text-muted"><a href="${post.author.url}">${post.author.displayName}</a></h6>
-                                //         <h6 class="card-subtitle mb-2 text-muted">${post.description}</h6>
-                                //         <span class="badge bg-secondary">${post.categories}</span>
-                                //         ${content}
-                                //         <button type="button" class="btn btn-secondary btn-sm" id="like-btn-${i}-external" onclick="likePost(${i}, 'external')">
-                                //             <i class="fa-regular fa-heart"></i>
-                                //         </button>
-                                //     </div>
-                                // </div>
 
                                 var htmlElement = htmlToElement(`
                                             <div class="card my-3">

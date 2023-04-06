@@ -108,7 +108,13 @@
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.1/purify.min.js"></script>
 
 <script>
-    //Source: https://stackoverflow.com/questions/494143/creating-a-new-dom-element-from-an-html-string-using-built-in-dom-methods-or-pro/35385518#35385518
+    // Source:
+    // StackOverflow
+    // Author: Crescent Fresh
+    // Author URL: https://stackoverflow.com/users/45433/crescent-fresh
+    // Title: Creating a new DOM element from an HTML string using built-in DOM methods or Prototype
+    // Date: Jan 30, 2009
+    // URL: https://stackoverflow.com/questions/494143/creating-a-new-dom-element-from-an-html-string-using-built-in-dom-methods-or-pro/35385518#35385518
     function htmlToElement(html) {
         var template = document.createElement('template');
         template.innerHTML = html;
@@ -254,30 +260,6 @@
                             </div>
                             `);
                     }
-                // OLD
-                //     var htmlElement = htmlToElement(`
-                // <div class="card my-3">
-                //     <div class="card-body">
-                //         <h5 class="card-title"><a class="link-secondary" href="${item.id}">${item.title}</a></h5>
-                //         <h6 class="card-subtitle my-3 text-muted">
-                //             <img src="${item.author.profileImage || `https://ui-avatars.com/api/?name=${item.author.displayName}`}" class="rounded-circle" style="width: 30px; height: 30px; object-fit: cover;">
-                //             <a class="link-secondary mx-1" href="${item.author.url}">${item.author.displayName}</a>
-                //             </h6>
-                //         <h6 class="card-subtitle mt-2 mb-2 text-muted">${item.description}</h6>
-                //         <span class="badge bg-secondary mb-2">${item.categories}</span>
-                //         ${content}
-                //         <button type="button" class="btn btn-secondary btn-sm" id="like-btn-${index}" onclick="likePost(${index})">
-                //             <i class="fa-regular fa-heart"></i>  
-                //         </button>
-                //         <button type="button" id="share-btn" class="btn btn-secondary btn-sm" onclick="sharePost(${index})">
-                //                     <i class="fa fa-share"></i>
-                //         </button>
-                //         ${commentButton}
-                //         ${editAndDeleteButtons}
-                //         <br><br><div id="comment-${item.id.split("/").pop()}"></div>
-                //     </div>
-                // </div>
-                // `);
                     postsSection = document.getElementById("posts");
                     if (postsSection.children[0].id === "placeholder") {
                         postsSection.removeChild(postsSection.children[0]);

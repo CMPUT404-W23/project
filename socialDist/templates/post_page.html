@@ -29,7 +29,10 @@
             .then((response) => response.status())
             .then(window.location.reload())
     }
-    //https://www.w3docs.com/snippets/html/how-to-create-an-html-button-that-acts-like-a-link.html
+    // Source:
+    // W3Docs
+    // Title: How to Add an HTML Button that Acts Like a Link
+    // https://www.w3docs.com/snippets/html/how-to-create-an-html-button-that-acts-like-a-link.html
     function editPost(id) {
         url = new URL(id)
         window.location.href = url.pathname + "/edit/"

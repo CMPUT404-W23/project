@@ -22,11 +22,6 @@
       {% load tz %}
       <i>Last login: {{ user.last_login|timezone:"America/Edmonton" }} MST</i>
       <br><br><br>
-      <!-- Print rest of author's fields -->
-
-      <!-- {% if author.github %}
-      <p>GitHub: {{author.github}}</p>
-      {% endif %} -->
     </div>
 
     <div class="container-md mt-3">
@@ -87,22 +82,16 @@
             changed</i>
           <div class="my-3">
             <label for="username" class="form-label">Display Name: </label>
-            <!-- OLD code -->
-            <!-- <input type="text" class="form-control" id="username" value="{{author.displayName}}" required> -->
             <input type="text" class="form-control" id="username" value="{{author.displayName}}"
               placeholder="Maximum 40 characters">
           </div>
           <div class="mb-3">
             <label for="github" class="form-label">GitHub URL:</label>
-            <!-- OLD code -->
-            <!-- <input type="url" class="form-control" id="github" value="{{author.github}}" required> -->
             <input type="url" class="form-control" id="github" value="{{author.github}}"
               placeholder="ex. https://github.com/sampleUserAccount">
           </div>
           <div class="mb-3">
             <label for="pfp-link" class="form-label">Profile Image URL:</label>
-            <!-- OLD Code -->
-            <!-- <input type="url" class="form-control" id="pfp-link" value="{{author.profileImage}}" required> -->
             <input type="url" class="form-control" id="pfp-link" value="{{author.profileImage}}"
               placeholder="ex. https://i.imgur.com/sampleUserImage.jpeg">
           </div>
@@ -113,40 +102,6 @@
         Save Changes
       </button>
     </div>
-
-    <!-- Commented password in case we need it again -->
-    <!-- <h3 class="mt-5">Change Password (Coming soon)</h3>
-    <div class="mb-3">
-      <label for="current-password" class="form-label">Current Password</label>
-      <input
-        type="password"
-        class="form-control"
-        id="current-password"
-        placeholder="Enter your current password"
-        disabled
-      />
-    </div>
-    <div class="mb-3">
-      <label for="new-password" class="form-label">New Password</label>
-      <input
-        type="password"
-        class="form-control"
-        id="new-password"
-        placeholder="Enter new password"
-        disabled
-      />
-    </div>
-    <div class="mb-3">
-      <label for="confirm-password" class="form-label">Confirm Password</label>
-      <input
-        type="password"
-        class="form-control"
-        id="confirm-password"
-        placeholder="Re-enter new password"
-        disabled
-      />
-    </div> -->
-    
   </form>
 </div>
 
