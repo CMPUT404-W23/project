@@ -44,10 +44,19 @@ To gain authorization to access API:
 Groups connected with:
 - Team 2:
     - API endpoint: https://social-distribution-media.herokuapp.com/api
+    - Account on Team 2:
+        - Username: johnnyappleseed
+        - Password: password
 - Team 17:
     - API endpoint: https://social-distribution-w23-t17.herokuapp.com/
+    - Account on Team 17:
+        - Username: team10on17
+        - Password: cmput404
 - Team 5:
     - API endpoint: https://social-t30.herokuapp.com/api/
+    - Account on Team 5:
+        - Username: team10
+        - Password: england123
 - Team 7:
     - API endpoint: https://sd-7-433-api.herokuapp.com/api/
    

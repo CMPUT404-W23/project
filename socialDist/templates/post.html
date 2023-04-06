@@ -90,6 +90,13 @@
 </main>
 
 <script>
+     // Source: 
+        // StackOverflow 
+        // Author: xyres
+        // Author URL: https://stackoverflow.com/users/1925257/xyres
+        // Title: How to use the context variables passed from Django in javascript?
+        // Date: Apr 9, 2017  
+        // URL: https://stackoverflow.com/questions/43305020/how-to-use-the-context-variables-passed-from-django-in-javascript
     var author = JSON.parse('{{author|escapejs}}');
     var followers;
     var connections = JSON.parse('{{connections|escapejs}}');
