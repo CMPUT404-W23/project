@@ -23,7 +23,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 
-# Models used inour appilcation
+# Models used in our appilcation
 
 # Sources:
 # https://docs.djangoproject.com/en/dev/topics/auth/customizing/#extending-the-existing-user-model

@@ -112,7 +112,11 @@
         });
     }
         async function postData() {
-        // https://dmitripavlutin.com/parse-url-javascript/
+        // Source:
+        // Title: How to Parse URL in JavaScript: hostname, pathname, query, hash
+        // Author: Dmitri Pavlutin
+        // Date: January 28, 2023
+        // URL: https://dmitripavlutin.com/parse-url-javascript/
         const post_url = new URL("{{post.id}}")
         const url = "/api" + post_url.pathname +"/";
         console.log(url);
