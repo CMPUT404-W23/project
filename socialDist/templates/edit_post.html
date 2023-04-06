@@ -1,4 +1,10 @@
-<!-- https://stackoverflow.com/questions/10545158/textfield-is-not-displaying-initial-value -->
+<!-- Sources:
+    StackOverflow
+    Title: Textfield is not displaying initial value
+    Author: D'Arcy Rittich
+    Author URL: https://stackoverflow.com/users/39430/darcy-rittich
+    Date: May 11, 2012
+    URL: https://stackoverflow.com/questions/10545158/textfield-is-not-displaying-initial-value -->
 {% extends 'base.html' %}
 {% block content %}
 <main>
@@ -106,7 +112,11 @@
         });
     }
         async function postData() {
-        // https://dmitripavlutin.com/parse-url-javascript/
+        // Source:
+        // Title: How to Parse URL in JavaScript: hostname, pathname, query, hash
+        // Author: Dmitri Pavlutin
+        // Date: January 28, 2023
+        // URL: https://dmitripavlutin.com/parse-url-javascript/
         const post_url = new URL("{{post.id}}")
         const url = "/api" + post_url.pathname +"/";
         console.log(url);

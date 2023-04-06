@@ -139,7 +139,10 @@ def construct_list_of_paginated_posts(post_list_data, pageNum, sizeNum, author):
 #  author_post_list_data_pair - list of pairs, with author and serialzed post object paired
 # Returns: dict representing a list of all public, listed posts on server JSON object
 # Source:
-# https://www.tutorialsteacher.com/articles/how-to-flatten-list-in-python
+# Author: Malhar Lathkar
+# Date: Jan 5, 2021
+# Title: How to flatten list in Python?
+# URL: https://www.tutorialsteacher.com/articles/how-to-flatten-list-in-python
 def construct_list_of_all_posts(author_post_list_data_pair):
      return {
         "type": "posts",
@@ -312,7 +315,11 @@ def is_follower(actor, target):
         return True
     except:
         return False
-    
+
+# Function that extracts the UUID from an author id
+# Parameters:
+#   author_id: - author id
+# Returns UUID of author
 def extract_UUID(author_id):
     path_name = urllib.parse.urlparse(author_id).path
     return path_name.split("/")[-1]

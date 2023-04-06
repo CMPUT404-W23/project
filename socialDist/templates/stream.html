@@ -56,7 +56,13 @@
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
 <script>
-  //Source: https://stackoverflow.com/questions/494143/creating-a-new-dom-element-from-an-html-string-using-built-in-dom-methods-or-pro/35385518#35385518
+  // Source:
+  // StackOverflow
+  // Author: Mark Amery
+  // Author URL: https://stackoverflow.com/users/1709587/mark-amery
+  // Title: Creating a new DOM element from an HTML string using built-in DOM methods or Prototype
+  // Date: Jan 30, 2009
+  // URL: https://stackoverflow.com/questions/494143/creating-a-new-dom-element-from-an-html-string-using-built-in-dom-methods-or-pro/35385518#35385518
   function htmlToElement(html) {
     var template = document.createElement("template");
     template.innerHTML = html;
@@ -76,7 +82,10 @@
       .then((response) => response.status())
       .then(window.location.reload());
   }
-  //https://www.w3docs.com/snippets/html/how-to-create-an-html-button-that-acts-like-a-link.html
+  // Source:
+  // W3Docs
+  // Title: How to Add an HTML Button that Acts Like a Link
+  // https://www.w3docs.com/snippets/html/how-to-create-an-html-button-that-acts-like-a-link.html
   function editPost(id) {
     let url = new URL(id);
     window.location.href = url.pathname + "/edit/";
@@ -439,8 +448,6 @@
   //   });
 
   // Github Stream
-
-  // fetch('https://api.github.com/users/Alex-Mak-MCW/events')
   // Source: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/
   const ghURL = "{{author.github}}";
   const ghUsername = ghURL ? new URL(ghURL).pathname.replaceAll("/", "") : "";

@@ -4,9 +4,8 @@ from django.http import HttpResponse
 from socialDist.models import Author, Post, Connection
 from socialDist.serializers import ConnectionSerializer, AuthorSerializer
 from socialDist.api_helper import is_follower
-import base64
 import json
-import marko
+
 
 # MIT License
 
@@ -30,10 +29,11 @@ import marko
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-# Markdown parser: https://marko-py.readthedocs.io/en/latest/
+# File contains views representing different pages of our web app
 
 HOST = "https://socialdistcmput404.herokuapp.com/"
 
+# Home page
 @login_required
 def home(request):
     connections = Connection.objects.all()
@@ -48,6 +48,7 @@ def home(request):
                    'current_author': json.dumps({})}
     return render(request, 'home.html', context)
 
+# Settings page
 @login_required
 def settings(request):
     # Get Author instance for the current user
@@ -58,6 +59,7 @@ def settings(request):
     context = {'author': author}
     return render(request, 'settings.html', context)
 
+# Search page
 @login_required
 def search(request):
     connections = Connection.objects.all()
@@ -68,7 +70,7 @@ def search(request):
                'author': json.dumps(author_serial.data)}
     return render(request, 'search.html', context)
 
-# URL to public post, even if unlisted, if image, will be actual image!
+# Public post page, even if unlisted
 def postPage(request, author_id, post_id):
     try:
         author =  Author.objects.get(id=HOST+"authors/"+author_id)
@@ -93,7 +95,7 @@ def postPage(request, author_id, post_id):
     }
     return render(request, 'post_page.html', context)
 
-# URL to author profile page, will contain inbox if owner
+# Author profile page, will contain inbox if owner
 def authorPage(request, author_id):
     connections = Connection.objects.all()
     connections_serial = ConnectionSerializer(connections, many=True) 
@@ -125,6 +127,7 @@ def authorPage(request, author_id):
     }
     return render(request, 'profile.html', context)
 
+# Author's stream
 @login_required
 def privatePosts(request):
     try:
@@ -134,6 +137,7 @@ def privatePosts(request):
     context = {'author': author}
     return render(request, 'stream.html', context)
 
+# Edit post page
 @login_required
 def editPost(request, author_id, post_id):
     try:
@@ -152,7 +156,8 @@ def editPost(request, author_id, post_id):
 
     except Post.DoesNotExist:
         return HttpResponse(status=404, content="Post does not exist")
-    
+
+# Create post 
 @login_required
 def create_post(request):
     connections = Connection.objects.all()
@@ -163,6 +168,7 @@ def create_post(request):
                'author': json.dumps(dict(author_serial.data))}
     return render(request, 'post.html', context)
 
+# Local comment posting page
 @login_required
 def localComment(request, author_id, post_id):
     current_author = Author.objects.get(user=request.user)
@@ -175,12 +181,12 @@ def localComment(request, author_id, post_id):
         post = Post.objects.get(id=HOST+"authors/"+author_id+"/posts/"+post_id)
         if post.visibility == "FRIENDS" and not is_follower(request.user, author):
             return HttpResponse(status=404, content="Post does not exist")
-        # author =  Author.objects.get(id=HOST+"authors/"+author_id)
         context = {'post': post, 'author':json.dumps(current_author_serial.data)}
         return render(request, 'post_comment.html', context)
     except Post.DoesNotExist:
         return HttpResponse(status=404, content="Post does not exist")
-    
+
+# Remote comment posting page  
 @login_required
 def foreignComment(request, hostName, post_id, foreignauthor_id):
     author = Author.objects.get(user=request.user)
