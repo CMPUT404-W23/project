@@ -14,7 +14,6 @@ import pytz
 import uuid
 
 # Local BACK-END tests for models, Test CRUD (Create, Retrieve, Update, Delete) for each model
-
 # TO RUN THIS FILE TYPE COMMAND: python manage.py test socialDist.tests.testModels
 
 # using global localhost variable
@@ -24,13 +23,16 @@ utc=pytz.UTC
 
 # AUTHOR MODEL: Fully Test
 class AuthorModelTests(TestCase):
-    # Setup author profiles
+    # Setup 2 author profiles
     def setUp(self):
         Author.objects.create(id=HOST+"authors/test1", host=HOST, displayName="tester1", github="http://github.com/test1", profileImage="https://i.imgur.com/test1.jpeg")
         Author.objects.create(id=HOST+"authors/test2", host=HOST, displayName="tester2", github="http://github.com/test2", profileImage="https://i.imgur.com/test2.jpeg")
 
     # Test author model to ensure its fields exist
     def testOneAuthor(self):
+        """
+        Get one author object and test whether the fields are valid or not
+        """
         # retrieve setted up author
         author=Author.objects.filter(id=HOST+"authors/test1")
         authorDict=author.values()
@@ -42,6 +44,9 @@ class AuthorModelTests(TestCase):
 
     # test list of author models (more than 1 author), and check their fields
     def testMutlipleAuthors(self):
+        """
+        Get multple author objects and test whether their fields are valid or not
+        """
         # Get the authors and check their values
         author=Author.objects.all().filter(host=HOST)
         authorDict=author.values()
@@ -60,6 +65,9 @@ class AuthorModelTests(TestCase):
 
     # test object model fields can be updated
     def testUpdateAuthorFields(self):
+        """
+        Get one author object and update its fields, test whether the fields are valid or not
+        """
         author=Author.objects.filter(id=HOST+"authors/test1")
         authorDict=author.values()
 
@@ -71,6 +79,9 @@ class AuthorModelTests(TestCase):
         self.assertEqual(authorDict[0]["github"],"http://github.com/test3")
 
     def testDeleteAuthor(self):
+        """
+        Get two author objects and delete one of them, test whether there are only 1 author object left
+        """
         # get 2 authors
         author=Author.objects.all().filter(host=HOST)
 
@@ -83,16 +94,19 @@ class AuthorModelTests(TestCase):
         # Only 1 author left
         self.assertEqual(authorDict.count(),1)
 
-#  TODO: update server test case due to updates in server
-
 # Testing Server model
 class ServerModelTests(TestCase):
+    # Setup an author model for future testing
     def setUp(self):
         author=Author.objects.create(id=HOST+"authors/test1", host=HOST, displayName="tester1", github="http://github.com/test1", profileImage="https://i.imgur.com/test1.jpeg")
         Server.objects.create(serverAddress=HOST+"authors/", serverKey="1", isLocalServer=True)
 
     # Get the server object, check its values
+
     def testGetServerFields(self):
+        """
+        Get the server object and test whether the fields are valid or not
+        """
         server=Server.objects.filter(serverKey="1")
         serverDict=server.values()
         
@@ -103,6 +117,9 @@ class ServerModelTests(TestCase):
 
     # Get a server object, update its fields (server address), then check the updated fields
     def testUpdateServerField(self):
+        """
+        Get the server object and update the author's fields, test whether the fields are valid or not
+        """
         server=Server.objects.filter(serverKey="1")
         serverDict=server.values()
 
@@ -115,6 +132,9 @@ class ServerModelTests(TestCase):
 
     # Get the server object, check count, delete the object
     def testDeleteServer(self):
+        """
+        Get server object and delete it, test whether there are any servers objects left
+        """
         server=Server.objects.filter(serverKey="1")
 
         serverDict=server.values()
@@ -136,6 +156,9 @@ class UserFollowingModelTests(TestCase):
 
     # Get the UserFollowing object, check its values
     def testGetUserFollowingFields(self):
+        """
+        Get one UserFollowing object and test whether the fields are valid or not
+        """
         author1=Author.objects.get(id=HOST+"authors/test1")
         userFollowing=UserFollowing.objects.filter(user_id=author1)
         userFollowingDict=userFollowing.values()
@@ -145,6 +168,9 @@ class UserFollowingModelTests(TestCase):
 
     # Get the UserFollowing object, update its fields, then check the updated fields
     def testUpdateUserFollowingFields(self):
+        """
+        Get one UserFollowing object and update its fields, test whether the fields are valid or not
+        """
         author1=Author.objects.get(id=HOST+"authors/test1")
         author3=Author.objects.create(id=HOST+"authors/test3", host=HOST, displayName="tester3", github="http://github.com/test3", profileImage="https://i.imgur.com/test3.jpeg")
         userFollowing=UserFollowing.objects.filter(user_id=author1)
@@ -158,6 +184,9 @@ class UserFollowingModelTests(TestCase):
 
     # Get UserFollowing object, delete and check count
     def testDeleteUserFollowing(self):
+        """
+        Get UserFollowing object and delete it, test whether there are any user following objects left
+        """
         author1=Author.objects.get(id=HOST+"authors/test1")
         userFollowing=UserFollowing.objects.filter()
 
@@ -173,9 +202,6 @@ class UserFollowingModelTests(TestCase):
 class FollowRequestModelTests(TestCase):
     # Create/ POST FollowRequest model
     def setUp(self):
-        # user1=User.objects.create_user(username="test1", email="test1@gmail.com", password='1')
-        # user2=User.objects.create_user(username="test2", email="test2@gmail.com", password='2')
-
         # Create subsquent authors
         author1=Author.objects.create(id=HOST+"authors/test1", host=HOST, displayName="tester1", github="http://github.com/test1", profileImage="https://i.imgur.com/test1.jpeg")
         author2=Author.objects.create(id=HOST+"authors/test2", host=HOST, displayName="tester2", github="http://github.com/test2", profileImage="https://i.imgur.com/test2.jpeg")
@@ -185,6 +211,9 @@ class FollowRequestModelTests(TestCase):
     
     # Get the FollowRequest object, check its values
     def testGetFollowRequestFields(self):
+        """
+        Get one FollowRequest object and test whether the fields are valid or not
+        """
         author1=Author.objects.get(id=HOST+"authors/test1")
         followRequest=FollowRequest.objects.filter(sender=author1)
         followRequestDict=followRequest.values()
@@ -196,6 +225,9 @@ class FollowRequestModelTests(TestCase):
 
     # Get the FollowRequest object, update its fields, then check the updated fields
     def testUpdateFollowRequestFields(self):
+        """
+        Get one FollowRequest object and update its fields, test whether the fields are valid or not
+        """
         author1=Author.objects.get(id=HOST+"authors/test1")
         followRequest=FollowRequest.objects.filter(sender=author1)
         
@@ -211,6 +243,9 @@ class FollowRequestModelTests(TestCase):
 
     # Get UserFollowing object, delete and check count
     def testDeleteFollowRequest(self):
+        """
+        Get UserFollowing object and delete it, test whether there are any following request objects left
+        """
         author1=Author.objects.get(id=HOST+"authors/test1")
         followRequest=FollowRequest.objects.filter(sender=author1)
 
@@ -232,6 +267,9 @@ class PostModelTests(TestCase):
 
     # Get the Post object, check its values
     def testGetPostFields(self):
+        """
+        Get one post object and test whether the fields are valid or not
+        """
         author1=Author.objects.get(id=HOST+"authors/test1")
         post=Post.objects.filter(author=author1)
         postDict=post.values()
@@ -249,6 +287,9 @@ class PostModelTests(TestCase):
 
     # Get the Post object, update its fields, then check the updated fields
     def testUpdatePostFields(self):
+        """
+        Get one post object and update its fields, test whether the fields are valid or not
+        """
         author1=Author.objects.get(id=HOST+"authors/test1")
         post=Post.objects.filter(author=author1)
         postDict=post.values()
@@ -264,6 +305,9 @@ class PostModelTests(TestCase):
 
     # Get UserFollowing object, delete and check count
     def testDeletePostFields(self):
+        """
+        Get post object and delete it, test whether there are any post objects left
+        """
         author1=Author.objects.get(id=HOST+"authors/test1")
         post=Post.objects.filter(author=author1)
 
@@ -289,6 +333,9 @@ class CommentModelTests(TestCase):
 
     # Get both Comment objects, check their values
     def testGetCommentFields(self):
+        """
+        Get two comment objects (1 post comment, 1 regular comment) and test whether the fields are valid or not
+        """
         author1=Author.objects.get(id=HOST+"authors/test1")
         post1=Post.objects.get(id=HOST+"authors/test1/posts/1")
 
@@ -325,6 +372,9 @@ class CommentModelTests(TestCase):
   
     # Get the Comment object, update its fields, then check the updated fields
     def testUpdateCommentFields(self):
+        """
+        Get two comment objects and test whether their fields are valid or not
+        """
         comment=Comment.objects.filter(id=HOST+"authors/test1/posts/1/comments/1")
         commentDict=comment.values()
 
@@ -348,6 +398,9 @@ class CommentModelTests(TestCase):
 
     # Get Comment object, delete and check count
     def testDeleteComment(self):
+        """
+        Get both comment object and delete one of them, test whether there are any comment objects left
+        """
         # For regular comment
         # Check count = 1
         comment=Comment.objects.filter(id=HOST+"authors/test1/posts/1/comments/1")
@@ -379,6 +432,9 @@ class LikeModelTests(TestCase):
 
     # Get the Like object, check its values
     def testGetLikeFields(self):
+        """
+        Get one like object and test whether the fields are valid or not
+        """
         like=Like.objects.filter(id=HOST+"authors/test1/posts/1/comments/1/likes/1")
         likeDict=like.values()
         testDict=likeDict[0]
@@ -397,6 +453,9 @@ class LikeModelTests(TestCase):
 
     # Get Like object, delete and check count
     def testDeleteLike(self):
+        """
+        Get like object and delete it, test whether there are any like objects left
+        """
         like=Like.objects.filter(id=HOST+"authors/test1/posts/1/comments/1/likes/1")
         likeDict=like.values()
 
@@ -426,6 +485,9 @@ class InboxModelTests(TestCase):
 
     # Get the Post object, check its values
     def testGetInboxFields(self):
+        """
+        Get one inbox object and test whether the fields are valid or not
+        """
         author1=Author.objects.get(id=HOST+"authors/test1")
         inbox=Inbox.objects.filter(author=author1)
         inboxDict=inbox.values()
@@ -436,6 +498,9 @@ class InboxModelTests(TestCase):
     # NO PUT/update to test since like can't be updated (based on our open API)
     # Get Inbox object, delete and check count
     def testDeleteInbox(self):
+        """
+        Get inbox object and delete it, test whether there are any inbox objects left
+        """
         author1=Author.objects.get(id=HOST+"authors/test1")
         inbox=Inbox.objects.filter(author=author1)
         inboxDict=inbox.values()
@@ -462,6 +527,9 @@ class AuthorSerializerTests(TestCase):
 
     # Test to see are the serializer's field matched when creating through serializer
     def testSerializerFields(self):
+        """
+        create an author object through AuthorSerializer, test is object created and check its values
+        """
         authorData=self.AuthorSerializer.data
 
         self.assertEqual(authorData["id"], HOST+"authors/test1")
