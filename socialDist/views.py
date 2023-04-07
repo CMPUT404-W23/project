@@ -744,7 +744,8 @@ class APIFollower(APIView):
             return Response(status=200)
         except UserFollowing.DoesNotExist:
             return Response(status=404, data="Following author not following target")
-
+        
+# API endpoint for the inbox of <author_id> (endpoint /api/authors/<author_id>/inbox/)
 class APIInbox(APIView):
     permission_classes = [auth.InboxPermission]
     @swagger_auto_schema(operation_summary="Retrieve a list of objects(posts, follow requests, post likes, comment likes, comments) within an author's inbox", operation_description="Retrieve an inbox object based on:\n\n* The author's own id", tags=["Inbox"], responses=sample_dicts.sampleInboxDict)
@@ -1005,7 +1006,10 @@ class APIInbox(APIView):
         new_inbox.save()
         return Response(status=200)
 
-# TODO Please generate appropriate documentation of the following API to root_project/openapi.json
+"""
+Below endpoints are not specified in the specification of the project.
+These endpoints are intended for local server use only for efficient use of AJAX requests.
+"""
 class APIPosts(APIView): 
     permission_classes = [auth.RemotePermission]
     @swagger_auto_schema(operation_summary="Retrieve all of the posts from every author",operation_description="Retrieve all of the posts from every author", tags=["Posts"], responses=sample_dicts.sampleListEveryPostDict)
