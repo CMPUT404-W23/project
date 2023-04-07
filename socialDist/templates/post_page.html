@@ -120,6 +120,8 @@
             document.getElementById("post").innerHTML = display_post + '</div></div>'
             isLiked(post);
         });
+
+    // POST a like object to the author's inbox
     async function likePost(post) {
         const author = post.author;
         const authorID = author.id.split("/").pop();

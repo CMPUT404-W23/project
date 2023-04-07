@@ -1,6 +1,5 @@
 {% extends 'base.html' %} {% block content %}
 <div class="container my-4">
-  
   <form>
     <!-- <h2 class="border-bottom py-3">Settings: </h2> -->
 
@@ -10,95 +9,100 @@
       <h1 class="fw-bold">
         <!-- Show profile image if author has, otherwise show default image -->
         {% if author.profileImage %}
-        <img src="{{author.profileImage}}" class="rounded-circle"
-          style="width: 100px; height: 100px; object-fit: cover;">
+        <img
+          src="{{author.profileImage}}"
+          class="rounded-circle"
+          style="width: 100px; height: 100px; object-fit: cover"
+        />
         {% else %}
-        <img src="https://ui-avatars.com/api/?name={{author.displayName}}&size=100" class="rounded-circle"
-          style="width: 100px; height: 100px; object-fit: cover;">
-        {% endif %}
-        {{author.displayName}}'s Settings
+        <img
+          src="https://ui-avatars.com/api/?name={{author.displayName}}&size=100"
+          class="rounded-circle"
+          style="width: 100px; height: 100px; object-fit: cover"
+        />
+        {% endif %} {{author.displayName}}'s Settings
       </h1>
 
       {% load tz %}
       <i>Last login: {{ user.last_login|timezone:"America/Edmonton" }} MST</i>
-      <br><br><br>
+      <br /><br /><br />
     </div>
 
     <div class="container-md mt-3">
       <div class="grid">
         <h4 class="border-bottom py-2 fw-bold">Your Account Information</h4>
         <div class="grid" id="account-info">
-
           <div class="card my-3">
-            <div class="card-header fw-bold">
-              ID
-            </div>
-            <div class="card-body">
-              {{author.id}}
-            </div>
+            <div class="card-header fw-bold">ID</div>
+            <div class="card-body">{{author.id}}</div>
           </div>
 
           <div class="card my-3">
-            <div class="card-header fw-bold">
-              Host
-            </div>
-            <div class="card-body">
-              {{author.host}}
-            </div>
+            <div class="card-header fw-bold">Host</div>
+            <div class="card-body">{{author.host}}</div>
           </div>
 
           <div class="card my-3">
-            <div class="card-header fw-bold">
-              Display Name
-            </div>
-            <div class="card-body">
-              {{author.displayName}}
-            </div>
+            <div class="card-header fw-bold">Display Name</div>
+            <div class="card-body">{{author.displayName}}</div>
           </div>
 
           <div class="card my-3">
-            <div class="card-header fw-bold">
-              GitHub URL
-            </div>
-            <div class="card-body">
-              {{author.github}}
-            </div>
+            <div class="card-header fw-bold">GitHub URL</div>
+            <div class="card-body">{{author.github}}</div>
           </div>
 
           <div class="card my-3">
-            <div class="card-header fw-bold">
-              Profile Image URL
-            </div>
-            <div class="card-body">
-              {{author.profileImage}}
-            </div>
+            <div class="card-header fw-bold">Profile Image URL</div>
+            <div class="card-body">{{author.profileImage}}</div>
           </div>
         </div>
 
         <h4 class="border-bottom py-2 mt-4 fw-bold">Edit Account Settings</h4>
         <div class="grid" id="account-settings">
-          <i>*Only edited fields will Be changed, feel free to leave fields blank/unedited if you don't want them to
-            be
-            changed</i>
+          <i
+            >*Only edited fields will Be changed, feel free to leave fields
+            blank/unedited if you don't want them to be changed</i
+          >
           <div class="my-3">
             <label for="username" class="form-label">Display Name: </label>
-            <input type="text" class="form-control" id="username" value="{{author.displayName}}"
-              placeholder="Maximum 40 characters">
+            <input
+              type="text"
+              class="form-control"
+              id="username"
+              value="{{author.displayName}}"
+              placeholder="Maximum 40 characters"
+            />
           </div>
           <div class="mb-3">
             <label for="github" class="form-label">GitHub URL:</label>
-            <input type="url" class="form-control" id="github" value="{{author.github}}"
-              placeholder="ex. https://github.com/sampleUserAccount">
+            <input
+              type="url"
+              class="form-control"
+              id="github"
+              value="{{author.github}}"
+              placeholder="ex. https://github.com/sampleUserAccount"
+            />
           </div>
           <div class="mb-3">
             <label for="pfp-link" class="form-label">Profile Image URL:</label>
-            <input type="url" class="form-control" id="pfp-link" value="{{author.profileImage}}"
-              placeholder="ex. https://i.imgur.com/sampleUserImage.jpeg">
+            <input
+              type="url"
+              class="form-control"
+              id="pfp-link"
+              value="{{author.profileImage}}"
+              placeholder="ex. https://i.imgur.com/sampleUserImage.jpeg"
+            />
           </div>
         </div>
       </div>
       <div id="save-alert"></div>
-      <button type="submit" class="btn btn-primary" id="settings_save_changes" onclick="sendUserInfo(event)">
+      <button
+        type="submit"
+        class="btn btn-primary"
+        id="settings_save_changes"
+        onclick="sendUserInfo(event)"
+      >
         Save Changes
       </button>
     </div>
@@ -107,6 +111,7 @@
 
 {% csrf_token %}
 <script>
+  // Alert box when user makes an error 
   function displayAlert(alertType, alertMessage) {
     alertContainer = document.getElementById("save-alert");
     alertContainer.innerHTML = "";
@@ -126,7 +131,7 @@
       profileImage: document.getElementById("pfp-link").value,
     };
 
-    console.log(data)
+    console.log(data);
 
     // if no fields changed at all
     if (
@@ -138,8 +143,7 @@
       return;
     }
 
-    if (
-      data.displayName === "") {
+    if (data.displayName === "") {
       displayAlert("alert-danger", "Username cannot be blank.");
       return;
     }
@@ -148,14 +152,14 @@
     // Author: Dmitri Pavlutin
     // Date: January 28, 2023
     // URL: https://dmitripavlutin.com/parse-url-javascript/
-    let author_url = new URL("{{author.id}}")
-    let author_relative_path = author_url.pathname
+    let author_url = new URL("{{author.id}}");
+    let author_relative_path = author_url.pathname;
     const response = await fetch("/api" + author_relative_path + "/", {
       method: "POST",
       headers: {
         "X-CSRFToken": "{{ csrf_token }}",
         "Content-Type": "application/json",
-        "Authorization": "Token 516e5c3d636f46228edb8f09b9613d5b4b166816"
+        Authorization: "Token 516e5c3d636f46228edb8f09b9613d5b4b166816",
       },
       body: JSON.stringify(data),
     });
@@ -168,25 +172,5 @@
       );
     }
   }
-
-  // function stream(){
-  // // For testing new function later implement on stream
-  // // Source: https://www.youtube.com/watch?v=zUcc4vW-jsI
-  // fetch('https://api.github.com/users/Alex-Mak-MCW/events')
-  //   .then(res => {
-  //     return res.json();
-  //   })
-  //   .then(data => {
-  //     console.log(data);
-  //     data.forEach(user => {
-  //       // console.log(user.id);
-  //       const markUp=`<li>${user}</li>`;
-  //       console.log(user.id);
-  //       document.querySelector('ul').insertAdjacentHTML("beforeend", markUp);
-  //     });
-  //   })
-  //   .catch(error=> console.log(error));
-  // }
-
 </script>
 {% endblock content %}

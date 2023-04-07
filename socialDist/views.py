@@ -68,7 +68,7 @@ class APIAuthor(APIView):
             # 404 if author object does not exist
             return Response(status=404)
 
-    
+    # Setting Up swagger schema
     @swagger_auto_schema(operation_summary="Edit an author's profile", 
     operation_description="Edit an author's profile based on:\n\n* The author's id", 
     tags=["Author's Profile"], 
@@ -99,6 +99,7 @@ class APIAuthor(APIView):
         if not request.user.is_authenticated or (not request.user.is_staff and id != api_helper.extract_UUID(request.user.author.id)):
             return Response(status=401)
         try:
+            # Try to Update the author with Author Serializer
             authorDict = dict(request.data)
             authorDict["id"] = HOST+"authors/"+id
             authorDict["host"] = HOST
@@ -149,7 +150,7 @@ class APIListAuthors(APIView):
             serializer = AuthorSerializer(authors, many=True)
             return Response(status=200, data=api_helper.construct_list_of_authors(serializer.data))
     
-
+    # Setting Up swagger schema
     @swagger_auto_schema(operation_summary="Create a new author's profile", 
     operation_description="Create an author's profile without any fields", 
     tags=["Author's Profile"], 
@@ -189,6 +190,7 @@ class APIListAuthors(APIView):
                 author=author
             )
             return Response(status=201)
+        # Error Handling
         except (IntegrityError, ValueError) as e:
             if IntegrityError:
                 return Response(status=409, data="An account with that username already exists.")
@@ -214,6 +216,7 @@ class APIPost(APIView):
         except Post.DoesNotExist:
             return Response(status=404)
 
+    # Setting Up swagger schema
     @swagger_auto_schema(operation_summary="Edit a public post", operation_description="Edit a public post's information based on:\n\n* The id of the post's author\n* The id of the post itself", tags=["Posts"],responses=sample_dicts.samplePOSTPostDict, request_body=PostSerializer)
     # Edit a single post
     # When POSTing, send a post object in JSON with the modified fields
@@ -232,6 +235,7 @@ class APIPost(APIView):
         # Check if request is from an authorized source (only user and admin can call this!), 401 if not
         if not request.user.is_authenticated or (not request.user.is_staff and author_id != api_helper.extract_UUID(request.user.author.id )):
             return Response(status=401)
+        # Try to POST the post with PostSerializer
         postDict = dict(request.data)
         postDict["author"] = HOST+"authors/"+author_id
         serializer = PostSerializer(post, data=postDict, partial=True)
@@ -240,12 +244,15 @@ class APIPost(APIView):
             return Response(status=201, data=api_helper.construct_post_object(serializer.data, author))
         return Response(status=400, data=serializer.errors)
 
-    @swagger_auto_schema(operation_summary="Create a public post", operation_description="Create a public post based on:\n\n* The id of the post's author\n* The id of the post itself", tags=["Posts"],responses=sample_dicts.samplePOSTPostDict, request_body=PostSerializer)   
+
     # Create a single post
     # When PUTTing, send a post object in JSON with the field
     # Note that host and id will be set to HOST and HOST/authors/author_id/posts/post_id
     # When PUTTing to a public post that already exists, replace post with JSON post object in body
     # Cannot PUT to an already existing private post!
+
+    # Setting Up swagger schema
+    @swagger_auto_schema(operation_summary="Create a public post", operation_description="Create a public post based on:\n\n* The id of the post's author\n* The id of the post itself", tags=["Posts"],responses=sample_dicts.samplePOSTPostDict, request_body=PostSerializer)   
     def put(self, request, author_id, post_id):
         # Check if author exists
         try:
@@ -260,6 +267,7 @@ class APIPost(APIView):
                 return Response(status=401)
             if post.visibility == "FRIENDS":
                 return Response(status=404)
+            # Construct post with PostSerializer
             postDict = dict(request.data)
             postDict["author"] = HOST+"authors/"+author_id
             serializer = PostSerializer(post, data=postDict, partial=True)
@@ -281,9 +289,11 @@ class APIPost(APIView):
                 return Response(status=201, data=api_helper.construct_post_object(serializer.data, author))
             return Response(status=400, data=serializer.errors)
         
-    @swagger_auto_schema(operation_summary="Delete a public post", operation_description="Delete a public post's information based on:\n\n* The id of the post's author\n* The id of the post itself", tags=["Posts"], responses=sample_dicts.sampleDELETEPostDict)
     # Delete the single post
     # Cannot delete private posts!
+    
+    # Setting Up swagger schema
+    @swagger_auto_schema(operation_summary="Delete a public post", operation_description="Delete a public post's information based on:\n\n* The id of the post's author\n* The id of the post itself", tags=["Posts"], responses=sample_dicts.sampleDELETEPostDict)
     def delete(self, request, author_id, post_id):
         # Checks if author exists
         try:
@@ -298,12 +308,15 @@ class APIPost(APIView):
             post = Post.objects.filter(visibility="VISIBLE").get(pk=HOST+"authors/"+author_id+"/posts/"+post_id)
         except Post.DoesNotExist:
             return Response(status=404)
+        # If passed everything, DELETE the post
         post.delete()
         return Response(status=200)
     
 # API View for a list of post queries (endpoint /api/authors/<author_id>/posts/)
 class APIListPosts(APIView):
     permission_classes = [auth.RemotePermission]
+
+    # Setting Up swagger schema
     @swagger_auto_schema(operation_summary="Retrieve a list of posts (public posts only) for a specific author", operation_description="Retrieve a list of posts (public posts only) for a specific author based on:\n\n* The author's own id", tags=["Post List"], responses=sample_dicts.sampleListPostsDict)
     # Returns a list of the public posts of the specified author, with optional pagination
     def get(self, request, author_id):
@@ -337,10 +350,12 @@ class APIListPosts(APIView):
                                                                                     sizeNum,
                                                                                     author))
     
-    @swagger_auto_schema(operation_summary="Create a post with a randomized post id", operation_description="Create a post with a randomized post id based on:\n\n* The author's own id", tags=["Post List"], request_body=PostSerializer, responses=sample_dicts.samplePOSTPostDict)
     # Add a post with a randomized post id
     # Include a post object in JSON with modified fields
     # Note that host and id field will be ignored!
+
+    # Setting Up swagger schema
+    @swagger_auto_schema(operation_summary="Create a post with a randomized post id", operation_description="Create a post with a randomized post id based on:\n\n* The author's own id", tags=["Post List"], request_body=PostSerializer, responses=sample_dicts.samplePOSTPostDict)
     def post(self, request, author_id):
         # Checks if author exists
         try:
@@ -358,7 +373,7 @@ class APIListPosts(APIView):
             try:
                 post = Post.objects.get(postID=HOST+"authors/"+author_id+"/posts/"+post_id)
                 continue
-            # Generate new post when new, unique ID found
+            # Generate new post when new, unique ID found, with PostSerializer
             except:
                 newPostDict = dict(request.data)
                 newPostDict["id"] = HOST+"authors/"+author_id+"/posts/"+post_id
@@ -374,6 +389,7 @@ class APIListPosts(APIView):
 # API View used to fetch image posts as images (endpoint /api/authors/<author_id>/posts/<post_id>/image)
 class APIImage(APIView):
     permission_classes = [auth.RemotePermission]
+    # Setting Up swagger schema
     @swagger_auto_schema(operation_summary="Retrieve an image post", operation_description="Retrieve an image post based on:\n\n* The id of the post's author\n* The id of the post itself", tags=["Images"], responses=sample_dicts.sampleImagePostGETDict)
     # Gets the image binary of an image post with the specified ID from the specified author
     def get(self, request, author_id, post_id):
@@ -402,6 +418,7 @@ class APIImage(APIView):
 #API View for single comment queries (endpoint /api/authors/<author_id>/posts/<post_id>/comments/<comment_id>)
 class APIComment(APIView):
     permission_classes = [auth.RemotePermission]
+    # Setting Up swagger schema
     @swagger_auto_schema(operation_summary="Retrieve a comment within a post", operation_description="Retrieve a comment within a post based on:\n\n* The id of the comment's author\n* The id of the comment's commented post\n* The id of the comment itself", tags=["Comments"], responses=sample_dicts.sampleGETCommentDict)
     # Get a single comment with the specified ID on the specified post from the specified author
     def get(self, request, author_id, post_id, comment_id):
@@ -482,6 +499,11 @@ class APIListComments(APIView):
                                                                                          author,
                                                                                          post))
 
+    # Post a comment under that post
+    # Include comment object in body in JSON form
+    # id and parentPost field will be ignored!
+
+    # Setting Up swagger schema
     @swagger_auto_schema(operation_summary="Create a comment in a post", 
     operation_description="Create a comment in a post based on:\n\n* The id of the comment's author\n* The id of the comment's commented post", 
     tags=["Comments"],
@@ -510,9 +532,6 @@ class APIListComments(APIView):
             },
         description="Sample Comment object",
     ))
-    # Post a comment under that post
-    # Include comment object in body in JSON form
-    # id and parentPost field will be ignored!
     def post(self, request, author_id, post_id):
         # Check if post author exists
         try:
@@ -585,6 +604,7 @@ class APIListLikesPost(APIView):
             post = Post.objects.filter(author=author).get(pk=HOST+"authors/"+author_id+"/posts/"+post_id)
         except Post.DoesNotExist:
             return Response(status=404)
+        #  Showing likes with LikeSerializer
         likes = Like.objects.filter(parentPost=post)
         serializer = LikeSerializer(likes, many=True)
         return Response(status=200, data=api_helper.construct_list_of_likes(serializer.data, post.id, "post"))
@@ -592,6 +612,7 @@ class APIListLikesPost(APIView):
 # API view for likes on a comment (endpoint /api/authors/<author_id>/posts/<post_id>/comments/<comment_id>/likes)
 class APIListLikesComments(APIView):
     permission_classes = [auth.RemotePermission]
+    
     @swagger_auto_schema(operation_summary="Retrieve all of likes for a comment", operation_description="Retrieve all of the likes for a comment based on:\n\n* The id of the comment's author\n* The id of the comment's commented post\n* The id of the comment itself", tags=["Likes"], responses=sample_dicts.sampleListLikesCommentDict)
       # Get list of likes originating on this comment
     def get(self, request, author_id, post_id, comment_id):
@@ -620,6 +641,7 @@ class APIListLikesComments(APIView):
 # API view for liked objects by the author (endpoint /api/authors/<author_id>/liked)
 class APILiked(APIView):
     permission_classes = [auth.RemotePermission]
+    # Setting Up swagger schema
     @swagger_auto_schema(operation_summary="Retrieve a list of likes from public posts and their comments", operation_description="Retrieve a list of likes from public posts and their comments based on:\n\n* The author's own id", tags=["Likes"], responses=sample_dicts.sampleListLikedDict)
     # Get list of likes on public objects (comments on public posts, public posts)
     # originating from this author
@@ -655,6 +677,7 @@ class APIFollowers(APIView):
 # foreign_author_id should be an abs URL, encoded as a parameter or path element
 class APIFollower(APIView):
     permission_classes = [auth.RemotePermission]
+    # Setting Up swagger schema
     @swagger_auto_schema(operation_summary="Check whether an author is a follower for another author", operation_description="Check whether an author is a followr for another author based on:\n\n* The author's own id\n* The FULL id of the foreign author (i.e. https://socialdistcmput404.herokuapp.com/authors/{AUTHOR_ID})", tags=["Followers"], responses=sample_dicts.sampleGETAuthorDict, parameters=[{"allowReserved": True}])
     # Check if the specified foreign or local author is a follower of the author
     # Returns the author object if it exists
@@ -679,6 +702,7 @@ class APIFollower(APIView):
         except UserFollowing.DoesNotExist:
             return Response(status=404, data="Following author does not follow target author")
         
+    # Setting Up swagger schema
     @swagger_auto_schema(operation_summary="Allow one author to follow another author", operation_description="Allow one author to follow another author based on:\n\n* The author's own id\n* The FULL id of the foreign author (i.e. https://socialdistcmput404.herokuapp.com/authors/{AUTHOR_ID})", tags=["Followers"], parameters=[{"allowReserved": True}])
     # Make the author (foreign or local) follow the author
     # foreign_author_id should be an abs URL, encoded as a parameter or path element
@@ -718,7 +742,7 @@ class APIFollower(APIView):
             followRequest.delete()
             return Response(status=201)
     
- 
+    # Setting Up swagger schema
     @swagger_auto_schema(operation_summary="Allow one author to not follow another author", operation_description="Allow one author to not follow another author based on:\n\n* The author's own id\n* The FULL id of the foreign author (i.e. https://socialdistcmput404.herokuapp.com/authors/{AUTHOR_ID})", tags=["Followers"], responses=sample_dicts.sampleDELETEFollowersDict)
     # Make the foreign author not follow the author
     # foreign_author_id should be an abs URL, encoded as a parameter or path element
@@ -744,9 +768,11 @@ class APIFollower(APIView):
             return Response(status=200)
         except UserFollowing.DoesNotExist:
             return Response(status=404, data="Following author not following target")
-
+        
+# API endpoint for the inbox of <author_id> (endpoint /api/authors/<author_id>/inbox/)
 class APIInbox(APIView):
     permission_classes = [auth.InboxPermission]
+    # Setting Up swagger schema
     @swagger_auto_schema(operation_summary="Retrieve a list of objects(posts, follow requests, post likes, comment likes, comments) within an author's inbox", operation_description="Retrieve an inbox object based on:\n\n* The author's own id", tags=["Inbox"], responses=sample_dicts.sampleInboxDict)
     # Return the list of items within an author's inbox
     def get(self, request, author_id):
@@ -802,6 +828,7 @@ class APIInbox(APIView):
         except Inbox.DoesNotExist:
             return Response(status=404, data="Author doesn't have an inbox")
     
+    # Setting Up swagger schema for POST in APIInbox
     @swagger_auto_schema(operation_summary="Send an object(posts, follow requests, post likes, comment likes, comments) to an author's inbox", 
     operation_description="Send an object(posts, follow requests, post likes, comment likes, comments) to an author's inbox based on:\n\n* The author's own id\n\nThe sampe object below is a like object, if you prefer to POST other objects (post, comments, follow requsts) to the inbox, please copy the objects from our other APIs", 
     tags=["Inbox"],
@@ -986,8 +1013,9 @@ class APIInbox(APIView):
             inbox.comments.add(comment)
             return Response(status=200)
             
-    # TBA
+    # Setting Up swagger schema
     @swagger_auto_schema(operation_summary="Clear an author's inbox",operation_description="Clear an author's inbox based on:\n\n* The author's own id", tags=["Inbox"], responses=sample_dicts.sampleDELETEInboxDict)
+    # Clearing an inbox
     def delete (self, request, author_id):
         try:
             author = Author.objects.get(pk=HOST+"authors/"+author_id)
@@ -1005,9 +1033,14 @@ class APIInbox(APIView):
         new_inbox.save()
         return Response(status=200)
 
-# TODO Please generate appropriate documentation of the following API to root_project/openapi.json
+"""
+Below endpoints are not specified in the specification of the project.
+These endpoints are intended for local server use only for efficient use of AJAX requests.
+"""
 class APIPosts(APIView): 
+    # Serves to retrieve all of the public posts in our server
     permission_classes = [auth.RemotePermission]
+    # Setting Up swagger schema
     @swagger_auto_schema(operation_summary="Retrieve all of the posts from every author",operation_description="Retrieve all of the posts from every author", tags=["Posts"], responses=sample_dicts.sampleListEveryPostDict)
     def get(self, request):
         author_posts_pair = []
@@ -1020,7 +1053,9 @@ class APIPosts(APIView):
         return Response(status=200, data=api_helper.construct_list_of_all_posts(author_posts_pair))
 
 class APIAuthorPrivatePosts(APIView):
+    # Serves to return all private and unlisted posts from our server
     permission_classes = [auth.RemotePermission]
+    # Setting Up swagger schema
     @swagger_auto_schema(operation_summary="Retrieve all of the private and unlisted posts from an author",operation_description="Retrieve all of the private and unlisted posts from an author using the author's id", tags=["Posts"], responses=sample_dicts.sampleListEveryPostDict)
     def get(self, request, author_id):
         try:

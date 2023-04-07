@@ -306,12 +306,14 @@ def construct_follow_request_object(follow_request_data, author, actor):
 #   target - Author object of target
 # Returns: True if actor is a follower of target
 def is_follower(actor, target):
-    if actor.is_authenticated:
+    if not actor.is_authenticated:
         return False
     if actor.is_staff:
         return True
+    if actor.author == target:
+        return True
     try:
-        target.followers.all().get(user_id=actor.author)
+        target.followers.get(user_id=actor.author)
         return True
     except:
         return False
