@@ -12,11 +12,6 @@ body {
 
 /* specific elements */
 
-/* For Alex Testing */
-
-/* Relocate buttons */
-/* If we have time, let's try make navbar fixed */
-
 /* Like Button Hover when*/
 [id^="like-btn"]:hover{
   color: #F08080;
