@@ -83,6 +83,7 @@
         </form>
     </div>
     <script>
+        // Alert box when user makes an error 
         function displayAlert(alertType, alertMessage) {
             alertContainer = document.getElementById("save-alert");
             alertContainer.innerHTML = "";
@@ -150,6 +151,7 @@
             displayAlert("alert-danger", "Please fill out required (*) fields!");
             return;
         }
+        // Post object
         const response = await fetch(url, {
             method: "POST",
             headers: {
