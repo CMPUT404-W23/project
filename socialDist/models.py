@@ -144,7 +144,9 @@ class Comment(models.Model):
 
 # Model representing a like
 class Like(models.Model):
+    # ID for inbox
     id = models.CharField(primary_key=True, max_length=500)
+    # Type of like: comment like/ post like
     likeType = models.CharField(max_length=50)
     author = models.ForeignKey(Author, on_delete=models.CASCADE, related_name="liked")
     parentPost = models.ForeignKey(Post, on_delete=models.CASCADE, related_name="likes",null=True, blank=True)
@@ -154,8 +156,13 @@ class Like(models.Model):
 
 # Model representing an inbox
 class Inbox(models.Model):
+    # ID for inbox
     inboxID=models.CharField(primary_key=True, max_length=500, default="")
+
+    # inbox author
     author=models.ForeignKey(Author, on_delete=models.CASCADE)
+
+    # elements in an inbox (posts, follow requests, comments, likes)
     posts=models.ManyToManyField(Post, blank=True)
     requests = models.ManyToManyField(FollowRequest, blank=True)
     comments= models.ManyToManyField(Comment, blank=True)

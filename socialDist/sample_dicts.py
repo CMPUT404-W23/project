@@ -23,7 +23,7 @@
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 
-# Dicts for sample responses (used in swagger/ Open API)
+# Here are the Sample Dictionaries used for sample responses in swagger/ Open API)
 
 sampleGETAuthorDict={
     "200":openapi.Response(
