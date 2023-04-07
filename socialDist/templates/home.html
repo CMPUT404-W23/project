@@ -169,8 +169,8 @@
         }
     }
     function postComment(post_id, foreignauthor_id, type) {
+        // POST a comment object to the author's inbox
         if (type === 'internal') {
-            console.log(post_id)
             // Source:
             // Title: How to Parse URL in JavaScript: hostname, pathname, query, hash
             // Author: Dmitri Pavlutin
@@ -179,7 +179,6 @@
             url = new URL(post_id)
             window.location.href = url.pathname + "/comments/"
         } else if (type === 'external') {
-            console.log(post_id, foreignauthor_id, type)
             // Source:
             // Title: How to Parse URL in JavaScript: hostname, pathname, query, hash
             // Author: Dmitri Pavlutin
@@ -203,7 +202,6 @@
         // Date: January 28, 2023
         // URL: https://dmitripavlutin.com/parse-url-javascript/
         let url = `${hostname}/api${new URL(comment.id).pathname}/likes`;
-        console.log(`${hostname}${comment.id}/likes`)
         if (hostname == "https://socialdistcmput404.herokuapp.com/") { // not a remote author
             url = `/api${new URL(comment.id).pathname}/likes`
         } else {
@@ -224,7 +222,6 @@
         }).then(response => response.json())
             .then(data => {
                 for (like of data.items) {
-                    console.log(like.author.id, current_author.id)
                     if (like.author.id == current_author.id) {
                         document.getElementById(`like-comment-${i}`).innerHTML = `<i class="fa-solid fa-heart"></i>`;
                         document.getElementById(`like-comment-${i}`).disabled = true;
@@ -320,7 +317,7 @@
                                     <i class="fa fa-share"></i>
                                     </button>`
                 }
-
+                // Edit and delete button if user owns the post
                 if (post.author.id == current_author.id) {
                     display_posts += `
                                     <button type="button" id="edit-btn" class="btn btn-secondary btn-sm" onclick="editPost('${post.id}')">
@@ -333,6 +330,7 @@
                 }
                 getComment(author_id,post_id,'','internal')
                 getLikes(author_id,post_id,'','internal')
+                // Comment and likes are displayed under the post
                 likedby = `<div id="liked-${post_id}"> </div>` 
                 comment = `<br><br><div id="comment-${post_id}"></div>`
                 display_posts += likedby + comment
@@ -408,6 +406,8 @@
             console.log(response.status, response.statusText)
         }
     }
+
+    // GET and display likes for a post
     async function getLikes(author_id, post_id,host_name,type){
         if (type == 'internal'){
             const url = `/api/authors/${author_id}/posts/${post_id}/likes/`
@@ -543,7 +543,6 @@
                     inbox_url = connection.apiAddress + "/authors/" + id + "/inbox/"
                 }
                 if (connection.hostName == "https://social-distribution-media.herokuapp.com") {
-                    console.log("data categories:",data["categories"])
                     data["categories"] = data["categories"].split()
                     data = {
                         "@context": "sending to inbox",
@@ -593,7 +592,6 @@
         template.innerHTML = html;
         return template.content;
     }
-
     async function fetchExternalPosts() {
         // Source: 
         // StackOverflow 

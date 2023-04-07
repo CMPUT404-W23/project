@@ -38,7 +38,8 @@
         "X-CSRFToken": "{{ csrf_token }}",
         "Authorization": "Token 516e5c3d636f46228edb8f09b9613d5b4b166816"
     };
-    
+
+    // Alert box when user makes an error 
     function displayAlert(alertType, alertMessage) {
         alertContainer = document.getElementById("save-alert");
         alertContainer.innerHTML = "";
@@ -48,6 +49,7 @@
         alertContainer.appendChild(saveAlert);
     };
 
+    // POST a comment object to the author's inbox
     async function postComment(type){
         if (type == 'internal'){
             // Source:
