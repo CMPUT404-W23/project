@@ -59,6 +59,14 @@ To gain authorization to access API:
 ## Video Demo
 - URL: https://youtu.be/KUv8hsb_6M8
 
+## Tech Stack Used
+- Frontend: 
+  - HTML, CSS, JavaScript, Django template
+- Backend: 
+  - Django (Django Rest Framework)
+- Deployment:
+  - Heroku
+
 ## Resources/ References Used
 
 - Styles from [Bootstrap](https://getbootstrap.com/https://getbootstrap.com/)
