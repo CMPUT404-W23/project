@@ -100,6 +100,11 @@
     var author = JSON.parse('{{author|escapejs}}');
     var followers;
     var connections = JSON.parse('{{connections|escapejs}}');
+    // Source:
+    // Title: How to Parse URL in JavaScript: hostname, pathname, query, hash
+    // Author: Dmitri Pavlutin
+    // Date: January 28, 2023
+    // URL: https://dmitripavlutin.com/parse-url-javascript/
     let author_url = new URL(author.id)
     let author_relative_path = author_url.pathname
     fetch("/api" +  author_relative_path + "/followers/", {
@@ -174,6 +179,11 @@
     }
 
     async function postData() {
+        // Source:
+        // Title: How to Parse URL in JavaScript: hostname, pathname, query, hash
+        // Author: Dmitri Pavlutin
+        // Date: January 28, 2023
+        // URL: https://dmitripavlutin.com/parse-url-javascript/
         let author_url = new URL(author.id);
         author_relative_path = author_url.pathname
         const url = "/api" + author_relative_path + "/posts/"
@@ -231,6 +241,11 @@
     }
     async function sendToInbox(id, data) {
         // Send post to a user's inbox
+        // Source:
+        // Title: How to Parse URL in JavaScript: hostname, pathname, query, hash
+        // Author: Dmitri Pavlutin
+        // Date: January 28, 2023
+        // URL: https://dmitripavlutin.com/parse-url-javascript/
         let url = new URL(id);
         let author_relative_path = url.pathname + "/"
         for (connection of connections) {

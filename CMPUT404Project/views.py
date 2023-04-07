@@ -33,6 +33,14 @@ import json
 
 HOST = "https://socialdistcmput404.herokuapp.com/"
 
+# Source: 
+# StackOverflow 
+# Author: xyres
+# Author URL: https://stackoverflow.com/users/1925257/xyres
+# Title: How to use the context variables passed from Django in javascript?
+# Date: Apr 9, 2017  
+# URL: https://stackoverflow.com/questions/43305020/how-to-use-the-context-variables-passed-from-django-in-javascript
+
 # Home page
 @login_required
 def home(request):
