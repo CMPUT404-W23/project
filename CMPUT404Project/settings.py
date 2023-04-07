@@ -159,7 +159,6 @@ USE_TZ = True
 # TEMP FOR TEAM 4 demo, commented out incase we need it again in the future
 # CORS_ALLOW_ALL_ORIGINS = True
 
-
 CORS_ALLOWED_ORIGINS = [
 # Our own(team 10 heroku
 "https://socialdistcmput404.herokuapp.com",
@@ -179,7 +178,7 @@ CORS_ALLOWED_ORIGINS = [
 "https://distributed-social-net.herokuapp.com",
 # Team 18(Frontend) 
 "https://social-team-18.netlify.app",
-    
+# Local Host with port 3000 (one of the teams requested us to do so)
 "https://localhost:3000",
 # Team 17
 "https://social-distribution-w23-t17.herokuapp.com", 
@@ -201,8 +200,5 @@ DEFAULT_AUTO_FIELD='django.db.models.AutoField'
 LOGIN_REDIRECT_URL = "/"
 LOGOUT_REDIRECT_URL = "/accounts/login"
 
-# SWAGGER_SETTINGS={
-#     "is_superuser":True,
-# }
-
-django_on_heroku.settings(locals()) # bottom of the file
+# bottom of the file
+django_on_heroku.settings(locals()) 

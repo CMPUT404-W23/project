@@ -23,7 +23,7 @@
 from rest_framework import serializers
 from .models import Author, Post, Comment, Like, Server, Inbox, Connection, FollowRequest
 
-# File contains serializers for the different models of our appilcation
+# File contains serializers for the different models of our appilcation that will be used in views.py
 
 class AuthorSerializer(serializers.ModelSerializer):
     class Meta:
