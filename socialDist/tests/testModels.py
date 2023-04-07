@@ -36,6 +36,7 @@ import pytz
 # for serializer
 import uuid
 
+# NOTE:
 # Local BACK-END tests for models, Test CRUD (Create, Retrieve, Update, Delete) for each model
 # TO RUN THIS FILE TYPE COMMAND: python manage.py test socialDist.tests.testModels
 
@@ -60,6 +61,7 @@ class AuthorModelTests(TestCase):
         author=Author.objects.filter(id=HOST+"authors/test1")
         authorDict=author.values()
         
+        #  Test data
         self.assertEqual(authorDict[0]["host"],HOST)
         self.assertEqual(authorDict[0]["displayName"],"tester1")
         self.assertEqual(authorDict[0]["github"],"http://github.com/test1")
@@ -74,6 +76,7 @@ class AuthorModelTests(TestCase):
         author=Author.objects.all().filter(host=HOST)
         authorDict=author.values()
 
+        #  Test data
         self.assertEqual(authorDict.count(),2)
 
         self.assertEqual(authorDict[0]["id"],HOST+"authors/test1")
@@ -107,13 +110,15 @@ class AuthorModelTests(TestCase):
         """
         # get 2 authors
         author=Author.objects.all().filter(host=HOST)
-
         authorDict=author.values()
+
         # check there are 2 authors
         self.assertEqual(authorDict.count(),2)
+
         # delete the second one
         Author.objects.get(id=HOST+"authors/test2").delete()
         authorDict=author.values()
+
         # Only 1 author left
         self.assertEqual(authorDict.count(),1)
 
@@ -125,7 +130,6 @@ class ServerModelTests(TestCase):
         Server.objects.create(serverAddress=HOST+"authors/", serverKey="1", isLocalServer=True)
 
     # Get the server object, check its values
-
     def testGetServerFields(self):
         """
         Get the server object and test whether the fields are valid or not
@@ -133,6 +137,7 @@ class ServerModelTests(TestCase):
         server=Server.objects.filter(serverKey="1")
         serverDict=server.values()
         
+        #  Test data
         self.assertEqual(serverDict[0]["serverAddress"],HOST+"authors/")
         self.assertEqual(serverDict[0]["serverKey"],"1")
         self.assertEqual(serverDict[0]["isLocalServer"],True)
@@ -186,6 +191,7 @@ class UserFollowingModelTests(TestCase):
         userFollowing=UserFollowing.objects.filter(user_id=author1)
         userFollowingDict=userFollowing.values()
 
+        #  Test data
         self.assertEqual(userFollowingDict[0]["user_id_id"],HOST+"authors/test1")
         self.assertEqual(userFollowingDict[0]["following_user_id_id"],HOST+"authors/test2")
 
@@ -198,6 +204,7 @@ class UserFollowingModelTests(TestCase):
         author3=Author.objects.create(id=HOST+"authors/test3", host=HOST, displayName="tester3", github="http://github.com/test3", profileImage="https://i.imgur.com/test3.jpeg")
         userFollowing=UserFollowing.objects.filter(user_id=author1)
         userFollowingDict=userFollowing.values()
+
         # check field value before
         self.assertEqual(userFollowingDict[0]["following_user_id_id"],HOST+"authors/test2")
 
@@ -241,6 +248,7 @@ class FollowRequestModelTests(TestCase):
         followRequest=FollowRequest.objects.filter(sender=author1)
         followRequestDict=followRequest.values()
 
+        #  Test data
         self.assertEqual(followRequestDict[0]["sender_id"],HOST+"authors/test1")  
         self.assertEqual(followRequestDict[0]["target_id"],HOST+"authors/test2") 
         # check is date within today
@@ -254,9 +262,10 @@ class FollowRequestModelTests(TestCase):
         author1=Author.objects.get(id=HOST+"authors/test1")
         followRequest=FollowRequest.objects.filter(sender=author1)
         
-        # check field value before, check is date within today
+        # Check field value before, check is date within today
         followRequestDict=followRequest.values()
         self.assertLess(followRequestDict[0]["date"],utc.localize(datetime.datetime.today()))
+
         # update with a new now time
         newSetUpDate=datetime.datetime.now(tz=timezone.utc)
 
@@ -472,7 +481,7 @@ class LikeModelTests(TestCase):
         expectedData={'id': HOST+"authors/test1/posts/1/comments/1/likes/1", 'likeType': 'post', 'author_id': 'http://127.0.0.1:8000/authors/test1', 'parentPost_id': 'http://127.0.0.1:8000/authors/test1/posts/1', 'parentComment_id': 'http://127.0.0.1:8000/authors/test1/posts/1/comments/1'}
         self.assertEqual(testDict,expectedData)
 
-    # NO PUT/update to test since like can't be updated
+    # NOTE: NO PUT/update to test since like can't be updated
 
     # Get Like object, delete and check count
     def testDeleteLike(self):
@@ -503,7 +512,6 @@ class InboxModelTests(TestCase):
         setUpDate=datetime.datetime.now(tz=timezone.utc)
         fR1=FollowRequest.objects.create(sender=author1,target=author2, date=setUpDate)
 
-        # add the Posts using .add(TBA)
         Inbox.objects.create(inboxID=HOST+"authors/test1/inbox/1", author=author1)
 
     # Get the Post object, check its values
@@ -515,6 +523,7 @@ class InboxModelTests(TestCase):
         inbox=Inbox.objects.filter(author=author1)
         inboxDict=inbox.values()
 
+        #  Test data
         expectedData={'inboxID': 'http://127.0.0.1:8000/authors/test1/inbox/1', 'author_id': 'http://127.0.0.1:8000/authors/test1'}
         self.assertEqual(inboxDict[0],expectedData)
 
@@ -555,6 +564,7 @@ class AuthorSerializerTests(TestCase):
         """
         authorData=self.AuthorSerializer.data
 
+        #  Test data
         self.assertEqual(authorData["id"], HOST+"authors/test1")
         self.assertEqual(authorData["host"], HOST)
         self.assertEqual(authorData["displayName"], "sampleTestAuthor")
