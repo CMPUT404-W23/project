@@ -1,7 +1,31 @@
+# MIT License
+
+# Copyright (c) 2023 Warren Lim, Junhyeon Cho, Alex Mak, Jason Kim, Filippo Ciandy
+
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
+
+
 # TODO: handle permission_classes
 # TODO: APIListComments, APIListLikesPost, APIListLikesComments(APIView), APILiked, APIFollowers, APIFollower, 
 
-"""
+
 import json, datetime
 from django.utils.timezone import make_aware
 from rest_framework import status
@@ -17,120 +41,223 @@ import base64
 import io
 from rest_framework.authtoken.models import Token
 
+# pycurl (not working)
+# import pycurl
+# from io import BytesIO 
+
+# django-test-curl
+from django_test_curl import CurlClient
+
 # BACK-END tests for views
 # TO RUN THIS TEST: Command "python manage.py test socialDist.tests.testViews"
 #  python manage.py runserver
 
+# HOST="http://127.0.0.1:8000/"
+HOST="https://socialdistcmput404.herokuapp.com/"
+# https://socialdistcmput404.herokuapp.com/api/authors/
 
 # Test case for the API views APIListAuthors
 class APIListAuthorTests(TestCase):
     # Setup client, a dummy broswer used for testing
     def setUp(self):
-        self.HEADERS={"Authorization": "Token 516e5c3d636f46228edb8f09b9613d5b4b166816"}
+        
+
+        new_server = Server.objects.create(serverAddress="http://127.0.0.1:8000",serverKey="516e5c3d636f46228edb8f09b9613d5b4b166816", isLocalServer=True)
+        new_server.save()
+
+        # self.HEADERS={"Authorization": "Token 516e5c3d636f46228edb8f09b9613d5b4b166816"}
         # self.user=User.objects.create_user('test','test@gmail.com', 'password')
         # self.user=User.objects.create_superuser(username='test',email='test@gmail.com', password='password')
-        self.user=User.objects.create_user(username='test',email='test@gmail.com', password='password')
+        # self.user=User.objects.create_user(username='test',email='test@gmail.com', password='password')
+
+        User.objects.create_superuser(username='test',email='test@gmail.com', password='password')
+        self.user=User.objects.get(username='test')
+
+        User.objects.create_superuser(username='test1',email='test1@gmail.com', password='password1')
+        self.user2=User.objects.get(username='test1')
+
         # self.client.force_login(self.user)
 
         # token=Token.objects.get_or_create(user__username='test')
-        self.client = APIClient()
+        self.client = APIClient(headers={"user-agent": "curl/7.79.1"})
 
         self.client.force_authenticate(user=self.user)
+
         # self.client.credentials(HTTP_AUTHORIZATION="Token "+token.key)
         # self.client.credentials(HTTP_AUTHORIZATION= "Token 516e5c3d636f46228edb8f09b9613d5b4b166816")
 
-    # Basic test: DONE? 
-    def testGETListAuthors(self):
+        # self.testAuthor=Author.objects.create(user=self.user, id="http://127.0.0.1:8000/authors/1", host="http://127.0.0.1:8000/", displayName="tester1", github="http://github.com/test1", profileImage="https://i.imgur.com/test1.jpeg")
 
-        # Work by creating objects, but want to create through POST
-        author1=Author.objects.create(id="http://127.0.0.1:8000/authors/1", host="http://127.0.0.1:8000/", displayName="tester1", github="http://github.com/test1", profileImage="https://i.imgur.com/test1.jpeg")
-        author2=Author.objects.create(id="http://127.0.0.1:8000/authors/2", host="http://127.0.0.1:8000/", displayName="tester2", github="http://github.com/test2", profileImage="https://i.imgur.com/test2.jpeg") 
-
-        # Create author using API
-
-        url=reverse('socialDist:authors')
-        response = self.client.get(url)
-        # test basic API fields
-        self.assertEqual(response.status_code, 200)
-
-        expectedData={'type': 'authors', 'items': [{'id': 'http://127.0.0.1:8000/authors/1', 'host': 'http://127.0.0.1:8000/', 'displayName': 'tester1', 'github': 'http://github.com/test1', 'profileImage': 'https://i.imgur.com/test1.jpeg', 'type': 'author', 'url': 'http://127.0.0.1:8000/authors/1'}, {'id': 'http://127.0.0.1:8000/authors/2', 'host': 'http://127.0.0.1:8000/', 'displayName': 'tester2', 'github': 'http://github.com/test2', 'profileImage': 'https://i.imgur.com/test2.jpeg', 'type': 'author', 'url': 'http://127.0.0.1:8000/authors/2'}]}
-        self.assertContains(response, "type")
-        self.assertContains(response, "items")
-        print(response.data)
-        # self.assertEqual(response.data, expectedData)
-
+        # self.data={'username': 'sigh', "email": 'sighmail', "password1": 'sighpwd'}
+        # url=reverse('socialDist:authors')
+        # self.response=self.client.put(url, self.data)
     
-    # test by replacing the second author with a third author: intend to give 409
     def testPUTListAuthorsSuccess(self):
-        # Successful case, should return 201
-        data={'username': 'sigh', "email": 'sighmail', "password1": 'sighpwd'}
+        """
+        Test PUT method for API with endpoint: /api/authors/
+        PUT an author that hasn't been created
+        """
 
+        data={'username': 'newTestUsername', "email": 'newTest1@gmail.com', "password1": 'newTestPassword1'}
         url=reverse('socialDist:authors')
+        # PUT the author
         response=self.client.put(url, data)
-        print(response.data)
+        # test status code
         self.assertEqual(201, response.status_code)
 
-    
-    def testPUTListAuthorsFailure(self):
-        # Failure case: test with existing user (same data) --> give 409
-
-        # same beginning as the success case
-        data={'username': 'sigh', "email": 'sighmail', "password1": 'sighpwd'}
+    def testPUTListAuthorsFail(self):
+        """
+        Test PUT method for API with endpoint: /api/authors/
+        PUT an author that has created before in setUp
+        """
+        # Send the PUT request
+        data={'username': 'test1', "email": 'test1@gmail.com', "password1": 'password1'}
         url=reverse('socialDist:authors')
+        # PUT the author
         response=self.client.put(url, data)
-        self.assertEqual(201, response.status_code)
-
-        # put a again with new data, but same user
-        newdata={'username': 'sigh', "email": 'sighmail', "password1": 'sighpwd'}
-        url=reverse('socialDist:authors')
-        
-        response=self.client.put(url, newdata)
-
         self.assertEqual(409, response.status_code)
         self.assertEqual(response.content.decode("utf-8"), '"An account with that username already exists."')
 
-    
+    # Basic test: DONE? 
+    def testGETListAuthorsSuccess(self):
+        """
+        Test GET method for API with endpoint: /api/authors/
+        Added 2 authors, expect to return 2 authors
+        """
+
+        # Add 2 authors using PUT
+        url=reverse('socialDist:authors')
+
+        author1Data={'username': 'testUsername1', "email": 'test1@gmail.com', "password1": 'testPassword1'}
+        response=self.client.put(url, author1Data)
+
+        author2Data={'username': 'testUsername2', "email": 'test2@gmail.com', "password1": 'testPassword2'}
+        response=self.client.put(url, author2Data)
+
+        # send GET request
+        url=reverse('socialDist:authors')
+        response = self.client.get(url)
+        # check status code
+        self.assertEqual(response.status_code, 200)
+
+        # test data fields
+        self.assertEqual(response.data['type'], 'authors')
+        self.assertEqual(response.data['items'][0]['host'], HOST)
+        self.assertEqual(response.data['items'][0]['displayName'],'testUsername1')
+        self.assertEqual(response.data['items'][0]['type'],'author')
+        # Find the authorUUID to test id and url
+        authorUUID=response.data['items'][0]['id'].split("/")[-1]
+        # index=response.data['items'][0]['id'].rfind("/")
+        self.assertEqual(response.data['items'][0]['id'],HOST+"authors/"+authorUUID)
+        self.assertEqual(response.data['items'][0]['url'],HOST+"authors/"+authorUUID)
+
+
+        self.assertEqual(response.data['items'][1]['host'], HOST)
+        self.assertEqual(response.data['items'][1]['displayName'],'testUsername2')
+        self.assertEqual(response.data['items'][1]['type'],'author')
+        # Find the index of the last slash to test id and url
+        authorUUID=response.data['items'][1]['id'].split("/")[-1]
+        # index=response.data['items'][1]['id'].rfind("/")
+        self.assertEqual(response.data['items'][1]['id'],HOST+"authors/"+authorUUID)
+        self.assertEqual(response.data['items'][1]['url'],HOST+"authors/"+authorUUID)
+
+
+    def testGETListAuthorsEmpty(self):
+        """
+        Test GET method for API with endpoint: /api/authors/, but with no authors added
+        """
+        url=reverse('socialDist:authors')
+        response = self.client.get(url)
+        # check status code
+        self.assertEqual(response.status_code, 200)
+
+        # test data fields
+        self.assertEqual(response.data['type'], 'authors')
+        # check is items in an empty list
+        self.assertEqual(response.data['items'], list())
+
+
 class APIAuthorTests(TestCase):
     def setUp(self):
+        """
         self.client = APIClient()
         self.user=User.objects.create_user('test','test@gmail.com', 'password')
         self.client.force_authenticate(user=self.user)
         # client = APIClient(enforce_csrf_checks=True)
         # client.login()
 
-        
         # Work by creating objects, but want to create through POST
         # author1=Author.objects.create(id="http://127.0.0.1:8000/authors/1", host="http://127.0.0.1:8000/", displayName="tester1", github="http://github.com/test1", profileImage="https://i.imgur.com/test1.jpeg")
         # author2=Author.objects.create(id="http://127.0.0.1:8000/authors/2", host="http://127.0.0.1:8000/", displayName="tester2", github="http://github.com/test2", profileImage="https://i.imgur.com/test2.jpeg") 
-        
+        """
+
+        new_server = Server.objects.create(serverAddress="http://127.0.0.1:8000",serverKey="516e5c3d636f46228edb8f09b9613d5b4b166816", isLocalServer=True)
+        new_server.save()
+
+
+        User.objects.create_superuser(username='test',email='test@gmail.com', password='password')
+        self.user=User.objects.get(username='test')
+
+        # User.objects.create_superuser(username='test1',email='test1@gmail.com', password='password1')
+        # self.user2=User.objects.get(username='test1')
+
+    
+        self.client = APIClient(headers={"user-agent": "curl/7.79.1"})
+
+        self.client.force_authenticate(user=self.user)
+
+        # PUTing an author
+        url=reverse('socialDist:authors')
+
+        author1Data={'username': 'testUsername1', "email": 'test1@gmail.com', "password1": 'testPassword1'}
+        response=self.client.put(url, author1Data)
+
 
     # Get for 1 author
     def testGETAuthorSuccess(self):
+        """
+        Test GET method for API with endpoint: /api/authors/<author_id>/
+        """
+        # GET the PUTted author in setUp
 
-        # Work by creating objects, but want to create through POST
-        author1=Author.objects.create(id="http://127.0.0.1:8000/authors/1", host="http://127.0.0.1:8000/", displayName="tester1", github="http://github.com/test1", profileImage="https://i.imgur.com/test1.jpeg")
-        author2=Author.objects.create(id="http://127.0.0.1:8000/authors/2", host="http://127.0.0.1:8000/", displayName="tester2", github="http://github.com/test2", profileImage="https://i.imgur.com/test2.jpeg") 
-
-
-        url = reverse('socialDist:author', args="1")
-        # url = reverse('socialDist:author', kwargs={'id':1})
+        # Use a GET for APIListAuthors to get the author's UUID
+        url=reverse('socialDist:authors')
         response = self.client.get(url)
-        expectedData={'id': 'http://127.0.0.1:8000/authors/1', 'host': 'http://127.0.0.1:8000/', 'displayName': 'tester1', 'github': 'http://github.com/test1', 'profileImage': 'https://i.imgur.com/test1.jpeg', 'type': 'author', 'url': 'http://127.0.0.1:8000/authors/1'}
+        # check status code
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.data, expectedData)
+        # get the UUID
+        authorUUID=response.data['items'][0]['id'].split("/")[-1]
+
+        # Use the GET from APIAuthors
+        newUrl=reverse('socialDist:author', kwargs={"id":authorUUID})
+        # test status code
+        response = self.client.get(newUrl)
+        self.assertEqual(response.status_code, 200)
+
+        # test data
+        self.assertEqual(response.data['type'], 'author')
+        self.assertEqual(response.data['host'], HOST)
+        self.assertEqual(response.data['displayName'],'testUsername1')
+        self.assertEqual(response.data['github'], '')
+        self.assertEqual(response.data['profileImage'], '')
+        # Find the authorUUID to test id and url
+        self.assertEqual(response.data['id'],HOST+"authors/"+authorUUID)
+        self.assertEqual(response.data['url'],HOST+"authors/"+authorUUID)
 
     # Find an author doesn't exist
     def testGETAuthorFailure(self):
-        # Work by creating objects, but want to create through POST
-        author1=Author.objects.create(id="http://127.0.0.1:8000/authors/1", host="http://127.0.0.1:8000/", displayName="tester1", github="http://github.com/test1", profileImage="https://i.imgur.com/test1.jpeg")
-
-        url = reverse('socialDist:author', args="2")
-        response = self.client.get(url)
-        expectedData={'id': 'http://127.0.0.1:8000/authors/1', 'host': 'http://127.0.0.1:8000/', 'displayName': 'tester1', 'github': 'http://github.com/test1', 'profileImage': 'https://i.imgur.com/test1.jpeg', 'type': 'author', 'url': 'http://127.0.0.1:8000/authors/1'}
-
+        """
+        Test GET method for API with endpoint: /api/authors/<author_id>/ but with non-existed author
+        """
+        authorUUID="samepleFailString"
+        newUrl=reverse('socialDist:author', kwargs={"id":authorUUID})
+        # test status code
+        response = self.client.get(newUrl)
+        print(response.status_code)
         self.assertEqual(response.status_code, 404)
-        self.assertNotEqual(response.data, expectedData)
 
+
+"""
     # for POST: add a new author
     # Problem: dict exist, serializer is not valid
     def testPOSTAuthorSuccess(self):
@@ -670,3 +797,69 @@ class APIListCommentTests(TestCase):
 
 # TODO: APIPosts?
 """
+
+"""
+class APIListAuthorTests(TestCase):
+    def setUp(self):
+        # Setup server
+        new_server = Server.objects.create(serverAddress="http://127.0.0.1:8000",serverKey="516e5c3d636f46228edb8f09b9613d5b4b166816", isLocalServer=True)
+        new_server.save()
+
+        User.objects.create_user(username='test',email='test@gmail.com', password='password')
+        # get the User back and assign it
+        self.user=User.objects.get(username='test')
+
+        self.client = APIClient()
+        # peform force authentication
+        self.client.force_authenticate(user=self.user)
+        
+
+    # Basic test: DONE? 
+    def testGETListAuthors(self):
+        # Create an author based on an user 
+        testAuthor=Author.objects.create(user=self.user, id="http://127.0.0.1:8000/authors/1", host="http://127.0.0.1:8000/", displayName="tester1", github="http://github.com/test1", profileImage="https://i.imgur.com/test1.jpeg")
+
+        url=reverse('socialDist:authors')
+        response = self.client.get(url)
+        # test basic API fields
+
+        # Still gives 403...
+        self.assertEqual(response.status_code, 200)
+"""
+
+
+# # CURL testing
+# class APIListAuthorTestsCURL(TestCase):
+#     # Setup client, a dummy broswer used for testing
+#     def setUp(self):
+#         new_server = Server.objects.create(serverAddress="http://127.0.0.1:8000",serverKey="516e5c3d636f46228edb8f09b9613d5b4b166816", isLocalServer=True)
+#         new_server.save()
+
+#         User.objects.create_superuser(username='test',email='test@gmail.com', password='password')
+#         self.user=User.objects.get(username='test')
+
+#         # self.client.force_login(self.user)
+
+#         # token=Token.objects.get_or_create(user__username='test')
+#         self.client = CurlClient()
+
+#         self.client.force_authenticate(user=self.user)
+
+#     def testBasic(self):
+
+#         data={'username': 'sigh', "email": 'sighmail', "password1": 'sighpwd'}
+
+#         url=reverse('socialDist:authors')
+#         # PUT the author
+#         response=self.client.put(url, data)
+#         self.assertEqual(201, response.status_code)
+
+#         response=self.client.curl(
+#             """
+#             curl http://127.0.0.1:8000/authors/
+#             """
+#         )
+
+
+
+#         print(response.status_code)

@@ -50,25 +50,6 @@ class RemotePermission(permissions.BasePermission):
         except:
             return False
 
-# Permission class used for the comments endpoint to restrict remote node access
-class CommentsPermissions(permissions.BasePermission):
-    def has_permission(self, request, view):
-        # Special permission for admin users, can use API without auth token
-        if request.user.is_authenticated and request.user.is_staff:
-            return True
-        try:
-            authorization = request.headers['Authorization']
-            authorizationArr = authorization.split()
-            if authorizationArr[0] != "Token":
-                return False
-            server = models.Server.objects.get(serverKey=authorizationArr[1])
-            # We must allow remote modes to POST to /comments to allow them to post comments!
-            if (request.method not in permissions.SAFE_METHODS and request.method != "POST") and not server.isLocalServer:
-                return False
-            return True
-        except:
-            return False
-
 # Permission class used for the inbox endpoint to restrict remote node access
 class InboxPermission(permissions.BasePermission):
     def has_permission(self, request, view):
@@ -76,10 +57,8 @@ class InboxPermission(permissions.BasePermission):
         if request.user.is_authenticated and request.user.is_staff:
             return True
         try:
-            print(request.headers)
             authorization = request.headers['Authorization']
             authorizationArr = authorization.split()
-            print(authorizationArr)
             if authorizationArr[0] != "Token":
                 return False
             server = models.Server.objects.get(serverKey=authorizationArr[1])

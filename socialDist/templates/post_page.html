@@ -1,77 +1,254 @@
 <!-- https://getbootstrap.com/docs/5.3/components/dropdowns/ -->
 {% extends 'base.html' %}
 {% block content %}
-<div class="grid" id="post">
-    <div class="d-flex justify-content-center">
-        <div class="spinner-border">
-          <span class="visually-hidden">Loading Post...</span>
+
+<head>
+    <!-- FontAwesome Icons link -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css"
+        integrity="sha512-KfkfwYDsLkIlwQp6LFnl8zNdLGxu9YAA1QvwINks4PhcElQSvqcyVLLD9aMhXd13uQjoXtEKNosOWaZqXgel0g=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+</head>
+<div class="container-md mt-2">
+    <div class="grid" id="post">
+        <div class="d-flex justify-content-center">
+            <div class="spinner-border">
+                <span class="visually-hidden">Loading Post...</span>
+            </div>
         </div>
     </div>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 <script>
+    // Source:
+    // Title: How to Parse URL in JavaScript: hostname, pathname, query, hash
+    // Author: Dmitri Pavlutin
+    // Date: January 28, 2023
+    // URL: https://dmitripavlutin.com/parse-url-javascript/
     let data_url = new URL("{{post.id}}");
     let data_path = data_url.pathname;
     let post;
-    function deletePost(id){
-                url = new URL(id)
-                fetch_url = "/api" + url.pathname +"/"
-                fetch(fetch_url, {headers: new Headers({"X-CSRFToken": "{{ csrf_token }}","Authorization": "Token 516e5c3d636f46228edb8f09b9613d5b4b166816"}), method: 'DELETE'})
-                .then((response) => response.status())
-                .then(window.location.reload())
-    }
-    //https://www.w3docs.com/snippets/html/how-to-create-an-html-button-that-acts-like-a-link.html
-    function editPost(id) {
+    function deletePost(id) {
         url = new URL(id)
-        window.location.href= url.pathname + "/edit/"
+        fetch_url = "/api" + url.pathname + "/"
+        fetch(fetch_url, { headers: new Headers({ "X-CSRFToken": "{{ csrf_token }}", "Authorization": "Token 516e5c3d636f46228edb8f09b9613d5b4b166816" }), method: 'DELETE' })
+            .then((response) => response.status())
+            .then(window.location.reload())
     }
-    fetch("/api" + data_path + "/",  
-          {headers: new Headers({"Authorization": "Token 516e5c3d636f46228edb8f09b9613d5b4b166816"})})
-    .then((response) => response.json())
-    .then((data) => {
-        post = data;
-        post_url = new URL(post.id)
-        author_url = new URL(post.author.url)
-        post_relative_path = post_url.pathname + "/"
-        author_relative_path = author_url.pathname + "/"
-        author_arr = author_url.pathname.split("/");
-        post_arr = post_url.pathname.split("/");
-        post_id = post_arr[post_arr.length-1];
-        author_id = author_arr[author_arr.length-1];
-        let content;
-        if (post.contentType.startsWith("image")) {
-            content = `<img class="img-fluid mx-auto d-block" style="max-width: 50%" src="data:${post.contentType}, ${post.content}"/><br>`;
-        } else if (post.contentType === "text/markdown") {
-            post.title = marked.parse(post.title);
-            post.description = marked.parse(post.description);
-            content = `<p class="card-text">${marked.parse(post.content)}</p>`;
-        } else {
-            content = `<p class="card-text">${post.content}</p>`;
-        }
-        display_post = `
+    // Source:
+    // W3Docs
+    // Title: How to Add an HTML Button that Acts Like a Link
+    // https://www.w3docs.com/snippets/html/how-to-create-an-html-button-that-acts-like-a-link.html
+    function editPost(id) {
+        // Source:
+        // Title: How to Parse URL in JavaScript: hostname, pathname, query, hash
+        // Author: Dmitri Pavlutin
+        // Date: January 28, 2023
+        // URL: https://dmitripavlutin.com/parse-url-javascript/
+        url = new URL(id)
+        window.location.href = url.pathname + "/edit/"
+    }
+    // Source: 
+    // StackOverflow 
+    // Author: xyres
+    // Author URL: https://stackoverflow.com/users/1925257/xyres
+    // Title: How to use the context variables passed from Django in javascript?
+    // Date: Apr 9, 2017  
+    // URL: https://stackoverflow.com/questions/43305020/how-to-use-the-context-variables-passed-from-django-in-javascript
+    const current_author = JSON.parse('{{current_author|escapejs}}');
+    current_author["type"] = "author";
+    current_author["url"] = current_author["id"];
+    const connections = JSON.parse('{{connections|escapejs}}');
+    fetch("/api" + data_path + "/",
+        { headers: new Headers({ "Authorization": "Token 516e5c3d636f46228edb8f09b9613d5b4b166816" }) })
+        .then((response) => response.json())
+        .then((data) => {
+            post = data;
+            // Source:
+            // Title: How to Parse URL in JavaScript: hostname, pathname, query, hash
+            // Author: Dmitri Pavlutin
+            // Date: January 28, 2023
+            // URL: https://dmitripavlutin.com/parse-url-javascript/
+            post_url = new URL(post.id)
+            author_url = new URL(post.author.url)
+            post_relative_path = post_url.pathname + "/"
+            author_relative_path = author_url.pathname + "/"
+            author_arr = author_url.pathname.split("/");
+            post_arr = post_url.pathname.split("/");
+            post_id = post_arr[post_arr.length - 1];
+            author_id = author_arr[author_arr.length - 1];
+            let content;
+            if (post.contentType.startsWith("image")) {
+                content = `<img class="img-fluid mx-auto d-block" style="max-width: 50%" src="data:${post.contentType}, ${post.content}"/><br>`;
+            } else if (post.contentType === "text/markdown") {
+                post.title = marked.parse(post.title);
+                post.description = marked.parse(post.description);
+                content = `<p class="card-text">${marked.parse(post.content)}</p>`;
+            } else {
+                content = `<p class="card-text">${post.content}</p>`;
+            }
+            display_post = `
                         <div class="card my-3" id="post-${post_id}">
                             <div class="card-body">
-                                <h5 class="card-title"><a href="${post_relative_path}">${post.title}</a></h5>
-                                <h6 class="card-subtitle mb-2 text-muted"><a href="${author_relative_path}">${post.author.displayName}</a></h6>
-                                <h6 class="card-subtitle mb-2 text-muted">${post.description} <span class="badge bg-secondary">${post.categories}</span></h6>
-                                ${content}
-                                <button type="button" class="btn btn-secondary btn-sm">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-heart" viewBox="0 0 16 16">
-                                        <path d="m8 2.748-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385.92 1.815 2.834 3.989 6.286 6.357 3.452-2.368 5.365-4.542 6.286-6.357.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01L8 2.748zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143c.06.055.119.112.176.171a3.12 3.12 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15z"/>
-                                    </svg>   
-                                </button>` 
-        if (author_id == "{{user.id}}") {
-            display_post += `
-                    <button onclick="deletePost('${post.id}')">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash-fill" viewBox="0 0 16 16">
-                            <path d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1H2.5zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5zM8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5zm3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0z"/>
-                        </svg>
-                    </button>
-                    <button onclick="editPost('${post.id}')">
-                        Edit
-                    </button>`
-        }      
-        document.getElementById("post").innerHTML = display_post + '</div></div>'
+                                <h5 class="card-title"><a class="link-secondary" href="${post_relative_path}">${post.title}</a></h5>
+                                <h6 class="card-subtitle my-3 text-muted">
+                                    <img src="${post.author.profileImage || `https://ui-avatars.com/api/?name=${post.author.displayName}`}" class="rounded-circle" style="width: 30px; height: 30px; object-fit: cover;">
+                                    <a class="link-secondary mx-1" href="${author_relative_path}">${post.author.displayName}</a>
+                                </h6>
+                                <h6 class="card-subtitle mt-2 mb-2 text-muted">${post.description}</h6>
+                                <span class="badge bg-secondary">${post.categories}</span>
+                                <p class="post-content mb-2">${content}</p>
+                                <button type="button" class="btn btn-secondary btn-sm" id="like-btn">
+                                    <i class="fa-regular fa-heart"></i>
+                                </button>
+                                <button type="button" id="comment-btn" class="btn btn-secondary btn-sm" onclick="postComment('${post.id}')">
+                                    <i class="fa-regular fa-comment"></i>
+                                </button>
+                                <button type="button" id="share-btn" class="btn btn-secondary btn-sm" onclick="sharePost()">
+                                    <i class="fa fa-share"></i>
+                                </button>`
+            if (post.author.id == current_author.id) {
+                display_post += `
+                            <button type="button" id="edit-btn" class="btn btn-secondary btn-sm" onclick="editPost('${post.id}')">
+                                <i class="fa-solid fa-pen"></i>
+                            </button>
+                            <button type="button" class="btn btn-danger btn-sm" onclick="deletePost('${post.id}')">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                            `
+            }
+            
+            document.getElementById("post").innerHTML = display_post + '</div></div>'
+            isLiked(post);
         });
+    async function likePost(post) {
+        const author = post.author;
+        const authorID = author.id.split("/").pop();
+        const url = `/api/authors/${authorID}/inbox/`
+        const data = {
+            "@context": "Post Like",
+            "summary": "{{ user.username }} Likes your post",
+            "type": "Like",
+            "author": current_author,
+            "object": post.id
+        }
+        const response = await fetch(url, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": "{{ csrf_token }}",
+                "Authorization": "Token 516e5c3d636f46228edb8f09b9613d5b4b166816"
+            },
+            body: JSON.stringify(data),
+        });
+        if (response.status == 200) {
+            document.getElementById('like-btn').innerHTML = '<i class="fa-solid fa-heart"></i>';
+            document.getElementById('like-btn').disabled = true;
+        } else {
+            console.log(response.status, response.statusText)
+        }
+    }
+
+    async function isLiked(post) {
+        // checks if current user liked the post
+        const author = post.author;
+        const authorID = author.id.split("/").pop();
+        const url = `/api/authors/${authorID}/posts/${post.id.split('/').pop()}/likes/`
+        const response = await fetch(url, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": "{{ csrf_token }}",
+                "Authorization": "Token 516e5c3d636f46228edb8f09b9613d5b4b166816"
+            },
+        }).then(response => response.json())
+            .then(data => {
+                for (like of data.items) {
+                    if (like.author.id = current_author.id) {
+                        document.getElementById('like-btn').innerHTML = '<i class="fa-solid fa-heart"></i>';
+                        document.getElementById('like-btn').disabled = true;
+                    }
+                }
+            });
+    }
+
+    async function sharePost() {
+        // Source:
+        // Title: How to Parse URL in JavaScript: hostname, pathname, query, hash
+        // Author: Dmitri Pavlutin
+        // Date: January 28, 2023
+        // URL: https://dmitripavlutin.com/parse-url-javascript/
+        let author_url = new URL(current_author.id)
+        let author_relative_path = author_url.pathname
+        let date = new Date();
+        // refresh "published" date
+        post["published"] = date.toISOString();
+        fetch("/api" +  author_relative_path + "/followers/", {
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": "{{ csrf_token }}",
+                "Authorization": "Token 516e5c3d636f46228edb8f09b9613d5b4b166816"
+        }})
+        .then((response) => response.json())
+        .then((data) =>{
+            followers = data.items;
+            for (follower of followers) {
+                sendToInbox(follower.id, post);
+            }
+        })
+    }
+
+    async function sendToInbox(id, data) {
+        // Send post to a user's inbox
+        // Source:
+        // Title: How to Parse URL in JavaScript: hostname, pathname, query, hash
+        // Author: Dmitri Pavlutin
+        // Date: January 28, 2023
+        // URL: https://dmitripavlutin.com/parse-url-javascript/
+        let url = new URL(id);
+        let author_relative_path = url.pathname + "/"
+        for (connection of connections) {
+            if ("https://" + url.hostname == connection.hostName) {
+                author_relative_path = author_relative_path.replace("/api","");
+                author_relative_path = author_relative_path.replace("/main","");
+                let inbox_url = connection.apiAddress + author_relative_path + "inbox/";
+                if (connection.hostName == "https://social-distribution-w23-t17.herokuapp.com") {
+                    inbox_url = connection.apiAddress + "/authors/" + id + "/inbox/"
+                }
+                if (connection.hostName == "https://social-distribution-media.herokuapp.com") {
+                    data["categories"] = data["categories"].split()
+                    data = {
+                        "@context": "sending to inbox",
+                        "summary": data.author.displayName + " created a post!",
+                        "type": "post",
+                        "author": data.author,
+                        "object":data
+                    }
+                    inbox_url = connection.apiAddress + author_relative_path + "inbox";
+                }
+                fetch(inbox_url, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRFToken": "{{ csrf_token }}",
+                        "Authorization": connection.apiCreds
+                    },
+                    body: JSON.stringify(data),
+                });
+                break;
+            }
+            else if ("https://" + url.hostname == "https://socialdistcmput404.herokuapp.com") {
+                fetch("/api" + author_relative_path + "inbox/", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRFToken": "{{ csrf_token }}",
+                        "Authorization": "Token 516e5c3d636f46228edb8f09b9613d5b4b166816"
+                    },
+                    body: JSON.stringify(data),
+                });
+                break;
+            }
+        }
+    }
 </script>
 {% endblock content %}

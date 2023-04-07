@@ -23,6 +23,8 @@
 from rest_framework import serializers
 from .models import Author, Post, Comment, Like, Server, Inbox, Connection, FollowRequest
 
+# File contains serializers for the different models of our appilcation
+
 class AuthorSerializer(serializers.ModelSerializer):
     class Meta:
         model = Author
@@ -32,16 +34,9 @@ class AuthorSerializer(serializers.ModelSerializer):
                   'github', 
                   'profileImage')
 
-        # Update added fields (if it doesn't work just uncomment the line above)
-        # fields = ('id', 'user', 'github', 'profileImg','isServerAdmin', 'isAuthenticated', 'isFriendWith', 'inServer')
-
-
 class PostSerializer(serializers.ModelSerializer):
     class Meta:
         model = Post
-        # fields = ('postID', 'title', 'content', 'contentType', 'posterID', 'date', 'visibility', 'unlisted')
-
-        # Update added fields (if it doesn't work just uncomment the line above)
         fields = ('id', 
                   'title', 
                   'source',
@@ -58,11 +53,8 @@ class PostSerializer(serializers.ModelSerializer):
 class CommentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Comment
-        # fields = ('commentID', 'content', 'contentType', 'parentPostID', 'date', 'author')
-
-        # Update added fields (if it doesn't work just uncomment the line above)
         fields = ('id', 
-                  'content', 
+                  'comment', 
                   'contentType', 
                   'parentPost', 
                   'published', 
@@ -80,11 +72,10 @@ class ConnectionSerializer(serializers.ModelSerializer):
         model = Connection
         fields = (
             'apiAddress',
-            'apiCreds'
+            'apiCreds',
+            'hostName'
         )
 
-
-# Added new serlaizers for Server and Inbox
 class ServerSerializer(serializers.ModelSerializer):
     class Meta:
         model=Server
@@ -93,11 +84,9 @@ class ServerSerializer(serializers.ModelSerializer):
 class InboxSerializer(serializers.ModelSerializer):
     class Meta:
         model=Inbox
-        # fields=('inboxID','owner','post','like','comment','content','contentType')
         fields=('inboxID', 'author', 'posts', 'requests', 'comments', 'likes')
 
 class FollowRequestSerializer(serializers.ModelSerializer):
     class Meta:
         model=FollowRequest
-        # fields=('inboxID','owner','post','like','comment','content','contentType')
         fields=('sender', 'target', 'date')

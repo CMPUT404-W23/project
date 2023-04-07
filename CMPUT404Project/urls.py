@@ -41,14 +41,14 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import include, path
 from django.views.generic.base import TemplateView, RedirectView
-from .views import settings, home, postPage, authorPage, create_post, editPost
+from .views import settings, home, postPage, authorPage, privatePosts, create_post, editPost, search, localComment, foreignComment
 
 urlpatterns = [
     
     ######################################################### 
     # Do not add any path above this
     # else redirection functionality won't work as intended
-    path("search/", TemplateView.as_view(template_name="search.html"), name="search"),
+    path("search/", search,  name="search"),
     path("accounts/", include("django.contrib.auth.urls")),
     path("post/", create_post, name="post"),
     path("api/", include("socialDist.urls")),
@@ -57,9 +57,12 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("accounts/settings", settings, name="settings"),
     path("accounts/signup", TemplateView.as_view(template_name="registration/signup.html"), name="signup"),
+    path("accounts/stream", privatePosts, name="stream"),
     path("authors/<str:author_id>/", view=authorPage, name="page_author"),
     path("authors/<str:author_id>/posts/<str:post_id>/", view=postPage, name="page_post"),
-    path("authors/<str:author_id>/posts/<str:post_id>/edit", view=editPost, name="edit_post"),
+    path("authors/<str:author_id>/posts/<str:post_id>/edit/", view=editPost, name="edit_post"),
+    path("authors/<str:author_id>/posts/<str:post_id>/comments/",view=localComment, name="local_comment" ),
+    path("posts/foreign/<str:hostName>/authors/<str:foreignauthor_id>/posts/<str:post_id>/comments/",view=foreignComment, name="foreign_comment" )
 ]
 # Automatically add redirections
 # set number of items to add to itself from the beginning

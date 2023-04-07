@@ -22,11 +22,8 @@
 
 from django.db import models
 from django.contrib.auth.models import User
-import hashlib
 
-# Added array field to handle categories in post
-# https://stackoverflow.com/questions/4294039/how-can-i-store-an-array-of-strings-in-a-django-model
-from django.contrib.postgres.fields import ArrayField
+# Models used in our appilcation
 
 # Sources:
 # https://docs.djangoproject.com/en/dev/topics/auth/customizing/#extending-the-existing-user-model
@@ -35,50 +32,23 @@ from django.contrib.postgres.fields import ArrayField
 # https://medium.com/analytics-vidhya/add-friends-with-689a2fa4e41d
 # https://stackoverflow.com/questions/58794639/how-to-make-follower-following-system-with-django-model
 # https://stackoverflow.com/questions/2201598/how-to-define-two-fields-unique-as-coupl
+# https://stackoverflow.com/questions/4294039/how-can-i-store-an-array-of-strings-in-a-django-model
 
 
-# Changes towards Author (02/28)
-# - Added authorId, displayName
-# - Commented/ (later will delete): isServerAdmin, isAuthenticated
-# Current Own Fields: user, authorId, displayName, github, profileImg
-# Current foreignkey fields: inServer, isFriendWith (nore sure to keep or not)
+# Model representing an author
 class Author(models.Model):
     # user: one to one field 
     user = models.OneToOneField(User, on_delete=models.CASCADE, null=True)
     # authorID: ID of the author
-    id=models.CharField(primary_key=True, max_length=200)
-    host=models.CharField(max_length=200)
+    id=models.CharField(primary_key=True, max_length=1000)
+    host=models.CharField(max_length=500)
     # Added displayName field, default as empty string
     displayName=models.CharField(default="", max_length=40)
     # github and profileImage fields
     github = models.URLField(null=True, blank=True)
     profileImage = models.URLField(null=True, blank=True)
 
-    # # Fields referenced other models externally
-    # # check whether the author in a server or not
-    # inServer=models.ForeignKey('Server', blank='True', on_delete=models.SET_NULL, null=True)
-
-    # # Not sure to keep or not
-    # # Check friends status; self-reference: Can't set it to false, left it true for now
-    # isFriendWith=models.ForeignKey('self', on_delete=models.SET_NULL, null=True)
-
-    """
-    # PLAN TO DELETE isServerAdmin, not sure is it safe to delete so will keep it for now
-    # No longer need because server admin will be a superuser
-
-    # Modified models by added more fields
-    # classify admin from other regualar authors
-    isServerAdmin=models.BooleanField(default=False)
-    # future admin fucntionalities (to be added)
-    """
-    """
-    # PLAN TO DELETE isAuthenticated, not sure is it safe to delete so will keep it for now
-    # No longer need because the authentication will be handled elsewhere
-    # check authenticatd user (TO BE REMOVE)
-    isAuthenticated=models.BooleanField(default=False)
-    """
-
-# List of servers authenciated to commuicate with us!
+# Model representing servers authenciated to commuicate with us!
 class Server(models.Model):
     # server Address, provided to us by connecting node
     serverAddress=models.URLField(primary_key=True)
@@ -87,7 +57,7 @@ class Server(models.Model):
     # Is this server the local one?
     isLocalServer=models.BooleanField()
 
-# Model to store the auth info of all server we are connecting with
+# Model to store the auth info of all servers we are connecting with
 class Connection(models.Model):
     # API address, provided to us by node we want to connect to, 
     # simply append API endpoint path to the end of this
@@ -95,11 +65,23 @@ class Connection(models.Model):
     # Creditentals used to connect to API of node, add this to Authorization header
     # when sending HTTP requests to fetch external data
     apiCreds=models.TextField(blank=True)
+    hostName=models.URLField()
 
 # Model to store relationships between followers
 # Source:
-# https://stackoverflow.com/questions/58794639/how-to-make-follower-following-system-with-django-model
-# https://stackoverflow.com/questions/2201598/how-to-define-two-fields-unique-as-couple
+# StackOverflow
+# Author: Enthusiast Martin
+# Author URL: https://stackoverflow.com/users/9987957/enthusiast-martin
+# Title: How to make follower following system with django model
+# URL: https://stackoverflow.com/questions/58794639/how-to-make-follower-following-system-with-django-model
+# Date: November 11, 2019
+#
+# StackOverflow
+# Author: Jens
+# Author URL: https://stackoverflow.com/users/190823/jens 
+# Title: How to define two fields "unique" as couple
+# URL: https://stackoverflow.com/questions/2201598/how-to-define-two-fields-unique-as-couple
+# Date: Feb 4, 2010
 class UserFollowing(models.Model):
     user_id = models.ForeignKey(Author, related_name="following", on_delete=models.CASCADE)
     following_user_id = models.ForeignKey(Author, related_name="followers", on_delete=models.CASCADE)
@@ -108,7 +90,10 @@ class UserFollowing(models.Model):
 
 # Model demonstarting a follow request sent to the inbox of an author on this server:
 # Source:
-# https://medium.com/analytics-vidhya/add-friends-with-689a2fa4e41d
+# Author: Abhik
+# Date: Oct 25, 2020
+# Title: Step by Step guide to add friends with Django
+# URL: https://medium.com/analytics-vidhya/add-friends-with-689a2fa4e41d
 class FollowRequest(models.Model):
     sender = models.ForeignKey(Author, related_name="send_requests", on_delete=models.CASCADE)
     target = models.ForeignKey(Author, related_name="recievced_requests", on_delete=models.CASCADE)
@@ -118,10 +103,10 @@ class FollowRequest(models.Model):
 # Posts stored on this server are posts made by authors hosted on this server, and any post
 # sent to the inbox of an author on this server
 class Post(models.Model):
-    id = models.CharField(primary_key=True, max_length=200)
-    title = models.CharField(max_length=50)
-    source = models.CharField(max_length=50)
-    origin = models.CharField(max_length=50)
+    id = models.CharField(primary_key=True, max_length=1000)
+    title = models.CharField(max_length=200)
+    source = models.CharField(max_length=200)
+    origin = models.CharField(max_length=200)
     description = models.TextField()
     contentType = models.TextField(choices=[
         ("text/plain", "plaintext"),
@@ -134,36 +119,20 @@ class Post(models.Model):
     content = models.TextField()
     # author to access the author
     author = models.ForeignKey(Author, on_delete=models.CASCADE, related_name="posts")
-    # added categories: use arrayfield from postgres
-    # categories=ArrayField(models.CharField(max_length=50), default=list)
-    # # OR
-    categories=models.CharField(max_length=100)
+    categories=models.CharField(max_length=250)
     published = models.DateTimeField(auto_created=True)
-    visibility=models.CharField(max_length=30, choices=[
+    visibility=models.CharField(max_length=50, choices=[
         ("VISIBLE", "Public"),
         ("FRIENDS","Private")
     ])
     unlisted = models.BooleanField()
 
-    # isLiked=models.BooleanField(default=False)
-
-    # # Foreignkey fields:
-    # # the server that the post belongs too
-    # inServer=models.ForeignKey(Server, on_delete=models.SET_NULL, null=True)
-    # # whether the post is liked or not
-    # isLiked=models.BooleanField(default=False)
-
-# Changes towards Comment (02/28):
-# - Added fields: author
-# - changed name:  date (to published)
-# - Commented/ (later will delete): N/A
-# Current Own Fields: author, commentID, content, contentType, published, parentPostID
-# Current foreignkey fields: isLiked
+# Model representing a comment
 class Comment(models.Model):
-    id = models.CharField(primary_key=True, max_length=200)
+    id = models.CharField(primary_key=True, max_length=500)
     author = models.ForeignKey(Author, on_delete=models.CASCADE, related_name="comments")
   
-    content = models.TextField()
+    comment = models.TextField()
     contentType = models.TextField(choices=[
         ("text/plain", "plaintext"),
         ("text/markdown", "markdown")
@@ -172,39 +141,21 @@ class Comment(models.Model):
     published = models.DateTimeField(auto_created=True)
     parentPost = models.ForeignKey(Post, on_delete=models.CASCADE, related_name="comments")
     
-    # # Modified models by added more fields
-    # # whether the comment is liked or not
-    # isLiked=models.BooleanField(default=False)
 
-# Changes towards Like (02/28):
-# - Added fields: summary, author
-# - changed: N/A
-# - Commented/ (later will delete): N/A
-# Current Own Fields: author, commentID, content, contentType, published, parentPostID
-# Current foreignkey fields: isLiked
+# Model representing a like
 class Like(models.Model):
-    id = models.CharField(primary_key=True, max_length=200)
-    likeType = models.CharField(max_length=20)
+    id = models.CharField(primary_key=True, max_length=500)
+    likeType = models.CharField(max_length=50)
     author = models.ForeignKey(Author, on_delete=models.CASCADE, related_name="liked")
     parentPost = models.ForeignKey(Post, on_delete=models.CASCADE, related_name="likes",null=True, blank=True)
     parentComment = models.ForeignKey(Comment, on_delete=models.CASCADE, related_name="likes", null=True, blank=True)
     published = models.DateTimeField(auto_created=True)
 
 
-# Changes towards Inbox (02/28):
-# - Added fields: N/A
-# - changed name: owner (to author)
-# - Commented/ (later will delete): like, comment, content, contentType
-# Current Own Fields: inboxID, authorm post
-# Current foreignkey fields: isLiked
+# Model representing an inbox
 class Inbox(models.Model):
-    # EDIT: 
-    inboxID=models.CharField(primary_key=True, max_length=200, default="")
-
+    inboxID=models.CharField(primary_key=True, max_length=500, default="")
     author=models.ForeignKey(Author, on_delete=models.CASCADE)
-    # owner=models.ForeignKey(Author, on_delete=models.CASCADE)
-
-    # Posts
     posts=models.ManyToManyField(Post, blank=True)
     requests = models.ManyToManyField(FollowRequest, blank=True)
     comments= models.ManyToManyField(Comment, blank=True)

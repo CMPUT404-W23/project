@@ -22,8 +22,8 @@
 
 from django.contrib import admin
 from .models import Author, Comment, Like, Post, Server, Inbox, FollowRequest, UserFollowing, Connection
-# Register your models here.
 
+# Register your models here.
 admin.site.register(Author)
 admin.site.register(Comment)
 admin.site.register(Like)

@@ -5,9 +5,14 @@
         <form method="post">
             {% csrf_token %}
             <div class="m-3">
+                <br>
                 <h1>
-                    Create a Post!
+                    Create a Post & Share it With Others!
                 </h1>
+                <br>
+                <h5 class="create-post-sub-title"><i>Fields With Asterisk(*) are Required to be Filled Out</i></h5>
+                <br>
+
                 <!--Post Type-->
                 <div class="mb-3">
                     <label for="PostType" class="form-label">Post Type:</label>
@@ -26,21 +31,21 @@
                 </div>
                 <!--Title-->
                 <div class="mb-3">
-                    <label for="Title" class="form-label">Title*:</label>
+                    <label for="Title" class="form-label">*Title:</label>
                     <input class="form-control" id="Title" style="width:80%" type="text"
-                        placeholder="Please enter title of post"></input>
+                        placeholder="Please Enter The Title of Your Post Here..."></input>
                 </div>
                 <!--Description-->
                 <div class="mb-3">
-                    <label for="Description" class="form-label">Description*:</label>
+                    <label for="Description" class="form-label">*Description <u>(if post's type is text)</u> / Content <u>(if post's type is image):</u></label>
                     <textarea class="form-control" id="Description" style="width:80%" type="text"
-                        placeholder="Please enter post description"></textarea>
+                        placeholder="Please Enter The Description of Your Post Here..."></textarea>
                 </div>
                 <!--Content-->
                 <div class="mb-3" id="post-content">
-                    <label for="Content" class="form-label">Content*:</label>
+                    <label for="Content" class="form-label">*Content:</label>
                     <textarea class="form-control" id="Content" style="width:80%" type="text"
-                        placeholder="Please enter content of post"></textarea>
+                        placeholder="Please Enter The Content of Your Post Here..."></textarea>
                 </div>
                 <!--Image Post-->
                 <div class="mb-3" id="post-image" hidden>
@@ -50,16 +55,16 @@
                 </div>
                 <!--Categories-->
                 <div class="mb-3">
-                    <label for="Categories" class="form-label">Categories*:</label>
+                    <label for="Categories" class="form-label">*Categories (If you have multiple categories, please separate them with a comma):</label>
                     <textarea class="form-control" id="Categories" style="width:80%" type="text"
-                        placeholder="Please enter categories of post (seperated by commas)"></textarea>
+                        placeholder="Please Enter The Categories of Your Post Here..."></textarea>
                 </div>
                 <!--Visibility-->
                 <div class="mb-3">
-                    <label for="Visibility" class="form-label">Visibility*:</label>
+                    <label for="Visibility" class="form-label">*Visibility:</label>
                     <select class="form-select" style="width:80%" id="Visibility">
                         <option selected value="VISIBLE"> Visible</option>
-                        <option value="PRIVATE">Private</option>
+                        <option value="FRIENDS">Private</option>
                     </select>
                 </div>
                 <div class id="target-author" class="mb-3" hidden>
@@ -85,7 +90,24 @@
 </main>
 
 <script>
-    fetch("/api/authors/{{user.id}}/followers/", {
+    // Source: 
+    // StackOverflow 
+    // Author: xyres
+    // Author URL: https://stackoverflow.com/users/1925257/xyres
+    // Title: How to use the context variables passed from Django in javascript?
+    // Date: Apr 9, 2017  
+    // URL: https://stackoverflow.com/questions/43305020/how-to-use-the-context-variables-passed-from-django-in-javascript
+    var author = JSON.parse('{{author|escapejs}}');
+    var followers;
+    var connections = JSON.parse('{{connections|escapejs}}');
+    // Source:
+    // Title: How to Parse URL in JavaScript: hostname, pathname, query, hash
+    // Author: Dmitri Pavlutin
+    // Date: January 28, 2023
+    // URL: https://dmitripavlutin.com/parse-url-javascript/
+    let author_url = new URL(author.id)
+    let author_relative_path = author_url.pathname
+    fetch("/api" +  author_relative_path + "/followers/", {
             headers: {
                 "Content-Type": "application/json",
                 "X-CSRFToken": "{{ csrf_token }}",
@@ -93,14 +115,16 @@
             }})
     .then((response) => response.json())
     .then((data) => {
-        let followers = data.items;
+        followers = data.items;
+        console.log(followers);
         let targetSelect = document.getElementById("target");
-        for (let follower in followers) {
+        for (let follower of followers) {
             let option = document.createElement("option")
             option.value = follower.id;
             option.innerHTML = follower.displayName;
             targetSelect.appendChild(option);
         }
+        followers.push(author);
     })
     .catch((error) => {
         console.error("Fetch error:", error);
@@ -121,7 +145,7 @@
         const visType = document.getElementById("Visibility").value;
         if (visType == "VISIBLE") {
             document.getElementById("target-author").hidden = true;
-        } else if (visType == "PRIVATE") {
+        } else if (visType == "FRIENDS") {
             document.getElementById("target-author").hidden = false;
         }
     });
@@ -136,7 +160,6 @@
     }
 
     async function toBase64() {
-        console.log("base64")
         return new Promise((resolve, reject) => {
             const input = document.getElementById("ImagePost");
             const file = input.files[0];
@@ -156,7 +179,14 @@
     }
 
     async function postData() {
-        const url = "/api/authors/{{user.id}}/posts/"
+        // Source:
+        // Title: How to Parse URL in JavaScript: hostname, pathname, query, hash
+        // Author: Dmitri Pavlutin
+        // Date: January 28, 2023
+        // URL: https://dmitripavlutin.com/parse-url-javascript/
+        let author_url = new URL(author.id);
+        author_relative_path = author_url.pathname
+        const url = "/api" + author_relative_path + "/posts/"
         let postContent, contentType;
         if (document.getElementById("ImagePost").value) { // if post is an image
             const base64String = await toBase64();
@@ -190,11 +220,76 @@
             },
             body: JSON.stringify(data),
         });
+        const response_txt = await response.text();
+        if (document.getElementById("Visibility").value == "FRIENDS" 
+        && document.getElementById("target").value != "ALL") {
+            await sendToInbox(document.getElementById("target").value, JSON.parse(response_txt));
+            await sendToInbox(author.id, JSON.parse(response_txt));
+        }
+        else {
+            for (follower of followers) {
+                // Send post to all followers of the user
+                await sendToInbox(follower.id, JSON.parse(response_txt));
+            }
+        }
         if (response.status == 201) {
             displayAlert("alert-success", "Post created successfully!");
             window.location.href = "/";
         } else {
             displayAlert("alert-danger", "Post creation failed!");
+        }
+    }
+    async function sendToInbox(id, data) {
+        // Send post to a user's inbox
+        // Source:
+        // Title: How to Parse URL in JavaScript: hostname, pathname, query, hash
+        // Author: Dmitri Pavlutin
+        // Date: January 28, 2023
+        // URL: https://dmitripavlutin.com/parse-url-javascript/
+        let url = new URL(id);
+        let author_relative_path = url.pathname + "/"
+        for (connection of connections) {
+            if ("https://" + url.hostname == connection.hostName) {
+                author_relative_path = author_relative_path.replace("/api","");
+                author_relative_path = author_relative_path.replace("/main","");
+                let inbox_url = connection.apiAddress + author_relative_path + "inbox/";
+                if (connection.hostName == "https://social-distribution-w23-t17.herokuapp.com") {
+                    inbox_url = connection.apiAddress + "/authors/" + id + "/inbox/"
+                }
+                if (connection.hostName == "https://social-distribution-media.herokuapp.com") {
+                    data["categories"] = data["categories"].split()
+                    data = {
+                        "@context": "sending to inbox",
+                        "summary": data.author.displayName + " created a post!",
+                        "type": "post",
+                        "author": data.author,
+                        "object":data
+                    }
+                    inbox_url = connection.apiAddress + author_relative_path + "inbox";
+                }
+                fetch(inbox_url, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRFToken": "{{ csrf_token }}",
+                        "Authorization": connection.apiCreds
+                    },
+                    body: JSON.stringify(data),
+                });
+                break;
+            }
+            else if ("https://" + url.hostname == "https://socialdistcmput404.herokuapp.com") {
+                fetch("/api" + author_relative_path + "inbox/", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRFToken": "{{ csrf_token }}",
+                        "Authorization": "Token 516e5c3d636f46228edb8f09b9613d5b4b166816"
+                    },
+                    body: JSON.stringify(data),
+                });
+                break;
+            }
         }
     }
 

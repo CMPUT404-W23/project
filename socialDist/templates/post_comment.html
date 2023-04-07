@@ -1,0 +1,158 @@
+{% extends 'base.html' %}
+{% block content %}
+<main>
+    <div class="container-md mt-2">
+        <form method="post">
+            {% csrf_token %}
+            <div class="m-3">
+                <h1>
+                    Post a comment!
+                </h1>
+                <div class="mb-3">
+                    <label for="Comment" class="form-label"> Comment: </label>
+                    <textarea class="form-control" id="Comment" style="width:80%" type="text"
+                        placeholder="Please enter comment"></textarea>   
+                    <!--Content Type-->
+                    <div class="mb-3" id="content-type">
+                        <label for="ContentType" class="form-label">Content Type:</label>
+                        <select class="form-select" id="ContentType" aria-label="Default select example" style="width:80%">
+                            <option selected value="text/plain">Plain Text</option>
+                            <option value="text/markdown">Markdown</option>
+                        </select>
+                    </div>            
+
+                </div>
+                <div id="save-alert"></div>
+                {% if hostName == "socialdistcmput404.herokuapp.com" or hostName == null %}
+                <button type="button" class="btn btn-dark" id="postForeign" onclick="postComment('internal')">Post!</button>
+                {% else %}
+                <button type="button" class="btn btn-dark" id="postForeign" onclick="postComment('external')">Post!</button>
+                {% endif %}
+            </div>
+        </form>
+    </div>
+</main>
+<script>
+    const commonHeaders = {
+        "Content-Type": "application/json",
+        "X-CSRFToken": "{{ csrf_token }}",
+        "Authorization": "Token 516e5c3d636f46228edb8f09b9613d5b4b166816"
+    };
+    
+    function displayAlert(alertType, alertMessage) {
+        alertContainer = document.getElementById("save-alert");
+        alertContainer.innerHTML = "";
+        saveAlert = document.createElement("div");
+        saveAlert.classList.add("alert", alertType);
+        saveAlert.innerText = alertMessage;
+        alertContainer.appendChild(saveAlert);
+    };
+
+    async function postComment(type){
+        if (type == 'internal'){
+            // Source:
+            // Title: How to Parse URL in JavaScript: hostname, pathname, query, hash
+            // Author: Dmitri Pavlutin
+            // Date: January 28, 2023
+            // URL: https://dmitripavlutin.com/parse-url-javascript/
+            const post_url = new URL("{{post.id}}");
+            const author_url = new URL("{{post.author.id}}");
+            const author_relative_path = author_url.pathname;
+            const comment_url = "/api" + post_url.pathname + "/comments/";
+            // Source: 
+            // StackOverflow 
+            // Author: xyres
+            // Author URL: https://stackoverflow.com/users/1925257/xyres
+            // Title: How to use the context variables passed from Django in javascript?
+            // Date: Apr 9, 2017  
+            // URL: https://stackoverflow.com/questions/43305020/how-to-use-the-context-variables-passed-from-django-in-javascript
+            const data = {
+                comment : document.getElementById("Comment").value,
+                contentType : document.getElementById("ContentType").value,
+                author : JSON.parse('{{author|escapejs}}'),
+            };
+            const comment_response = await fetch(comment_url, {
+                method: "POST",
+                headers: commonHeaders,
+                body: JSON.stringify(data),
+            });
+            const inbox_url = "/api" + author_relative_path + "/inbox/";
+            const inbox_response = await fetch(inbox_url, {
+                method: "POST",
+                headers: commonHeaders,
+                body:  await comment_response.text()
+            });
+            if (comment_response.status == 201) {
+                displayAlert("alert-success", "Comment posted successfully!");
+                window.location.href = post_url.origin
+            } else {
+                displayAlert("alert-danger", "Posting comment failed!");
+            }
+        } else if (type == 'external'){
+            console.log("{{foreignauthor_id}}","{{hostName}}")
+            const foreignauthor_id = "{{foreignauthor_id}}"
+            const post_id = "{{post_id}}"
+            const hostname = "https://" + "{{hostName}}"
+            let comments_url = `${hostname}/authors/${foreignauthor_id}/posts/${post_id}/comments/`;
+            if (hostname === "https://social-distribution-media.herokuapp.com") {
+                comments_url = `${hostname}/api/authors/${foreignauthor_id}/posts/${post_id}/comments/`;
+            }
+            let authorization = "Token 516e5c3d636f46228edb8f09b9613d5b4b166816";
+            //Authorization
+            var listOfConnections = JSON.parse('{{connections|escapejs}}');
+            const remoteConnection = listOfConnections.find(connection => connection.hostName === hostname);
+            authorization = remoteConnection.apiCreds;
+            // Source: 
+            // StackOverflow 
+            // Author: xyres
+            // Author URL: https://stackoverflow.com/users/1925257/xyres
+            // Title: How to use the context variables passed from Django in javascript?
+            // Date: Apr 9, 2017  
+            // URL: https://stackoverflow.com/questions/43305020/how-to-use-the-context-variables-passed-from-django-in-javascript
+            let comment_author = JSON.parse('{{author|escapejs}}');
+            let uuid = crypto.randomUUID();
+            let comment_id = comments_url + uuid
+            let data = {
+                "id": comment_id,
+                "type": "comment",
+                "author": comment_author,
+                "comment": document.getElementById("Comment").value,
+                "contentType" : document.getElementById("ContentType").value,
+            }
+            if (hostname === "https://social-distribution-media.herokuapp.com") {
+                data = {
+                    "@context": "Post Comment",
+                    "summary": comment_author.displayName + " commented on your post",
+                    "type": "comment",
+                    "actor": comment_author,
+                    "object": data,
+                }
+            }
+            // POST a like object to the author's inbox
+            let inbox_url = `${remoteConnection.apiAddress}/authors/${foreignauthor_id}/inbox/`
+            let foreign_author_url = `${hostname}/authors/${foreignauthor_id}`;
+            if (hostname === "https://social-distribution-media.herokuapp.com") {
+                inbox_url = `${remoteConnection.apiAddress}/authors/${foreignauthor_id}/inbox`
+            }
+            else if (hostname === "https://social-distribution-w23-t17.herokuapp.com") {
+                inbox_url = `${remoteConnection.apiAddress}/authors/${foreign_author_url}/inbox/`
+            }
+            let response = await fetch(inbox_url, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": "{{ csrf_token }}",
+                    "Authorization": authorization
+                },
+                body: JSON.stringify(data)
+            })
+            if (response.status == 200 || response.status == 201 || response.status == 202) {
+                displayAlert("alert-success", "Comment posted successfully!");
+            } else {
+                displayAlert("alert-danger", "Posting comment failed!");
+            }
+        }
+        window.location.href = "/";    
+    };
+</script>
+{% endblock content %}
