@@ -64,7 +64,7 @@ urlpatterns = [
     path("authors/<str:author_id>/posts/<str:post_id>/comments/",view=localComment, name="local_comment" ),
     path("posts/foreign/<str:hostName>/authors/<str:foreignauthor_id>/posts/<str:post_id>/comments/",view=foreignComment, name="foreign_comment" )
 ]
-# Automatically add redirections
+# Automatically add redirections for links that could break without the ending slash
 # set number of items to add to itself from the beginning
 final_index = 4
 urlpatterns += [path(each[:-1], RedirectView.as_view(url=each)) 
