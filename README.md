@@ -48,6 +48,9 @@ To gain authorization to access API:
 - Team 7:
   - API endpoint: https://sd-7-433-api.herokuapp.com/api/
 
+## Video Demo
+- URL: https://youtu.be/KUv8hsb_6M8
+
 ## Resources/ References Used
 
 - Styles from [Bootstrap](https://getbootstrap.com/https://getbootstrap.com/)
