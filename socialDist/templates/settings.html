@@ -143,7 +143,11 @@
       displayAlert("alert-danger", "Username cannot be blank.");
       return;
     }
-
+    // Source:
+    // Title: How to Parse URL in JavaScript: hostname, pathname, query, hash
+    // Author: Dmitri Pavlutin
+    // Date: January 28, 2023
+    // URL: https://dmitripavlutin.com/parse-url-javascript/
     let author_url = new URL("{{author.id}}")
     let author_relative_path = author_url.pathname
     const response = await fetch("/api" + author_relative_path + "/", {
