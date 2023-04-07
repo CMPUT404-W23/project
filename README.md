@@ -4,10 +4,12 @@ URL to web appilication:
 https://socialdistcmput404.herokuapp.com/
 
 Admin account (Note: Is not an author, only use for adminstrative actions and for testing API):
+
 - Username: admin
 - Password: cmput404
 
 Testing account (Use this to test the site's features):
+
 - Username: demoTest
 - Password: cmput404
 
@@ -19,7 +21,7 @@ Testing account (Use this to test the site's features):
 - Will Vincent, [Django Login and Logout Tutorial](https://learndjango.com/tutorials/django-login-and-logout-tutorial)
 - little_birdie [answer on Stack Overflow](https://stackoverflow.com/questions/31601202/django-rest-framework-returns-200-ok-even-though-login-request-has-incorrect-cre)
 - Enabling CORS: https://www.stackhawk.com/blog/django-cors-guide/ and https://github.com/adamchainz/django-cors-headers
-- Don Esrom, [Deploying Your Django Web App to Heroku](https://sweetcode.io/deploying-your-django-web-app-to-heroku/) 
+- Don Esrom, [Deploying Your Django Web App to Heroku](https://sweetcode.io/deploying-your-django-web-app-to-heroku/)
 - CodeJava, [How to Enable Secure Connection (HTTPS) for Heroku Apps](https://www.codejava.net/heroku/enable-secure-connection-for-apps)
 - StackHawk, [Django CORS Guide: What It Is and How to Enable It](https://www.stackhawk.com/blog/django-cors-guide/)
 - Abhik, [Step by Step guide to add friends with Django](https://medium.com/analytics-vidhya/add-friends-with-689a2fa4e41d)
@@ -42,6 +44,8 @@ Testing account (Use this to test the site's features):
 - Django CORS done with: https://github.com/adamchainz/django-cors-headers
 - OPEN API Specification generated with: https://github.com/axnsan12/drf-yasg
 
+- Django Rest Framework - Testing : https://www.django-rest-framework.org/api-guide/testing/
+
 ## API Access
 
 Access the API with:  
@@ -56,21 +60,21 @@ To gain authorization to access API:
 - Provide the following header in the HTTP request to API: `Authorization: Token <provided Token>`
 
 Groups connected with:
+
 - Team 2:
-    - API endpoint: https://social-distribution-media.herokuapp.com/api
-    - Account on Team 2:
-        - Username: johnnyappleseed
-        - Password: password
+  - API endpoint: https://social-distribution-media.herokuapp.com/api
+  - Account on Team 2:
+    - Username: johnnyappleseed
+    - Password: password
 - Team 17:
-    - API endpoint: https://social-distribution-w23-t17.herokuapp.com/
-    - Account on Team 17:
-        - Username: team10on17
-        - Password: cmput404
+  - API endpoint: https://social-distribution-w23-t17.herokuapp.com/
+  - Account on Team 17:
+    - Username: team10on17
+    - Password: cmput404
 - Team 5:
-    - API endpoint: https://social-t30.herokuapp.com/api/
-    - Account on Team 5:
-        - Username: team10
-        - Password: england123
+  - API endpoint: https://social-t30.herokuapp.com/api/
+  - Account on Team 5:
+    - Username: team10
+    - Password: england123
 - Team 7:
-    - API endpoint: https://sd-7-433-api.herokuapp.com/api/
-   
+  - API endpoint: https://sd-7-433-api.herokuapp.com/api/
