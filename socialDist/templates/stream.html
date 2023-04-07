@@ -56,7 +56,13 @@
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
 <script>
-  //Source: https://stackoverflow.com/questions/494143/creating-a-new-dom-element-from-an-html-string-using-built-in-dom-methods-or-pro/35385518#35385518
+  // Source:
+  // StackOverflow
+  // Author: Mark Amery
+  // Author URL: https://stackoverflow.com/users/1709587/mark-amery
+  // Title: Creating a new DOM element from an HTML string using built-in DOM methods or Prototype
+  // Date: Jan 30, 2009
+  // URL: https://stackoverflow.com/questions/494143/creating-a-new-dom-element-from-an-html-string-using-built-in-dom-methods-or-pro/35385518#35385518
   function htmlToElement(html) {
     var template = document.createElement("template");
     template.innerHTML = html;
@@ -64,6 +70,11 @@
   }
   function deletePost(id) {
     // DELETE a post
+    // Source:
+    // Title: How to Parse URL in JavaScript: hostname, pathname, query, hash
+    // Author: Dmitri Pavlutin
+    // Date: January 28, 2023
+    // URL: https://dmitripavlutin.com/parse-url-javascript/
     let url = new URL(id);
     let fetch_url = "/api" + url.pathname + "/";
     fetch(fetch_url, {
@@ -76,8 +87,16 @@
       .then((response) => response.status())
       .then(window.location.reload());
   }
-  //https://www.w3docs.com/snippets/html/how-to-create-an-html-button-that-acts-like-a-link.html
+  // Source:
+  // W3Docs
+  // Title: How to Add an HTML Button that Acts Like a Link
+  // https://www.w3docs.com/snippets/html/how-to-create-an-html-button-that-acts-like-a-link.html
   function editPost(id) {
+    // Source:
+    // Title: How to Parse URL in JavaScript: hostname, pathname, query, hash
+    // Author: Dmitri Pavlutin
+    // Date: January 28, 2023
+    // URL: https://dmitripavlutin.com/parse-url-javascript/
     let url = new URL(id);
     window.location.href = url.pathname + "/edit/";
   }
@@ -85,10 +104,20 @@
   function postComment(post_id,foreignauthor_id,type) {
     if (type === 'internal'){
         console.log(post_id);
+        // Source:
+        // Title: How to Parse URL in JavaScript: hostname, pathname, query, hash
+        // Author: Dmitri Pavlutin
+        // Date: January 28, 2023
+        // URL: https://dmitripavlutin.com/parse-url-javascript/
         let url = new URL(post_id);
         window.location.href = url.pathname + "/comments/"
     } else if (type === 'external'){
         console.log(post_id,foreignauthor_id,type)
+        // Source:
+        // Title: How to Parse URL in JavaScript: hostname, pathname, query, hash
+        // Author: Dmitri Pavlutin
+        // Date: January 28, 2023
+        // URL: https://dmitripavlutin.com/parse-url-javascript/
         let url = new URL(post_id);
         let post_id = post_id.split("/").pop();
         window.location.href = `https://socialdistcmput404.herokuapp.com/posts/foreign/${url.hostname}/authors/${foreignauthor_id}/posts/${post_id}/comments`
@@ -439,10 +468,13 @@
   //   });
 
   // Github Stream
-
-  // fetch('https://api.github.com/users/Alex-Mak-MCW/events')
   // Source: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/
   const ghURL = "{{author.github}}";
+  // Source:
+  // Title: How to Parse URL in JavaScript: hostname, pathname, query, hash
+  // Author: Dmitri Pavlutin
+  // Date: January 28, 2023
+  // URL: https://dmitripavlutin.com/parse-url-javascript/
   const ghUsername = ghURL ? new URL(ghURL).pathname.replaceAll("/", "") : "";
   const url = `https://api.github.com/users/${ghUsername}/events`;
   fetch(url)

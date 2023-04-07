@@ -19,6 +19,11 @@
 </div>
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 <script>
+    // Source:
+    // Title: How to Parse URL in JavaScript: hostname, pathname, query, hash
+    // Author: Dmitri Pavlutin
+    // Date: January 28, 2023
+    // URL: https://dmitripavlutin.com/parse-url-javascript/
     let data_url = new URL("{{post.id}}");
     let data_path = data_url.pathname;
     let post;
@@ -29,11 +34,26 @@
             .then((response) => response.status())
             .then(window.location.reload())
     }
-    //https://www.w3docs.com/snippets/html/how-to-create-an-html-button-that-acts-like-a-link.html
+    // Source:
+    // W3Docs
+    // Title: How to Add an HTML Button that Acts Like a Link
+    // https://www.w3docs.com/snippets/html/how-to-create-an-html-button-that-acts-like-a-link.html
     function editPost(id) {
+        // Source:
+        // Title: How to Parse URL in JavaScript: hostname, pathname, query, hash
+        // Author: Dmitri Pavlutin
+        // Date: January 28, 2023
+        // URL: https://dmitripavlutin.com/parse-url-javascript/
         url = new URL(id)
         window.location.href = url.pathname + "/edit/"
     }
+    // Source: 
+    // StackOverflow 
+    // Author: xyres
+    // Author URL: https://stackoverflow.com/users/1925257/xyres
+    // Title: How to use the context variables passed from Django in javascript?
+    // Date: Apr 9, 2017  
+    // URL: https://stackoverflow.com/questions/43305020/how-to-use-the-context-variables-passed-from-django-in-javascript
     const current_author = JSON.parse('{{current_author|escapejs}}');
     current_author["type"] = "author";
     current_author["url"] = current_author["id"];
@@ -43,6 +63,11 @@
         .then((response) => response.json())
         .then((data) => {
             post = data;
+            // Source:
+            // Title: How to Parse URL in JavaScript: hostname, pathname, query, hash
+            // Author: Dmitri Pavlutin
+            // Date: January 28, 2023
+            // URL: https://dmitripavlutin.com/parse-url-javascript/
             post_url = new URL(post.id)
             author_url = new URL(post.author.url)
             post_relative_path = post_url.pathname + "/"
@@ -147,6 +172,11 @@
     }
 
     async function sharePost() {
+        // Source:
+        // Title: How to Parse URL in JavaScript: hostname, pathname, query, hash
+        // Author: Dmitri Pavlutin
+        // Date: January 28, 2023
+        // URL: https://dmitripavlutin.com/parse-url-javascript/
         let author_url = new URL(current_author.id)
         let author_relative_path = author_url.pathname
         let date = new Date();
@@ -169,6 +199,11 @@
 
     async function sendToInbox(id, data) {
         // Send post to a user's inbox
+        // Source:
+        // Title: How to Parse URL in JavaScript: hostname, pathname, query, hash
+        // Author: Dmitri Pavlutin
+        // Date: January 28, 2023
+        // URL: https://dmitripavlutin.com/parse-url-javascript/
         let url = new URL(id);
         let author_relative_path = url.pathname + "/"
         for (connection of connections) {

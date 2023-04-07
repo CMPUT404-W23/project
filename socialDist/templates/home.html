@@ -29,14 +29,27 @@
 
     function deletePost(id) {
         // DELETE a post
+        // Source:
+        // Title: How to Parse URL in JavaScript: hostname, pathname, query, hash
+        // Author: Dmitri Pavlutin
+        // Date: January 28, 2023
+        // URL: https://dmitripavlutin.com/parse-url-javascript/
         url = new URL(id)
         fetch_url = "/api" + url.pathname + "/"
         fetch(fetch_url, { headers: new Headers({ "X-CSRFToken": "{{ csrf_token }}", "Authorization": "Token 516e5c3d636f46228edb8f09b9613d5b4b166816" }), method: 'DELETE' })
             .then((response) => response.status())
             .then(window.location.reload())
     }
-    //https://www.w3docs.com/snippets/html/how-to-create-an-html-button-that-acts-like-a-link.html
+    // Source:
+    // W3Docs
+    // Title: How to Add an HTML Button that Acts Like a Link
+    // https://www.w3docs.com/snippets/html/how-to-create-an-html-button-that-acts-like-a-link.html
     function editPost(id) {
+        // Source:
+        // Title: How to Parse URL in JavaScript: hostname, pathname, query, hash
+        // Author: Dmitri Pavlutin
+        // Date: January 28, 2023
+        // URL: https://dmitripavlutin.com/parse-url-javascript/
         url = new URL(id)
         window.location.href = url.pathname + "/edit/"
     }
@@ -113,7 +126,11 @@
     async function likeComment(i) {
         // POST a like object to the author's inbox
         const comment = commentsList[i];
-        // const authorID = comment.author.id.split("/").pop();
+        // Source:
+        // Title: How to Parse URL in JavaScript: hostname, pathname, query, hash
+        // Author: Dmitri Pavlutin
+        // Date: January 28, 2023
+        // URL: https://dmitripavlutin.com/parse-url-javascript/
         const postAuthourID = new URL(comment.id).pathname.split("/")[2];
         const hostname = comment.author.host;
         let authorization = "Token 516e5c3d636f46228edb8f09b9613d5b4b166816";
@@ -154,10 +171,20 @@
     function postComment(post_id, foreignauthor_id, type) {
         if (type === 'internal') {
             console.log(post_id)
+            // Source:
+            // Title: How to Parse URL in JavaScript: hostname, pathname, query, hash
+            // Author: Dmitri Pavlutin
+            // Date: January 28, 2023
+            // URL: https://dmitripavlutin.com/parse-url-javascript/
             url = new URL(post_id)
             window.location.href = url.pathname + "/comments/"
         } else if (type === 'external') {
             console.log(post_id, foreignauthor_id, type)
+            // Source:
+            // Title: How to Parse URL in JavaScript: hostname, pathname, query, hash
+            // Author: Dmitri Pavlutin
+            // Date: January 28, 2023
+            // URL: https://dmitripavlutin.com/parse-url-javascript/
             url = new URL(post_id)
             post_id = post_id.split("/").pop()
             window.location.href = `https://socialdistcmput404.herokuapp.com/posts/foreign/${url.hostname}/authors/${foreignauthor_id}/posts/${post_id}/comments`
@@ -170,6 +197,11 @@
         const authorID = comment.author.id.split("/").pop();
         const hostname = comment.author.host;
         let authorization = "Token 516e5c3d636f46228edb8f09b9613d5b4b166816";
+        // Source:
+        // Title: How to Parse URL in JavaScript: hostname, pathname, query, hash
+        // Author: Dmitri Pavlutin
+        // Date: January 28, 2023
+        // URL: https://dmitripavlutin.com/parse-url-javascript/
         let url = `${hostname}/api${new URL(comment.id).pathname}/likes`;
         console.log(`${hostname}${comment.id}/likes`)
         if (hostname == "https://socialdistcmput404.herokuapp.com/") { // not a remote author
@@ -229,6 +261,11 @@
                         content = `<p class="card-text">${post.content}</p>`;
                     }
                 }
+                // Source:
+                // Title: How to Parse URL in JavaScript: hostname, pathname, query, hash
+                // Author: Dmitri Pavlutin
+                // Date: January 28, 2023
+                // URL: https://dmitripavlutin.com/parse-url-javascript/
                 post_url = new URL(post.id);
                 author_url = new URL(post.author.url);
                 post_relative_path = post_url.pathname + "/";
@@ -237,18 +274,6 @@
                 post_arr = post_url.pathname.split("/");
                 post_id = post_arr[post_arr.length - 1];
                 author_id = author_arr[author_arr.length - 1];
-
-                // OLD CODE under card-body
-                // <h5 class="card-title"><a href="${post_relative_path}">${post.title}</a></h5>
-                // <h6 class="card-subtitle mb-2 text-muted"><a href="${author_relative_path}">${post.author.displayName}</a></h6>
-                // <h6 class="card-subtitle mb-2 text-muted">${post.description}</h6>
-                // <span class="badge bg-secondary">${post.categories}</span>
-                // ${content}
-                // <button type="button" class="btn btn-secondary btn-sm" id="like-btn-${index}-internal" onclick="likePost(${index}, 'internal')">
-                //     <i class="fa-regular fa-heart"></i>
-                // </button>`
-
-                // HTML to show posts (part to fix)
 
                 if (post.contentType.startsWith("image")) {
                     display_posts = `
@@ -327,6 +352,11 @@
         const post = source[i];
         const authorURL = post.author.id;
         const authorID = post.author.id.split("/").pop();
+        // Source:
+        // Title: How to Parse URL in JavaScript: hostname, pathname, query, hash
+        // Author: Dmitri Pavlutin
+        // Date: January 28, 2023
+        // URL: https://dmitripavlutin.com/parse-url-javascript/
         const hostname = type === "external" ? "https://" + new URL(post.author.id).hostname : "";
         let url = `${hostname}/api/authors/${authorID}/inbox/`;
         if (hostname === "https://social-distribution-w23-t17.herokuapp.com") {
@@ -463,11 +493,17 @@
             });
     }
 
+    // Sources:
     // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/Date
     // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/toISOString
     async function sharePost(i, type) {
         const source = type === "internal" ? posts : externalPosts;
         const post = source[i];
+        // Source:
+        // Title: How to Parse URL in JavaScript: hostname, pathname, query, hash
+        // Author: Dmitri Pavlutin
+        // Date: January 28, 2023
+        // URL: https://dmitripavlutin.com/parse-url-javascript/
         let author_url = new URL(current_author.id)
         let author_relative_path = author_url.pathname
         let date = new Date();
@@ -491,6 +527,11 @@
 
     async function sendToInbox(id, data) {
         // Send post to a user's inbox
+        // Source:
+        // Title: How to Parse URL in JavaScript: hostname, pathname, query, hash
+        // Author: Dmitri Pavlutin
+        // Date: January 28, 2023
+        // URL: https://dmitripavlutin.com/parse-url-javascript/
         let url = new URL(id);
         let author_relative_path = url.pathname + "/"
         for (connection of listOfConnections) {
@@ -540,7 +581,13 @@
     }
 
     fetchExternalPosts();
-    //Source: https://stackoverflow.com/questions/494143/creating-a-new-dom-element-from-an-html-string-using-built-in-dom-methods-or-pro/35385518#35385518
+    //Source: 
+    // StackOverflow
+    // Author: Mark Amery
+    // Author URL: https://stackoverflow.com/users/1709587/mark-amery
+    // Title: Creating a new DOM element from an HTML string using built-in DOM methods or Prototype
+    // Date: Jan 30, 2009
+    // URL: https://stackoverflow.com/questions/494143/creating-a-new-dom-element-from-an-html-string-using-built-in-dom-methods-or-pro/35385518#35385518
     function htmlToElement(html) {
         var template = document.createElement('template');
         template.innerHTML = html;
@@ -548,10 +595,16 @@
     }
 
     async function fetchExternalPosts() {
+        // Source: 
+        // StackOverflow 
+        // Author: xyres
+        // Author URL: https://stackoverflow.com/users/1925257/xyres
+        // Title: How to use the context variables passed from Django in javascript?
+        // Date: Apr 9, 2017  
+        // URL: https://stackoverflow.com/questions/43305020/how-to-use-the-context-variables-passed-from-django-in-javascript
         var listOfConnections = JSON.parse('{{connections|escapejs}}');
         let i = 0;
-        // fetch foreign posts and render
-        //Source: https://stackoverflow.com/questions/43305020/how-to-use-the-context-variables-passed-from-django-in-javascript
+        // fetch foreign posts and render 
         for (connection of listOfConnections) {
             try {
                 let returnedData;
@@ -583,7 +636,11 @@
                     continue
                 }
                 for (data of returnedDataList.items) {
-                    // https://dmitripavlutin.com/parse-url-javascript/
+                    // Source:
+                    // Title: How to Parse URL in JavaScript: hostname, pathname, query, hash
+                    // Author: Dmitri Pavlutin
+                    // Date: January 28, 2023
+                    // URL: https://dmitripavlutin.com/parse-url-javascript/
                     try {
                         let data_url = new URL(data.id);
                         let data_path = data_url.pathname;
@@ -646,23 +703,15 @@
                                 }
                                 const post_id = post.id.split("/").pop()
                                 const author_id = post.author.id.split("/").pop()
+                                // Source:
+                                // Title: How to Parse URL in JavaScript: hostname, pathname, query, hash
+                                // Author: Dmitri Pavlutin
+                                // Date: January 28, 2023
+                                // URL: https://dmitripavlutin.com/parse-url-javascript/
                                 const post_url = new URL(post.id)
                                 const host_name = post_url.hostname
                                 getComment(author_id, post_id, host_name, 'external')
                                 getLikes(author_id,post_id,host_name,'external')
-                                // OLD htmlElement:
-                                // <div class="card my-3">
-                                //     <div class="card-body">
-                                //         <h5 class="card-title"><a href="${post.id}">${post.title}</a></h5>
-                                //         <h6 class="card-subtitle mb-2 text-muted"><a href="${post.author.url}">${post.author.displayName}</a></h6>
-                                //         <h6 class="card-subtitle mb-2 text-muted">${post.description}</h6>
-                                //         <span class="badge bg-secondary">${post.categories}</span>
-                                //         ${content}
-                                //         <button type="button" class="btn btn-secondary btn-sm" id="like-btn-${i}-external" onclick="likePost(${i}, 'external')">
-                                //             <i class="fa-regular fa-heart"></i>
-                                //         </button>
-                                //     </div>
-                                // </div>
 
                                 var htmlElement = htmlToElement(`
                                             <div class="card my-3">

@@ -12,6 +12,13 @@
 </div>
 
 <script>
+  // Source: 
+  // StackOverflow 
+  // Author: xyres
+  // Author URL: https://stackoverflow.com/users/1925257/xyres
+  // Title: How to use the context variables passed from Django in javascript?
+  // Date: Apr 9, 2017  
+  // URL: https://stackoverflow.com/questions/43305020/how-to-use-the-context-variables-passed-from-django-in-javascript
   var connections = JSON.parse('{{connections|escapejs}}');
   var sender = JSON.parse('{{author|escapejs}}')
   var authorList = [];
@@ -111,6 +118,11 @@
   }
 
   async function checkIfFollower(id) {
+    // Source:
+    // Title: How to Parse URL in JavaScript: hostname, pathname, query, hash
+    // Author: Dmitri Pavlutin
+    // Date: January 28, 2023
+    // URL: https://dmitripavlutin.com/parse-url-javascript/
     let url = new URL(id);
     let author_relative_path = url.pathname + "/"
     for (connection of connections) {
@@ -181,6 +193,11 @@
 
   async function sendToInbox(id,target) {
         console.log(id);
+        // Source:
+        // Title: How to Parse URL in JavaScript: hostname, pathname, query, hash
+        // Author: Dmitri Pavlutin
+        // Date: January 28, 2023
+        // URL: https://dmitripavlutin.com/parse-url-javascript/
         let url = new URL(id);
         let author_relative_path = url.pathname + "/"
         console.log(author_relative_path);

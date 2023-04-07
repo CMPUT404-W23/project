@@ -67,7 +67,6 @@ urlpatterns = [
           views.APIListLikesComments.as_view()),
      path('posts/',
           views.APIPosts.as_view()),
-     # For private post implement
      path('authors/<str:author_id>/private-posts/',
           views.APIAuthorPrivatePosts.as_view()),
      re_path(r'^swagger(?P<format>\.json|\.yaml)$', schema_view.without_ui(cache_timeout=0), name='schema-json'),
