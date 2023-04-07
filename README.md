@@ -28,7 +28,7 @@ To gain authorization to access API:
 - Provide the following header in the HTTP request to API: `Authorization: Token <provided Token>`
 
 
-## Groups connected with:
+## Groups that we have fully connected with:
 
 - Team 2:
   - API endpoint: https://social-distribution-media.herokuapp.com/api
@@ -45,8 +45,16 @@ To gain authorization to access API:
   - Account on Team 5:
     - Username: team10
     - Password: england123
-- Team 7:
+- Team 7: (Mostly connected)
   - API endpoint: https://sd-7-433-api.herokuapp.com/api/
+
+## Groups that we have partially connected with:
+- Team 9:
+  - API endpoint: https://ultimate-teapot.herokuapp.com
+- Team 18:
+  - API endpoint (Backend): https://distributed-social-net.herokuapp.com
+  - Frontend app: https://social-team-18.netlify.app
+ 
 
 ## Video Demo
 - URL: https://youtu.be/KUv8hsb_6M8
