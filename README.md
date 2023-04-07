@@ -5,8 +5,11 @@ https://socialdistcmput404.herokuapp.com/
 
 ## Resources
 
+- Styles from [Bootstrap](https://getbootstrap.com/https://getbootstrap.com/)
 - OPEN API Specification generated with: https://github.com/axnsan12/drf-yasg
 - Deploying to Heroku: https://sweetcode.io/deploying-your-django-web-app-to-heroku/ and https://www.codejava.net/heroku/enable-secure-connection-for-apps
+- Will Vincent, [Django Login and Logout Tutorial](https://learndjango.com/tutorials/django-login-and-logout-tutorial)
+- little_birdie [answer on Stack Overflow](https://stackoverflow.com/questions/31601202/django-rest-framework-returns-200-ok-even-though-login-request-has-incorrect-cre)
 - Enabling CORS: https://www.stackhawk.com/blog/django-cors-guide/ and https://github.com/adamchainz/django-cors-headers
 - Abhik, [Step by Step guide to add friends with Django](https://medium.com/analytics-vidhya/add-friends-with-689a2fa4e41d)
 - Steve Pousty, [Composite Primary Keys, PostgreSQL and Django](https://www.crunchydata.com/blog/composite-primary-keys-postgresql-and-django)
