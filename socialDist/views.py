@@ -80,8 +80,8 @@ class APIAuthor(APIView):
             "id": openapi.Schema(type=openapi.TYPE_STRING, example="https://socialdistcmput404.herokuapp.com/authors/1641802d-c565-45b2-b4f7-ec08504038c8"), 
             "host": openapi.Schema(type=openapi.TYPE_STRING, example=HOST),
             "displayName": openapi.Schema(type=openapi.TYPE_STRING, example="TestAuthor"), 
-            "github": openapi.Schema(type=openapi.TYPE_STRING, example="www.githubtest.com"), 
-            "profileImage": openapi.Schema(type=openapi.TYPE_STRING, example="testImage1.jpg"), 
+            "github": openapi.Schema(type=openapi.TYPE_STRING, example="https://github.com/testUser"), 
+            "profileImage": openapi.Schema(type=openapi.TYPE_STRING, example="http://sampleUserImage.com/1.jpg"), 
             "type": openapi.Schema(type=openapi.TYPE_STRING, example="author"), 
             "url": openapi.Schema(type=openapi.TYPE_STRING, example="https://socialdistcmput404.herokuapp.com/authors/1641802d-c565-45b2-b4f7-ec08504038c8"), 
         },
@@ -695,7 +695,9 @@ class APIFollower(APIView):
         # Check if author exists in our DB
         try: 
             decoded_foreign_author_id = urllib.parse.unquote(foreign_author_id, 'utf-8')
+            # return Response(status=201, data=request.data)
             followingAuthor = Author.objects.get(pk=foreign_author_id)
+            # return Response(status=201, data=followingAuthor.values())
         except:
             # Create copy of author on our server
             serializer = AuthorSerializer(data=request.data, partial=True)
